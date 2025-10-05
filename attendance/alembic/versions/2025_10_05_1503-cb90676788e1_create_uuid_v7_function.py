@@ -1,8 +1,8 @@
 """create uuid v7 function
 
-Revision ID: ede5bd5a68be
+Revision ID: cb90676788e1
 Revises:
-Create Date: 2025-09-21 20:24:40.732142
+Create Date: 2025-10-05 15:03:09.135394
 
 """
 
@@ -14,7 +14,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "ede5bd5a68be"
+revision: str = "cb90676788e1"
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None

@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import UniqueConstraint, ForeignKey
+from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base
@@ -14,6 +14,7 @@ class Group(UUIDIdMixin, Base):
             "name",
             "type",
             "year_of_admission",
+            "specialization_id",
             name="idx_uniq_group",
         ),
     )
@@ -25,4 +26,10 @@ class Group(UUIDIdMixin, Base):
             "departments.id",
             ondelete="CASCADE",
         )
+    )
+    specialization_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey(
+            "specializations.id",
+            ondelete="CASCADE",
+        ),
     )
