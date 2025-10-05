@@ -1,4 +1,5 @@
 from .audience import Audience as Audience
+from .address import Address as Address
 from .base import Base as Base
 
 from .department import Department as Department
@@ -6,7 +7,6 @@ from .department import Department as Department
 from .group import Group as Group
 from .lesson import Lesson as Lesson, LessonType as LessonType
 
-from .role import Role as Role
 
 from .schedule import (
     Schedule as Schedule,
@@ -16,8 +16,7 @@ from .schedule import (
 
 
 from .teacher_department import TeacherDepartment as TeacherDepartment
-from .user import User as User
+from .user import User as User, Student as Student
 
 from .user_group import UserGroup as UserGroup
-from .user_role import UserRole as UserRole
 from .specialization import Specialization as Specialization

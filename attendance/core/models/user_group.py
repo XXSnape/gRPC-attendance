@@ -4,6 +4,8 @@ from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base
+from .enums.form_of_education import FormOfEducationEnum
+from .enums.type_of_refund import TypeOfRefundEnum
 from .mixins.id_uuid import UUIDIdMixin
 
 
@@ -14,6 +16,7 @@ class UserGroup(UUIDIdMixin, Base):
         UniqueConstraint(
             "user_id",
             "group_id",
+            "year_of_admission",
             name="idx_uniq_user_group",
         ),
     )
@@ -30,3 +33,6 @@ class UserGroup(UUIDIdMixin, Base):
             ondelete="CASCADE",
         )
     )
+    year_of_admission: Mapped[int]
+    form_of_education: Mapped[FormOfEducationEnum]
+    type_of_refund: Mapped[TypeOfRefundEnum]
