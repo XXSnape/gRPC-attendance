@@ -26,3 +26,6 @@ dev = [
 lint = [
     "black>=25.1.0",
 ]
+
+[tool.black]
+line-length = 69

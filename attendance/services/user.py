@@ -1,4 +1,5 @@
-from core.pb import user_service_pb2_grpc, user_service_pb2
+from core.grpc.pb import user_service_pb2
+from core.grpc.pb import user_service_pb2_grpc
 import grpc
 
 

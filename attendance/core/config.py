@@ -9,10 +9,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv()
 
+
 class RunConfig(BaseModel):
     """
     Конфигурация для запуска приложения.
     """
+
     app_host: str = "0.0.0.0"
     app_port: int = 8000
     grpc_server_host: str = "localhost"
@@ -20,7 +22,26 @@ class RunConfig(BaseModel):
 
     @property
     def grpc_url(self):
-        return f'{self.grpc_server_host}:{self.grpc_server_port}'
+        return f"{self.grpc_server_host}:{self.grpc_server_port}"
+
+
+class ApiV1Prefix(BaseModel):
+    """
+    Префиксы для API версии 1.
+    """
+
+    prefix: str = "/v1"
+    users: str = "/users"
+
+
+class ApiPrefix(BaseModel):
+    """
+    Конфигурация префиксов для API.
+    """
+
+    prefix: str = "/api"
+    v1: ApiV1Prefix = ApiV1Prefix()
+
 
 class DatabaseConfig(BaseSettings):
     """
@@ -53,7 +74,6 @@ class DatabaseConfig(BaseSettings):
         )
 
 
-
 class Settings(BaseSettings):
     """
     Основные настройки приложения.
@@ -61,8 +81,10 @@ class Settings(BaseSettings):
 
     run: RunConfig = RunConfig()
     db: DatabaseConfig = DatabaseConfig()
+    api: ApiPrefix = ApiPrefix()
     model_config = SettingsConfigDict(
         case_sensitive=False,
     )
+
 
 settings = Settings()
