@@ -6,6 +6,7 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 from loguru import logger
+from sqlalchemy.exc import SQLAlchemyError
 
 from core.config import settings
 from sqlalchemy.ext.asyncio import (
@@ -65,8 +66,12 @@ class DBHelper:
         Возвращает сессию для асинхронной работы с базой данных и делает коммит.
         """
         async with self.session_factory() as session:  # type: AsyncSession
-            yield session
-            await session.commit()
+            try:
+                yield session
+            except SQLAlchemyError:
+                pass
+            else:
+                await session.commit()
 
 
 db_helper = DBHelper(

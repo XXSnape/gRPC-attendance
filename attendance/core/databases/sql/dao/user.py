@@ -1,5 +1,14 @@
 from .base import BaseDAO
-from core.databases.sql.models import Student, Teacher, Administrator
+from core.databases.sql.models import (
+    User,
+    Student,
+    Teacher,
+    Administrator,
+)
+
+
+class UserDAO(BaseDAO):
+    model = User
 
 
 class StudentDAO(BaseDAO):

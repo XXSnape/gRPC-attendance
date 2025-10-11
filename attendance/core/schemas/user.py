@@ -7,8 +7,11 @@ from core.databases.sql.models.enums.gender import GenderEnum
 from .common import BaseSchema
 
 
-class UserInSchema(BaseSchema):
+class UserEmailSchema(BaseSchema):
     email: EmailStr
+
+
+class UserInSchema(UserEmailSchema):
     password: str
 
 
