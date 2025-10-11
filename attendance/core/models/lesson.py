@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy import ForeignKey, true
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base
@@ -14,7 +14,10 @@ class Lesson(UUIDIdMixin, Base):
             ondelete="CASCADE",
         )
     )
-    on_schedule: Mapped[bool] = mapped_column(default=True, server_default="1")
+    on_schedule: Mapped[bool] = mapped_column(
+        default=True,
+        server_default=true(),
+    )
     type: Mapped[str]
     __mapper_args__ = {
         "polymorphic_on": "type",

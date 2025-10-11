@@ -1,7 +1,7 @@
 import datetime
 import uuid
 
-from sqlalchemy import ForeignKey, CheckConstraint, UniqueConstraint, text
+from sqlalchemy import ForeignKey, CheckConstraint, null
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base
@@ -34,7 +34,7 @@ class Schedule(UUIDIdMixin, Base):
     number: Mapped[int]
     subgroup_number: Mapped[int | None] = mapped_column(
         default=None,
-        server_default=text("NULL"),
+        server_default=null(),
     )
     type: Mapped[str]
     __mapper_args__ = {

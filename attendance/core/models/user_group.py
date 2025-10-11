@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy import ForeignKey, UniqueConstraint, false
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base
@@ -36,3 +36,7 @@ class UserGroup(UUIDIdMixin, Base):
     year_of_admission: Mapped[int]
     form_of_education: Mapped[FormOfEducationEnum]
     type_of_refund: Mapped[TypeOfRefundEnum]
+    is_prefect: Mapped[bool] = mapped_column(
+        default=False,
+        server_default=false(),
+    )
