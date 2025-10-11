@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package userService;
+
+import "user.proto";
+
+
+service UserService {
+  rpc UserSingIn (SingInRequest) returns (SingInResponse) {}
+}
+
+
+message SingInRequest {
+  string email = 1;
+  string password = 2;
+}
+
+
+message SingInResponse {
+  string token = 1;
+  user.UserData user = 2;
+}

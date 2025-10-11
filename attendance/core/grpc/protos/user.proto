@@ -1,0 +1,9 @@
+syntax = 'proto3';
+
+package user;
+
+message UserData {
+  string type = 1;
+  string full_name = 2;
+}
+
