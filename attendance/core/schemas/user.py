@@ -1,12 +1,13 @@
 import datetime
 from typing import Literal
 
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import EmailStr, ConfigDict
 
 from core.databases.sql.models.enums.gender import GenderEnum
+from .common import BaseSchema
 
 
-class UserInSchema(BaseModel):
+class UserInSchema(BaseSchema):
     email: EmailStr
     password: str
 
@@ -29,7 +30,7 @@ class HashedPasswordUserSchema(BaseUserSchema):
     password: bytes
 
 
-class UserData(BaseModel):
+class UserData(BaseSchema):
     type: Literal[
         "student",
         "teacher",
@@ -39,6 +40,6 @@ class UserData(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class UserSignedUpSchema(BaseModel):
+class UserSignedUpSchema(BaseSchema):
     token: str
     user: UserData
