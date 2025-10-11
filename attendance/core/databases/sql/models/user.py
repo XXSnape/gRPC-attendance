@@ -19,6 +19,7 @@ class User(UUIDIdMixin, Base):
     is_active: Mapped[bool]
     email: Mapped[str] = mapped_column(
         unique=True,
+        index=True,
     )
     gender: Mapped[GenderEnum]
     date_of_birth: Mapped[datetime.date]
