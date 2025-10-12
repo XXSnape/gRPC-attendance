@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from dotenv import load_dotenv
-from pydantic import BaseModel, PostgresDsn
+from pydantic import BaseModel, PostgresDsn, MongoDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,6 +43,27 @@ class ApiPrefix(BaseModel):
     v1: ApiV1Prefix = ApiV1Prefix()
 
 
+class MongoDBConfig(BaseSettings):
+    """
+    Конфигурация MongoDB.
+    """
+
+    mongo_user: str
+    mongo_password: str
+    mongo_host: str
+    mongo_port: int
+
+    @property
+    def url(self) -> MongoDsn:
+        """
+        Возвращает строку для подключения к MongoDB.
+        """
+        return MongoDsn(
+            f"mongodb://{self.mongo_user}:"
+            f"{self.mongo_password}@{self.mongo_host}:{self.mongo_port}"
+        )
+
+
 class DatabaseConfig(BaseSettings):
     """
     Конфигурация базы данных.
@@ -81,6 +102,7 @@ class Settings(BaseSettings):
 
     run: RunConfig = RunConfig()
     db: DatabaseConfig = DatabaseConfig()
+    mongo_db: MongoDBConfig = MongoDBConfig()
     api: ApiPrefix = ApiPrefix()
     model_config = SettingsConfigDict(
         case_sensitive=False,
