@@ -5,7 +5,7 @@ from sqlalchemy import (
     ForeignKey,
     UniqueConstraint,
     false,
-    CheckConstraint,
+    Enum,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -16,8 +16,8 @@ from .mixins.id_uuid import UUIDIdMixin
 
 
 if TYPE_CHECKING:
-    from .group import Group
     from .user import Student
+    from .group_number import GroupWithNumber
 
 
 class StudentGroup(UUIDIdMixin, Base):
@@ -30,7 +30,6 @@ class StudentGroup(UUIDIdMixin, Base):
             "year_of_admission",
             name="idx_uniq_user_group",
         ),
-        CheckConstraint("number >= 1", name="idx_group_number"),
     )
 
     student_id: Mapped[uuid.UUID] = mapped_column(
@@ -41,13 +40,12 @@ class StudentGroup(UUIDIdMixin, Base):
     )
     group_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey(
-            "groups.id",
+            "group_numbers.id",
             ondelete="CASCADE",
         )
     )
     year_of_admission: Mapped[int]
     form_of_education: Mapped[FormOfEducationEnum]
-    number: Mapped[int]
     type_of_refund: Mapped[TypeOfRefundEnum]
     is_prefect: Mapped[bool] = mapped_column(
         default=False,
@@ -56,6 +54,6 @@ class StudentGroup(UUIDIdMixin, Base):
     student: Mapped["Student"] = relationship(
         back_populates="groups",
     )
-    group: Mapped["Group"] = relationship(
+    group: Mapped["GroupWithNumber"] = relationship(
         back_populates="students",
     )

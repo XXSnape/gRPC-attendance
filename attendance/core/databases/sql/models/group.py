@@ -1,7 +1,7 @@
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy import ForeignKey, UniqueConstraint, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
@@ -11,8 +11,7 @@ from .mixins.id_uuid import UUIDIdMixin
 if TYPE_CHECKING:
     from .department import Department
     from .specialization import Specialization
-    from .schedule import GroupSchedule
-    from .student_group import StudentGroup
+    from .group_number import GroupWithNumber
 
 
 class Group(UUIDIdMixin, Base):
@@ -44,9 +43,6 @@ class Group(UUIDIdMixin, Base):
     specialization: Mapped["Specialization"] = relationship(
         back_populates="groups",
     )
-    schedules: Mapped[list["GroupSchedule"]] = relationship(
-        back_populates="group",
-    )
-    students: Mapped[list["StudentGroup"]] = relationship(
+    numbers: Mapped[list["GroupWithNumber"]] = relationship(
         back_populates="group",
     )

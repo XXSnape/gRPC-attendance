@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 6dd94445089a
+Revision ID: 4b36a1b62395
 Revises: cb90676788e1
-Create Date: 2025-10-05 17:54:22.412624
+Create Date: 2025-10-12 22:06:53.333672
 
 """
 
@@ -10,10 +10,10 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-
+from alembic.operations.toimpl import create_table
 
 # revision identifiers, used by Alembic.
-revision: str = "6dd94445089a"
+revision: str = "4b36a1b62395"
 down_revision: Union[str, Sequence[str], None] = "cb90676788e1"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -44,7 +44,9 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_departments")),
-        sa.UniqueConstraint("name", name=op.f("uq_departments_name")),
+        sa.UniqueConstraint(
+            "name", name=op.f("uq_departments_name")
+        ),
     )
     op.create_table(
         "specializations",
@@ -56,9 +58,15 @@ def upgrade() -> None:
             server_default=sa.text("uuid_generate_v7()"),
             nullable=False,
         ),
-        sa.PrimaryKeyConstraint("id", name=op.f("pk_specializations")),
-        sa.UniqueConstraint("code", name=op.f("uq_specializations_code")),
-        sa.UniqueConstraint("name", name=op.f("uq_specializations_name")),
+        sa.PrimaryKeyConstraint(
+            "id", name=op.f("pk_specializations")
+        ),
+        sa.UniqueConstraint(
+            "code", name=op.f("uq_specializations_code")
+        ),
+        sa.UniqueConstraint(
+            "name", name=op.f("uq_specializations_name")
+        ),
     )
     op.create_table(
         "users",
@@ -70,7 +78,12 @@ def upgrade() -> None:
         sa.Column("email", sa.String(), nullable=False),
         sa.Column(
             "gender",
-            sa.Enum("MALE", "FEMALE", name="genderenum", create_type=False),
+            sa.Enum(
+                "MALE",
+                "FEMALE",
+                name="genderenum",
+                create_type=False,
+            ),
             nullable=False,
         ),
         sa.Column("date_of_birth", sa.Date(), nullable=False),
@@ -82,7 +95,9 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_users")),
-        sa.UniqueConstraint("email", name=op.f("uq_users_email")),
+    )
+    op.create_index(
+        op.f("ix_users_email"), "users", ["email"], unique=True
     )
     op.create_table(
         "administrators",
@@ -93,7 +108,9 @@ def upgrade() -> None:
             name=op.f("fk_administrators_id_users"),
             ondelete="CASCADE",
         ),
-        sa.PrimaryKeyConstraint("id", name=op.f("pk_administrators")),
+        sa.PrimaryKeyConstraint(
+            "id", name=op.f("pk_administrators")
+        ),
     )
     op.create_table(
         "audiences",
@@ -112,7 +129,9 @@ def upgrade() -> None:
             ondelete="CASCADE",
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_audiences")),
-        sa.UniqueConstraint("name", "address_id", name="idx_uniq_name_address"),
+        sa.UniqueConstraint(
+            "name", "address_id", name="idx_uniq_name_address"
+        ),
     )
     op.create_table(
         "groups",
@@ -162,7 +181,12 @@ def upgrade() -> None:
         "lessons",
         sa.Column("name", sa.String(), nullable=False),
         sa.Column("department_id", sa.UUID(), nullable=False),
-        sa.Column("on_schedule", sa.Boolean(), server_default="1", nullable=False),
+        sa.Column(
+            "on_schedule",
+            sa.Boolean(),
+            server_default=sa.text("true"),
+            nullable=False,
+        ),
         sa.Column("type", sa.String(), nullable=False),
         sa.Column(
             "id",
@@ -191,7 +215,8 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_students")),
         sa.UniqueConstraint(
-            "personal_number", name=op.f("uq_students_personal_number")
+            "personal_number",
+            name=op.f("uq_students_personal_number"),
         ),
     )
     op.create_table(
@@ -201,7 +226,12 @@ def upgrade() -> None:
         sa.Column("is_eldest", sa.Boolean(), nullable=False),
         sa.Column(
             "rank",
-            sa.Enum("DOCENT", "PROFESSOR", name="rankenum", create_type=False),
+            sa.Enum(
+                "DOCENT",
+                "PROFESSOR",
+                name="rankenum",
+                create_type=False,
+            ),
             nullable=True,
         ),
         sa.Column(
@@ -229,30 +259,28 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id", name=op.f("pk_teachers")),
     )
     op.create_table(
-        "teachers_departments",
-        sa.Column("user_id", sa.UUID(), nullable=False),
-        sa.Column("department_id", sa.UUID(), nullable=False),
+        "group_numbers",
+        sa.Column("group_id", sa.UUID(), nullable=False),
+        sa.Column("number", sa.Integer(), nullable=False),
         sa.Column(
             "id",
             sa.UUID(),
             server_default=sa.text("uuid_generate_v7()"),
             nullable=False,
         ),
-        sa.ForeignKeyConstraint(
-            ["department_id"],
-            ["departments.id"],
-            name=op.f("fk_teachers_departments_department_id_departments"),
-            ondelete="CASCADE",
+        sa.CheckConstraint(
+            "number >= 1",
+            name=op.f("ck_group_numbers_idx_group_number"),
         ),
         sa.ForeignKeyConstraint(
-            ["user_id"],
-            ["users.id"],
-            name=op.f("fk_teachers_departments_user_id_users"),
+            ["group_id"],
+            ["groups.id"],
+            name=op.f("fk_group_numbers_group_id_groups"),
             ondelete="CASCADE",
         ),
-        sa.PrimaryKeyConstraint("id", name=op.f("pk_teachers_departments")),
+        sa.PrimaryKeyConstraint("id", name=op.f("pk_group_numbers")),
         sa.UniqueConstraint(
-            "user_id", "department_id", name="idx_uniq_teacher_department"
+            "group_id", "number", name="idx_uniq_number_group"
         ),
     )
     op.create_table(
@@ -269,8 +297,19 @@ def upgrade() -> None:
     )
     op.create_table(
         "schedules",
-        sa.Column("lesson_id", sa.UUID(), nullable=False),
-        sa.Column("audience_id", sa.UUID(), nullable=False),
+        sa.Column(
+            "type_of_lesson",
+            sa.Enum(
+                "LECTURE",
+                "PRACTICAL",
+                "LAB",
+                "EXAM",
+                "TEST",
+                name="typeoflessonenum",
+                create_type=False,
+            ),
+            nullable=False,
+        ),
         sa.Column("date", sa.Date(), nullable=False),
         sa.Column("number", sa.Integer(), nullable=False),
         sa.Column(
@@ -280,6 +319,8 @@ def upgrade() -> None:
             nullable=True,
         ),
         sa.Column("type", sa.String(), nullable=False),
+        sa.Column("lesson_id", sa.UUID(), nullable=False),
+        sa.Column("audience_id", sa.UUID(), nullable=False),
         sa.Column(
             "id",
             sa.UUID(),
@@ -287,7 +328,8 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.CheckConstraint(
-            "number >= 1 AND number <= 6", name=op.f("ck_schedules_idx_number")
+            "number >= 1 AND number <= 6",
+            name=op.f("ck_schedules_idx_number"),
         ),
         sa.CheckConstraint(
             "subgroup_number IS NULL or (subgroup_number >= 1 AND subgroup_number <= 2)",
@@ -308,8 +350,76 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id", name=op.f("pk_schedules")),
     )
     op.create_table(
-        "users_groups",
+        "groups_schedules",
+        sa.Column("id", sa.UUID(), nullable=False),
+        sa.Column("group_id", sa.UUID(), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["group_id"],
+            ["group_numbers.id"],
+            name=op.f("fk_groups_schedules_group_id_group_numbers"),
+            ondelete="CASCADE",
+        ),
+        sa.ForeignKeyConstraint(
+            ["id"],
+            ["schedules.id"],
+            name=op.f("fk_groups_schedules_id_schedules"),
+            ondelete="CASCADE",
+        ),
+        sa.PrimaryKeyConstraint(
+            "id", name=op.f("pk_groups_schedules")
+        ),
+    )
+    op.create_table(
+        "personals_schedules",
+        sa.Column("id", sa.UUID(), nullable=False),
         sa.Column("user_id", sa.UUID(), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["id"],
+            ["schedules.id"],
+            name=op.f("fk_personals_schedules_id_schedules"),
+            ondelete="CASCADE",
+        ),
+        sa.ForeignKeyConstraint(
+            ["user_id"],
+            ["users.id"],
+            name=op.f("fk_personals_schedules_user_id_users"),
+            ondelete="CASCADE",
+        ),
+        sa.PrimaryKeyConstraint(
+            "id", name=op.f("pk_personals_schedules")
+        ),
+    )
+    op.create_table(
+        "schedule_exceptions",
+        sa.Column("schedule_id", sa.UUID(), nullable=False),
+        sa.Column("user_id", sa.UUID(), nullable=False),
+        sa.Column(
+            "id",
+            sa.UUID(),
+            server_default=sa.text("uuid_generate_v7()"),
+            nullable=False,
+        ),
+        sa.ForeignKeyConstraint(
+            ["schedule_id"],
+            ["schedules.id"],
+            name=op.f(
+                "fk_schedule_exceptions_schedule_id_schedules"
+            ),
+            ondelete="CASCADE",
+        ),
+        sa.ForeignKeyConstraint(
+            ["user_id"],
+            ["users.id"],
+            name=op.f("fk_schedule_exceptions_user_id_users"),
+            ondelete="CASCADE",
+        ),
+        sa.PrimaryKeyConstraint(
+            "id", name=op.f("pk_schedule_exceptions")
+        ),
+    )
+    op.create_table(
+        "students_groups",
+        sa.Column("student_id", sa.UUID(), nullable=False),
         sa.Column("group_id", sa.UUID(), nullable=False),
         sa.Column("year_of_admission", sa.Integer(), nullable=False),
         sa.Column(
@@ -334,6 +444,12 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.Column(
+            "is_prefect",
+            sa.Boolean(),
+            server_default=sa.text("false"),
+            nullable=False,
+        ),
+        sa.Column(
             "id",
             sa.UUID(),
             server_default=sa.text("uuid_generate_v7()"),
@@ -341,59 +457,56 @@ def upgrade() -> None:
         ),
         sa.ForeignKeyConstraint(
             ["group_id"],
-            ["groups.id"],
-            name=op.f("fk_users_groups_group_id_groups"),
+            ["group_numbers.id"],
+            name=op.f("fk_students_groups_group_id_group_numbers"),
             ondelete="CASCADE",
         ),
         sa.ForeignKeyConstraint(
-            ["user_id"],
-            ["users.id"],
-            name=op.f("fk_users_groups_user_id_users"),
+            ["student_id"],
+            ["students.id"],
+            name=op.f("fk_students_groups_student_id_students"),
             ondelete="CASCADE",
         ),
-        sa.PrimaryKeyConstraint("id", name=op.f("pk_users_groups")),
+        sa.PrimaryKeyConstraint(
+            "id", name=op.f("pk_students_groups")
+        ),
         sa.UniqueConstraint(
-            "user_id",
+            "student_id",
             "group_id",
             "year_of_admission",
             name="idx_uniq_user_group",
         ),
     )
     op.create_table(
-        "groups_schedules",
-        sa.Column("id", sa.UUID(), nullable=False),
-        sa.Column("group_id", sa.UUID(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["group_id"],
-            ["groups.id"],
-            name=op.f("fk_groups_schedules_group_id_groups"),
-            ondelete="CASCADE",
+        "teachers_schedules",
+        sa.Column("schedule_id", sa.UUID(), nullable=False),
+        sa.Column("teacher_id", sa.UUID(), nullable=False),
+        sa.Column(
+            "id",
+            sa.UUID(),
+            server_default=sa.text("uuid_generate_v7()"),
+            nullable=False,
         ),
         sa.ForeignKeyConstraint(
-            ["id"],
+            ["schedule_id"],
             ["schedules.id"],
-            name=op.f("fk_groups_schedules_id_schedules"),
-            ondelete="CASCADE",
-        ),
-        sa.PrimaryKeyConstraint("id", name=op.f("pk_groups_schedules")),
-    )
-    op.create_table(
-        "personals_schedules",
-        sa.Column("id", sa.UUID(), nullable=False),
-        sa.Column("user_id", sa.UUID(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["id"],
-            ["schedules.id"],
-            name=op.f("fk_personals_schedules_id_schedules"),
+            name=op.f("fk_teachers_schedules_schedule_id_schedules"),
             ondelete="CASCADE",
         ),
         sa.ForeignKeyConstraint(
-            ["user_id"],
-            ["users.id"],
-            name=op.f("fk_personals_schedules_user_id_users"),
+            ["teacher_id"],
+            ["teachers.id"],
+            name=op.f("fk_teachers_schedules_teacher_id_teachers"),
             ondelete="CASCADE",
         ),
-        sa.PrimaryKeyConstraint("id", name=op.f("pk_personals_schedules")),
+        sa.PrimaryKeyConstraint(
+            "id", name=op.f("pk_teachers_schedules")
+        ),
+        sa.UniqueConstraint(
+            "teacher_id",
+            "schedule_id",
+            name="idx_uniq_teacher_schedule",
+        ),
     )
     # ### end Alembic commands ###
 
@@ -401,18 +514,21 @@ def upgrade() -> None:
 def downgrade() -> None:
     """Downgrade schema."""
     # ### commands auto generated by Alembic - please adjust! ###
+    op.drop_table("teachers_schedules")
+    op.drop_table("students_groups")
+    op.drop_table("schedule_exceptions")
     op.drop_table("personals_schedules")
     op.drop_table("groups_schedules")
-    op.drop_table("users_groups")
     op.drop_table("schedules")
     op.drop_table("lessons_types")
-    op.drop_table("teachers_departments")
+    op.drop_table("group_numbers")
     op.drop_table("teachers")
     op.drop_table("students")
     op.drop_table("lessons")
     op.drop_table("groups")
     op.drop_table("audiences")
     op.drop_table("administrators")
+    op.drop_index(op.f("ix_users_email"), table_name="users")
     op.drop_table("users")
     op.drop_table("specializations")
     op.drop_table("departments")

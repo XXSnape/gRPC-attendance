@@ -2,7 +2,7 @@ import datetime
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, Enum
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -45,6 +45,9 @@ class User(UUIDIdMixin, Base):
             f" {self.first_name[0].title()}. {self.patronymic[0].title()}."
         )
 
+    def __str__(self):
+        return self.full_name
+
 
 class Student(User):
     id: Mapped[uuid.UUID] = mapped_column(
@@ -67,6 +70,8 @@ class Student(User):
     )
     groups: Mapped[list["StudentGroup"]] = relationship(
         back_populates="student",
+        foreign_keys="StudentGroup.student_id",
+        primaryjoin="Student.id == StudentGroup.student_id",
     )
 
     __mapper_args__ = {

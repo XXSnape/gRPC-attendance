@@ -2,19 +2,20 @@ import datetime
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, CheckConstraint, null
+from sqlalchemy import ForeignKey, CheckConstraint, null, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from core.databases.sql.models.group_number import GroupWithNumber
 from .base import Base
 from .enums.type_of_lesson import TypeOfLessonEnum
 from .mixins.id_uuid import UUIDIdMixin
 
 if TYPE_CHECKING:
     from .lesson import Lesson
-    from .group import Group
     from .user import Student, Teacher
     from .audience import Audience
     from .schedule_exceptions import ScheduleException
+    from .group_number import GroupWithNumber
 
 
 class Schedule(UUIDIdMixin, Base):
@@ -30,7 +31,6 @@ class Schedule(UUIDIdMixin, Base):
     )
 
     type_of_lesson: Mapped[TypeOfLessonEnum]
-
     date: Mapped[datetime.date]
     number: Mapped[int]
     subgroup_number: Mapped[int | None] = mapped_column(
@@ -65,9 +65,6 @@ class Schedule(UUIDIdMixin, Base):
         secondary="teachers_schedules",
         back_populates="schedules",
     )
-    group: Mapped[list["GroupSchedule"]] = relationship(
-        back_populates="group_schedule",
-    )
 
     __mapper_args__ = {
         "polymorphic_on": "type",
@@ -86,16 +83,13 @@ class GroupSchedule(Schedule):
     )
     group_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey(
-            "groups.id",
+            "group_numbers.id",
             ondelete="CASCADE",
         )
     )
 
-    group: Mapped["Group"] = relationship(
+    group: Mapped["GroupWithNumber"] = relationship(
         back_populates="schedules",
-    )
-    group_schedule: Mapped[Schedule] = relationship(
-        back_populates="group",
     )
 
     __mapper_args__ = {

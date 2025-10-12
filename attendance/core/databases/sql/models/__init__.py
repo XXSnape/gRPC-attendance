@@ -5,6 +5,7 @@ from .base import Base as Base
 from .department import Department as Department
 
 from .group import Group as Group
+from .group_number import GroupWithNumber as GroupWithNumber
 from .lesson import Lesson as Lesson, LessonType as LessonType
 
 from .schedule import (
