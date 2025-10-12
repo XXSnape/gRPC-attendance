@@ -10,6 +10,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
 
+class AuthConfig(BaseModel):
+    """
+    Конфигурация для аутентификации.
+    """
+
+    token_duration: int = 60 * 60 * 24 * 2
+    token_length: int = 64
+
+
 class RunConfig(BaseModel):
     """
     Конфигурация для запуска приложения.
@@ -100,6 +109,7 @@ class Settings(BaseSettings):
     Основные настройки приложения.
     """
 
+    auth: AuthConfig = AuthConfig()
     run: RunConfig = RunConfig()
     db: DatabaseConfig = DatabaseConfig()
     mongo_db: MongoDBConfig = MongoDBConfig()

@@ -1,4 +1,9 @@
 import asyncio
+from core.databases.no_sql import documents
+
+from beanie import init_beanie
+from pymongo import AsyncMongoClient
+
 from core.grpc.pb import user_service_pb2_grpc
 from core.grpc.implementations.user import UserServiceServicer
 
@@ -13,7 +18,14 @@ async def main():
         UserServiceServicer(), server
     )
     server.add_insecure_port(f"[::]:{settings.run.grpc_server_port}")
+    client = AsyncMongoClient(str(settings.mongo_db.url))
     try:
+        await init_beanie(
+            database=client.db_name,
+            document_models=[
+                documents.Token,
+            ],
+        )
         await server.start()
         logger.success(
             "Listening on port :{}", settings.run.grpc_server_port
@@ -21,6 +33,7 @@ async def main():
         await server.wait_for_termination()
     except KeyboardInterrupt:
         await server.shutdown()
+        await client.close()
         logger.success("Received keyboard interrupt, shutting down")
 
 
