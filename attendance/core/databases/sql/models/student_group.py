@@ -1,7 +1,12 @@
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, UniqueConstraint, false
+from sqlalchemy import (
+    ForeignKey,
+    UniqueConstraint,
+    false,
+    CheckConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
@@ -14,6 +19,7 @@ if TYPE_CHECKING:
     from .group import Group
     from .user import Student
 
+
 class StudentGroup(UUIDIdMixin, Base):
     __tablename__ = "students_groups"
 
@@ -24,6 +30,7 @@ class StudentGroup(UUIDIdMixin, Base):
             "year_of_admission",
             name="idx_uniq_user_group",
         ),
+        CheckConstraint("number >= 1", name="idx_group_number"),
     )
 
     student_id: Mapped[uuid.UUID] = mapped_column(
@@ -40,6 +47,7 @@ class StudentGroup(UUIDIdMixin, Base):
     )
     year_of_admission: Mapped[int]
     form_of_education: Mapped[FormOfEducationEnum]
+    number: Mapped[int]
     type_of_refund: Mapped[TypeOfRefundEnum]
     is_prefect: Mapped[bool] = mapped_column(
         default=False,
