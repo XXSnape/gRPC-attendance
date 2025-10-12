@@ -33,15 +33,18 @@ views = [
     admin_views.AudienceAdmin,
     admin_views.DepartmentAdmin,
     admin_views.GroupAdmin,
+    admin_views.GroupWithNumberAdmin,
     admin_views.LessonAdmin,
     admin_views.LessonTypeAdmin,
-    admin_views.ScheduleAdmin,
     admin_views.GroupScheduleAdmin,
     admin_views.PersonalScheduleAdmin,
     admin_views.ScheduleExceptionAdmin,
     admin_views.UserGroupAdmin,
     admin_views.SpecializationAdmin,
     admin_views.TeacherScheduleAdmin,
+    admin_views.StudentAdmin,
+    admin_views.TeacherAdmin,
+    admin_views.AdministratorAdmin,
 ]
 
 admin = Admin(

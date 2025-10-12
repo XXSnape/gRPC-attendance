@@ -7,7 +7,10 @@ from loguru import logger
 from core.databases.sql.dao.user import AdministratorDAO
 from core.databases.sql.db_helper import db_helper
 from core.databases.sql.models.enums.gender import GenderEnum
-from core.schemas.user import BaseUserSchema, HashedPasswordUserSchema
+from core.schemas.user import (
+    BaseUserSchema,
+    HashedPasswordUserSchema,
+)
 
 
 async def create_admin(user: BaseUserSchema):
@@ -16,7 +19,8 @@ async def create_admin(user: BaseUserSchema):
         ph = PasswordHasher()
         hashed_password = ph.hash(user.password).encode()
         hashed_user_data = HashedPasswordUserSchema(
-            **user.model_dump(exclude={"password"}), password=hashed_password
+            **user.model_dump(exclude={"password"}),
+            password=hashed_password,
         )
         await dao.add(hashed_user_data)
         logger.success(f"Администратор {user.email} создан.")
