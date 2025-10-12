@@ -1,7 +1,10 @@
 import grpc
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
+import secrets
 
+from core import settings
+from core.databases.no_sql.documents import Token
 from core.databases.sql.dao.user import UserDAO
 from core.databases.sql.db_helper import db_helper
 
@@ -40,10 +43,19 @@ class UserServiceServicer(
                     grpc.StatusCode.NOT_FOUND,
                     details=error,
                 )
-            return user_service_pb2.SingInResponse(
-                token="abc",
-                user=user_pb2.UserData(
+            token = secrets.token_urlsafe(settings.auth.token_length)
+            document = await Token.insert_one(
+                Token(
+                    token=token,
+                    user_id=user.id,
+                    full_name=user.full_name,
                     type=user.type,
-                    full_name=user.first_name,
+                )
+            )
+            return user_service_pb2.SingInResponse(
+                token=document.token,
+                user=user_pb2.UserData(
+                    type=document.type,
+                    full_name=document.full_name,
                 ),
             )

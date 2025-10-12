@@ -41,8 +41,3 @@ class UserData(BaseSchema):
     ]
     full_name: str
     model_config = ConfigDict(from_attributes=True)
-
-
-class UserSignedUpSchema(BaseSchema):
-    token: str
-    user: UserData

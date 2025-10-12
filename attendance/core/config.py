@@ -17,6 +17,7 @@ class AuthConfig(BaseModel):
 
     token_duration: int = 60 * 60 * 24 * 2
     token_length: int = 64
+    token_name: str = "token"
 
 
 class RunConfig(BaseModel):

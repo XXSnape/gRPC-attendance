@@ -2,6 +2,7 @@ import datetime
 import uuid
 
 from sqlalchemy import ForeignKey
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base
@@ -29,6 +30,13 @@ class User(UUIDIdMixin, Base):
         "polymorphic_on": "type",
         "polymorphic_identity": "user",
     }
+
+    @hybrid_property
+    def full_name(self):
+        return (
+            f"{self.last_name.title()}"
+            f" {self.first_name[0].title()}. {self.patronymic[0].title()}."
+        )
 
 
 class Student(User):
