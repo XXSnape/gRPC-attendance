@@ -5,12 +5,15 @@ from sqlalchemy import ForeignKey, CheckConstraint, null
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base
+from .enums.type_of_lesson import TypeOfLessonEnum
 from .mixins.id_uuid import UUIDIdMixin
 
 
 class Schedule(UUIDIdMixin, Base):
     __table_args__ = (
-        CheckConstraint("number >= 1 AND number <= 6", name="idx_number"),
+        CheckConstraint(
+            "number >= 1 AND number <= 6", name="idx_number"
+        ),
         CheckConstraint(
             "subgroup_number IS NULL or "
             "(subgroup_number >= 1 AND subgroup_number <= 2)",
@@ -24,6 +27,7 @@ class Schedule(UUIDIdMixin, Base):
             ondelete="CASCADE",
         )
     )
+    abc: Mapped[TypeOfLessonEnum]
     audience_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey(
             "audiences.id",
