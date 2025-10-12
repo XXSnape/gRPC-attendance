@@ -1,9 +1,15 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
 from .mixins.id_uuid import UUIDIdMixin
 import uuid
+
+if TYPE_CHECKING:
+    from .schedule import Schedule
+    from .user import Student
 
 
 class ScheduleException(UUIDIdMixin, Base):
@@ -11,7 +17,7 @@ class ScheduleException(UUIDIdMixin, Base):
 
     schedule_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey(
-            "departments.id",
+            "schedules.id",
             ondelete="CASCADE",
         )
     )
@@ -20,4 +26,10 @@ class ScheduleException(UUIDIdMixin, Base):
             "users.id",
             ondelete="CASCADE",
         )
+    )
+    schedule: Mapped["Schedule"] = relationship(
+        back_populates="exceptions"
+    )
+    student: Mapped["Student"] = relationship(
+        back_populates="schedule_exceptions"
     )

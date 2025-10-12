@@ -1,7 +1,8 @@
 import uuid
+from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey, UniqueConstraint, false
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
 from .enums.form_of_education import FormOfEducationEnum
@@ -9,21 +10,25 @@ from .enums.type_of_refund import TypeOfRefundEnum
 from .mixins.id_uuid import UUIDIdMixin
 
 
-class UserGroup(UUIDIdMixin, Base):
-    __tablename__ = "users_groups"
+if TYPE_CHECKING:
+    from .group import Group
+    from .user import Student
+
+class StudentGroup(UUIDIdMixin, Base):
+    __tablename__ = "students_groups"
 
     __table_args__ = (
         UniqueConstraint(
-            "user_id",
+            "student_id",
             "group_id",
             "year_of_admission",
             name="idx_uniq_user_group",
         ),
     )
 
-    user_id: Mapped[uuid.UUID] = mapped_column(
+    student_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey(
-            "users.id",
+            "students.id",
             ondelete="CASCADE",
         )
     )
@@ -39,4 +44,10 @@ class UserGroup(UUIDIdMixin, Base):
     is_prefect: Mapped[bool] = mapped_column(
         default=False,
         server_default=false(),
+    )
+    student: Mapped["Student"] = relationship(
+        back_populates="groups",
+    )
+    group: Mapped["Group"] = relationship(
+        back_populates="students",
     )

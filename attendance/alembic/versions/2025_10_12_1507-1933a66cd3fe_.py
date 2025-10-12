@@ -34,7 +34,7 @@ def upgrade() -> None:
     op.add_column(
         "schedules",
         sa.Column(
-            "abc",
+            "type_of_lesson",
             type_of_lesson_enum,
             nullable=False,
         ),
@@ -43,7 +43,7 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     """Downgrade schema."""
-    op.drop_column("schedules", "abc")
+    op.drop_column("schedules", "type_of_lesson")
     type_of_lesson_enum = sa.Enum(
         "LECTURE",
         "PRACTICAL",

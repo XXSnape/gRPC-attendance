@@ -1,15 +1,22 @@
 import datetime
 import uuid
+from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
 from .enums.degree import DegreeEnum
 from .enums.gender import GenderEnum
 from .enums.rank import RankEnum
 from .mixins.id_uuid import UUIDIdMixin
+
+if TYPE_CHECKING:
+    from .schedule import Schedule, PersonalSchedule
+    from .schedule_exceptions import ScheduleException
+    from .department import Department
+    from .student_group import StudentGroup
 
 
 class User(UUIDIdMixin, Base):
@@ -50,6 +57,17 @@ class Student(User):
     personal_number: Mapped[str] = mapped_column(
         unique=True,
     )
+    schedules: Mapped[list["PersonalSchedule"]] = relationship(
+        back_populates="student",
+    )
+    schedule_exceptions: Mapped[list["ScheduleException"]] = (
+        relationship(
+            back_populates="student",
+        )
+    )
+    groups: Mapped[list["StudentGroup"]] = relationship(
+        back_populates="student",
+    )
 
     __mapper_args__ = {
         "polymorphic_identity": "student",
@@ -73,6 +91,13 @@ class Teacher(User):
     is_eldest: Mapped[bool]
     rank: Mapped[RankEnum | None]
     degree: Mapped[DegreeEnum | None]
+    department: Mapped["Department"] = relationship(
+        back_populates="teachers",
+    )
+    schedules: Mapped[list["Schedule"]] = relationship(
+        secondary="teachers_schedules",
+        back_populates="teachers",
+    )
 
     __mapper_args__ = {
         "polymorphic_identity": "teacher",

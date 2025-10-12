@@ -1,10 +1,15 @@
 import uuid
+from typing import TYPE_CHECKING
 
 from sqlalchemy import UniqueConstraint, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
 from .mixins.id_uuid import UUIDIdMixin
+
+if TYPE_CHECKING:
+    from .address import Address
+    from .schedule import Schedule
 
 
 class Audience(UUIDIdMixin, Base):
@@ -21,4 +26,10 @@ class Audience(UUIDIdMixin, Base):
             "addresses.id",
             ondelete="CASCADE",
         )
+    )
+    schedules: Mapped[list["Schedule"]] = relationship(
+        back_populates="audience",
+    )
+    address: Mapped["Address"] = relationship(
+        back_populates="audiences",
     )

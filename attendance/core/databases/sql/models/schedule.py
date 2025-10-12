@@ -1,12 +1,20 @@
 import datetime
 import uuid
+from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey, CheckConstraint, null
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
 from .enums.type_of_lesson import TypeOfLessonEnum
 from .mixins.id_uuid import UUIDIdMixin
+
+if TYPE_CHECKING:
+    from .lesson import Lesson
+    from .group import Group
+    from .user import Student, Teacher
+    from .audience import Audience
+    from .schedule_exceptions import ScheduleException
 
 
 class Schedule(UUIDIdMixin, Base):
@@ -21,19 +29,8 @@ class Schedule(UUIDIdMixin, Base):
         ),
     )
 
-    lesson_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey(
-            "lessons.id",
-            ondelete="CASCADE",
-        )
-    )
-    abc: Mapped[TypeOfLessonEnum]
-    audience_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey(
-            "audiences.id",
-            ondelete="CASCADE",
-        )
-    )
+    type_of_lesson: Mapped[TypeOfLessonEnum]
+
     date: Mapped[datetime.date]
     number: Mapped[int]
     subgroup_number: Mapped[int | None] = mapped_column(
@@ -41,6 +38,37 @@ class Schedule(UUIDIdMixin, Base):
         server_default=null(),
     )
     type: Mapped[str]
+
+    lesson_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey(
+            "lessons.id",
+            ondelete="CASCADE",
+        )
+    )
+    audience_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey(
+            "audiences.id",
+            ondelete="CASCADE",
+        )
+    )
+
+    lesson: Mapped["Lesson"] = relationship(
+        back_populates="schedules",
+    )
+    audience: Mapped["Audience"] = relationship(
+        back_populates="schedules",
+    )
+    exceptions: Mapped[list["ScheduleException"]] = relationship(
+        back_populates="schedule",
+    )
+    teachers: Mapped[list["Teacher"]] = relationship(
+        secondary="teachers_schedules",
+        back_populates="schedules",
+    )
+    group: Mapped[list["GroupSchedule"]] = relationship(
+        back_populates="group_schedule",
+    )
+
     __mapper_args__ = {
         "polymorphic_on": "type",
         "polymorphic_identity": "schedule",
@@ -62,6 +90,14 @@ class GroupSchedule(Schedule):
             ondelete="CASCADE",
         )
     )
+
+    group: Mapped["Group"] = relationship(
+        back_populates="schedules",
+    )
+    group_schedule: Mapped[Schedule] = relationship(
+        back_populates="group",
+    )
+
     __mapper_args__ = {
         "polymorphic_identity": "groups_schedule",
     }
@@ -81,6 +117,9 @@ class PersonalSchedule(Schedule):
             "users.id",
             ondelete="CASCADE",
         )
+    )
+    student: Mapped["Student"] = relationship(
+        back_populates="schedules",
     )
     __mapper_args__ = {
         "polymorphic_identity": "personals_schedule",

@@ -14,7 +14,6 @@ from .schedule import (
 )
 from .schedule_exceptions import ScheduleException
 
-from .teacher_department import TeacherDepartment as TeacherDepartment
 from .user import (
     User as User,
     Student as Student,
@@ -22,7 +21,6 @@ from .user import (
     Administrator as Administrator,
 )
 
-from .user_group import UserGroup as UserGroup
+from .student_group import StudentGroup as StudentGroup
 from .specialization import Specialization as Specialization
 from .teacher_schedule import TeacherSchedule as TeacherSchedule
-from .user_group import UserGroup as UserGroup

@@ -1,9 +1,15 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import ForeignKey, true
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
 from .mixins.id_uuid import UUIDIdMixin
 import uuid
+
+if TYPE_CHECKING:
+    from .department import Department
+    from .schedule import Schedule
 
 
 class Lesson(UUIDIdMixin, Base):
@@ -18,6 +24,13 @@ class Lesson(UUIDIdMixin, Base):
         default=True,
         server_default=true(),
     )
+    department: Mapped["Department"] = relationship(
+        back_populates="lessons",
+    )
+    schedules: Mapped[list["Schedule"]] = relationship(
+        back_populates="lesson",
+    )
+
     type: Mapped[str]
     __mapper_args__ = {
         "polymorphic_on": "type",

@@ -11,7 +11,7 @@ class TeacherSchedule(UUIDIdMixin, Base):
     __tablename__ = "teachers_schedules"
     __table_args__ = (
         UniqueConstraint(
-            "user_id",
+            "teacher_id",
             "schedule_id",
             name="idx_uniq_teacher_schedule",
         ),
@@ -24,9 +24,9 @@ class TeacherSchedule(UUIDIdMixin, Base):
         )
     )
 
-    user_id: Mapped[uuid.UUID] = mapped_column(
+    teacher_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey(
-            "users.id",
+            "teachers.id",
             ondelete="CASCADE",
         )
     )

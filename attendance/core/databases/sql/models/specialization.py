@@ -1,8 +1,14 @@
-from sqlalchemy import String, Integer
-from sqlalchemy.orm import Mapped, mapped_column
+from typing import TYPE_CHECKING
+
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
 from .mixins.id_uuid import UUIDIdMixin
+
+
+if TYPE_CHECKING:
+    from .group import Group
 
 
 class Specialization(UUIDIdMixin, Base):
@@ -10,3 +16,6 @@ class Specialization(UUIDIdMixin, Base):
         unique=True,
     )
     code: Mapped[str] = mapped_column(String(20), unique=True)
+    groups: Mapped[list["Group"]] = relationship(
+        back_populates="specialization",
+    )
