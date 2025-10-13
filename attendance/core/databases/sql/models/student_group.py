@@ -5,7 +5,6 @@ from sqlalchemy import (
     ForeignKey,
     UniqueConstraint,
     false,
-    Enum,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -27,7 +26,6 @@ class StudentGroup(UUIDIdMixin, Base):
         UniqueConstraint(
             "student_id",
             "group_id",
-            "year_of_admission",
             name="idx_uniq_user_group",
         ),
     )
@@ -44,7 +42,6 @@ class StudentGroup(UUIDIdMixin, Base):
             ondelete="CASCADE",
         )
     )
-    year_of_admission: Mapped[int]
     form_of_education: Mapped[FormOfEducationEnum]
     type_of_refund: Mapped[TypeOfRefundEnum]
     is_prefect: Mapped[bool] = mapped_column(

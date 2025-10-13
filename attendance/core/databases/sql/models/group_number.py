@@ -19,6 +19,7 @@ class GroupWithNumber(UUIDIdMixin, Base):
         UniqueConstraint(
             "group_id",
             "number",
+            "year_of_admission",
             name="idx_uniq_number_group",
         ),
         CheckConstraint("number >= 1", name="idx_group_number"),
@@ -30,7 +31,7 @@ class GroupWithNumber(UUIDIdMixin, Base):
         )
     )
     number: Mapped[int]
-
+    year_of_admission: Mapped[int]
     schedules: Mapped[list["GroupSchedule"]] = relationship(
         back_populates="group",
     )

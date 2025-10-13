@@ -35,10 +35,24 @@ from core.databases.sql.models.enums.type_of_refund import (
 )
 
 
-class HashingPasswordMixin:
-    column_exclude_list = ["password"]
+def get_user_form():
+    return [
+        "first_name",
+        "last_name",
+        "patronymic",
+        "is_active",
+        "email",
+        "gender",
+        "date_of_birth",
+    ]
 
-    form_excluded_columns = ["id", "type"]
+
+class HashingPasswordMixin:
+    column_details_exclude_list = ["password"]
+    form_excluded_columns = [
+        "id",
+        "type",
+    ]
 
     async def on_model_change(
         self,
@@ -55,16 +69,13 @@ class HashingPasswordMixin:
             data, model, is_created, request
         )
 
-    def __admin_repr__(self, model) -> str:
-        return f"Student: {model.id} ({model.full_name})"
-
 
 class AdministratorAdmin(
     HashingPasswordMixin,
     ModelView,
     model=Administrator,
 ):
-    pass
+    form_edit_rules = get_user_form()
 
 
 class TeacherAdmin(
@@ -72,7 +83,13 @@ class TeacherAdmin(
     ModelView,
     model=Teacher,
 ):
-    pass
+    form_edit_rules = get_user_form() + [
+        "is_eldest",
+        "rank",
+        "degree",
+        "department",
+        "schedules",
+    ]
 
 
 class StudentAdmin(
@@ -80,7 +97,12 @@ class StudentAdmin(
     ModelView,
     model=Student,
 ):
-    pass
+    form_edit_rules = get_user_form() + [
+        "personal_number",
+        "schedules",
+        "schedule_exceptions",
+        "groups",
+    ]
 
 
 class AddressAdmin(ModelView, model=Address):
@@ -159,7 +181,6 @@ class UserGroupAdmin(ModelView, model=StudentGroup):
             obj = StudentGroup(
                 student_id=student_id,
                 group_id=group_id,
-                year_of_admission=data["year_of_admission"],
                 form_of_education=FormOfEducationEnum[
                     data["form_of_education"]
                 ],
