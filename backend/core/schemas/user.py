@@ -5,10 +5,17 @@ from core.databases.sql.models.enums.gender import GenderEnum
 from pydantic import EmailStr
 
 from .common import BaseSchema, IdSchema
+from core.enums.status import AttendanceStatus
 
 
 class UserFullNameSchema(BaseSchema):
     full_name: str
+
+
+class UserAttendanceSchema(UserFullNameSchema):
+    status: AttendanceStatus = AttendanceStatus.ABSENT
+    personal_number: str
+    is_prefect: bool = False
 
 
 class UserEmailSchema(BaseSchema):
