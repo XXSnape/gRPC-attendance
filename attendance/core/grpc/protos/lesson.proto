@@ -2,6 +2,17 @@ syntax = 'proto3';
 
 package lesson;
 
+import "user.proto";
+
+message Address {
+  string name = 1;
+}
+
+message Audience {
+  string name = 1;
+  Address address = 2;
+}
+
 message LessonData {
   string id = 1;
   string name = 2;
@@ -14,4 +25,6 @@ message Schedule {
   LessonData lesson = 4;
   string status = 5;
   string time = 6;
+  Audience audience = 7;
+  repeated user.UserFullName teachers = 8;
 }

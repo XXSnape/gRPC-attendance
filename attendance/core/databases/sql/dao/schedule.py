@@ -2,7 +2,12 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload, joinedload
 
 from .base import BaseDAO
-from core.databases.sql.models import GroupSchedule, StudentGroup
+from core.databases.sql.models import (
+    GroupSchedule,
+    StudentGroup,
+    Audience,
+    Teacher,
+)
 import uuid
 import datetime
 
@@ -15,7 +20,6 @@ class GroupScheduleDAO(BaseDAO):
         date: str,
         user_id: uuid.UUID,
     ):
-        # user_id = uuid.UUID(user_id)
         date = datetime.date.fromisoformat(date)
         group_id_subq = (
             select(StudentGroup.group_id)
@@ -28,8 +32,17 @@ class GroupScheduleDAO(BaseDAO):
                 GroupSchedule.date == date,
                 GroupSchedule.group_id == group_id_subq,
             )
-            .options(joinedload(GroupSchedule.lesson))
+            .options(
+                joinedload(GroupSchedule.lesson),
+                joinedload(
+                    GroupSchedule.audience,
+                ).joinedload(Audience.address),
+                selectinload(GroupSchedule.teachers).load_only(
+                    Teacher.first_name,
+                    Teacher.last_name,
+                    Teacher.patronymic,
+                ),
+            )
         )
-        print("query", query)
         result = await self._session.execute(query)
         return result.scalars().all()

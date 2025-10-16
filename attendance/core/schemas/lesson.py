@@ -3,6 +3,8 @@ import uuid
 from pydantic import computed_field
 
 from .common import BaseSchema
+from .address import AudienceSchema
+from .user import UserFullNameSchema
 from core.databases.sql.models.enums.type_of_lesson import (
     TypeOfLessonEnum,
 )
@@ -20,6 +22,8 @@ class BaseScheduleSchema(BaseSchema):
     subgroup_number: int | None
     lesson: BaseLessonSchema
     status: AttendanceStatus = AttendanceStatus.ABSENT
+    audience: AudienceSchema
+    teachers: list[UserFullNameSchema]
 
     @computed_field
     @property

@@ -1,10 +1,14 @@
 import datetime
 from typing import Literal
 
-from pydantic import EmailStr, ConfigDict
+from pydantic import EmailStr
 
 from core.databases.sql.models.enums.gender import GenderEnum
 from .common import BaseSchema, IdSchema
+
+
+class UserFullNameSchema(BaseSchema):
+    full_name: str
 
 
 class UserEmailSchema(BaseSchema):

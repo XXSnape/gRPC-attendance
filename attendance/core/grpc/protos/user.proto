@@ -8,3 +8,7 @@ message UserData {
   string full_name = 3;
 }
 
+message UserFullName {
+  string full_name = 1;
+}
+
