@@ -1,6 +1,7 @@
 import grpc
 from core import settings
 from core.dependencies.stubs import UserStub
+from core.dependencies.user import UserDep
 from core.grpc.pb import user_service_pb2
 from core.schemas import user
 from fastapi import APIRouter, HTTPException, status
@@ -35,7 +36,11 @@ async def sign_in(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Неверный логин или пароль",
         )
-    content = MessageToDict(grpc_response.user)
+    content = MessageToDict(
+        grpc_response.user,
+        preserving_proto_field_name=True,
+    )
+    print("content", content)
     http_response = JSONResponse(content)
     http_response.set_cookie(
         key=settings.auth.token_name,
@@ -45,3 +50,8 @@ async def sign_in(
         samesite="strict",
     )
     return http_response
+
+
+@router.get("/me/", response_model=user.UserDataSchema)
+async def get_me(current_user: UserDep):
+    return current_user
