@@ -1,0 +1,19 @@
+from .address import Address as Address
+from .audience import Audience as Audience
+from .base import Base as Base
+from .department import Department as Department
+from .group import Group as Group
+from .group_number import GroupWithNumber as GroupWithNumber
+from .lesson import Lesson as Lesson
+from .lesson import LessonType as LessonType
+from .schedule import GroupSchedule as GroupSchedule
+from .schedule import PersonalSchedule as PersonalSchedule
+from .schedule import Schedule as Schedule
+from .schedule_exceptions import ScheduleException
+from .specialization import Specialization as Specialization
+from .student_group import StudentGroup as StudentGroup
+from .teacher_schedule import TeacherSchedule as TeacherSchedule
+from .user import Administrator as Administrator
+from .user import Student as Student
+from .user import Teacher as Teacher
+from .user import User as User
