@@ -153,6 +153,7 @@ class GroupScheduleAdmin(ModelView, model=GroupSchedule):
         "lesson",
         "group",
         "number",
+        "date",
         "type_of_lesson",
     ]
     form_excluded_columns = ["id", "type"]
