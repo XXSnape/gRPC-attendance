@@ -6,6 +6,7 @@ import "lesson.proto";
 
 service LessonService {
   rpc GetLessons (LessonsRequest) returns (LessonsResponse) {}
+  rpc GetLessonsForMonth (LessonsForMonthRequest) returns (LessonsForMonthResponse) {}
 }
 
 message LessonsRequest {
@@ -14,4 +15,14 @@ message LessonsRequest {
 
 message LessonsResponse {
   repeated lesson.Schedule lessons = 1;
+}
+
+
+message LessonsForMonthRequest {
+  int32 month = 1;
+  int32 year = 2;
+}
+
+message LessonsForMonthResponse {
+  repeated string dates = 1;
 }

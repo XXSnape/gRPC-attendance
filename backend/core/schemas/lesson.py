@@ -1,3 +1,4 @@
+import datetime
 import uuid
 
 from core.databases.sql.models.enums.type_of_lesson import (
@@ -41,3 +42,7 @@ class BaseScheduleSchema(BaseSchema):
 
 class LessonsDataSchema(BaseSchema):
     lessons: list[BaseScheduleSchema]
+
+
+class StudyDaysSchema(BaseSchema):
+    dates: list[datetime.date]

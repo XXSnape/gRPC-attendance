@@ -11,6 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import joinedload, selectinload
 
 from .base import BaseDAO
+from sqlalchemy import extract
 
 
 class GroupScheduleDAO(BaseDAO):
@@ -44,6 +45,25 @@ class GroupScheduleDAO(BaseDAO):
                     Teacher.patronymic,
                 ),
             )
+        )
+        result = await self._session.execute(query)
+        return result.scalars().all()
+
+    async def get_user_lessons_for_month(
+        self,
+        month: int,
+        year: int,
+        user_id: uuid.UUID,
+    ):
+        group_id_subq = (
+            select(StudentGroup.group_id)
+            .where(StudentGroup.student_id == user_id)
+            .scalar_subquery()
+        )
+        query = select(GroupSchedule.date.distinct()).where(
+            extract("YEAR", GroupSchedule.date) == year,
+            extract("MONTH", GroupSchedule.date) == month,
+            GroupSchedule.group_id == group_id_subq,
         )
         result = await self._session.execute(query)
         return result.scalars().all()

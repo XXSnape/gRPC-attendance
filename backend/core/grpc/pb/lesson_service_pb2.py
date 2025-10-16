@@ -25,8 +25,9 @@ _sym_db = _symbol_database.Default()
 
 from . import lesson_pb2 as lesson__pb2
 
+
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\n\x14lesson-service.proto\x12\rlessonService\x1a\x0clesson.proto"\x1e\n\x0eLessonsRequest\x12\x0c\n\x04\x64\x61te\x18\x01 \x01(\t"4\n\x0fLessonsResponse\x12!\n\x07lessons\x18\x01 \x03(\x0b\x32\x10.lesson.Schedule2^\n\rLessonService\x12M\n\nGetLessons\x12\x1d.lessonService.LessonsRequest\x1a\x1e.lessonService.LessonsResponse"\x00\x62\x06proto3'
+    b'\n\x14lesson-service.proto\x12\rlessonService\x1a\x0clesson.proto"\x1e\n\x0eLessonsRequest\x12\x0c\n\x04\x64\x61te\x18\x01 \x01(\t"4\n\x0fLessonsResponse\x12!\n\x07lessons\x18\x01 \x03(\x0b\x32\x10.lesson.Schedule"5\n\x16LessonsForMonthRequest\x12\r\n\x05month\x18\x01 \x01(\x05\x12\x0c\n\x04year\x18\x02 \x01(\x05"(\n\x17LessonsForMonthResponse\x12\r\n\x05\x64\x61tes\x18\x01 \x03(\t2\xc5\x01\n\rLessonService\x12M\n\nGetLessons\x12\x1d.lessonService.LessonsRequest\x1a\x1e.lessonService.LessonsResponse"\x00\x12\x65\n\x12GetLessonsForMonth\x12%.lessonService.LessonsForMonthRequest\x1a&.lessonService.LessonsForMonthResponse"\x00\x62\x06proto3'
 )
 
 _globals = globals()
@@ -40,6 +41,10 @@ if not _descriptor._USE_C_DESCRIPTORS:
     _globals["_LESSONSREQUEST"]._serialized_end = 83
     _globals["_LESSONSRESPONSE"]._serialized_start = 85
     _globals["_LESSONSRESPONSE"]._serialized_end = 137
-    _globals["_LESSONSERVICE"]._serialized_start = 139
-    _globals["_LESSONSERVICE"]._serialized_end = 233
+    _globals["_LESSONSFORMONTHREQUEST"]._serialized_start = 139
+    _globals["_LESSONSFORMONTHREQUEST"]._serialized_end = 192
+    _globals["_LESSONSFORMONTHRESPONSE"]._serialized_start = 194
+    _globals["_LESSONSFORMONTHRESPONSE"]._serialized_end = 234
+    _globals["_LESSONSERVICE"]._serialized_start = 237
+    _globals["_LESSONSERVICE"]._serialized_end = 434
 # @@protoc_insertion_point(module_scope)
