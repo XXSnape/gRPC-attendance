@@ -57,5 +57,31 @@ class UserServiceServicer(
                 user=user_pb2.UserData(
                     type=document.type,
                     full_name=document.full_name,
+                    id=str(document.user_id),
                 ),
             )
+
+    async def UserAuth(
+        self,
+        request: user_service_pb2.AuthRequest,
+        context: grpc.aio.ServicerContext,
+    ) -> user_pb2.UserData:
+        error = "Пользователь не авторизован"
+        metadata = dict(context.invocation_metadata())
+        token = metadata.get("authorization")
+        if not token:
+            await context.abort(
+                grpc.StatusCode.UNAUTHENTICATED,
+                details=error,
+            )
+        token_document = await Token.find_one(Token.token == token)
+        if not token_document:
+            await context.abort(
+                grpc.StatusCode.UNAUTHENTICATED,
+                details=error,
+            )
+        return user_pb2.UserData(
+            id=str(token_document.user_id),
+            type=token_document.type,
+            full_name=token_document.full_name,
+        )

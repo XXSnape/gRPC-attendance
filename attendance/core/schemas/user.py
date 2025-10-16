@@ -4,7 +4,7 @@ from typing import Literal
 from pydantic import EmailStr, ConfigDict
 
 from core.databases.sql.models.enums.gender import GenderEnum
-from .common import BaseSchema
+from .common import BaseSchema, IdSchema
 
 
 class UserEmailSchema(BaseSchema):
@@ -33,11 +33,11 @@ class HashedPasswordUserSchema(BaseUserSchema):
     password: bytes
 
 
-class UserData(BaseSchema):
+class UserData(IdSchema):
+
     type: Literal[
         "student",
         "teacher",
         "administrator",
     ]
     full_name: str
-    model_config = ConfigDict(from_attributes=True)

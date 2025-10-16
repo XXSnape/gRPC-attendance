@@ -3,6 +3,7 @@
 import grpc
 import warnings
 
+from . import user_pb2 as user__pb2
 from . import user_service_pb2 as user__service__pb2
 
 GRPC_GENERATED_VERSION = "1.74.0"
@@ -43,12 +44,24 @@ class UserServiceStub(object):
             response_deserializer=user__service__pb2.SingInResponse.FromString,
             _registered_method=True,
         )
+        self.UserAuth = channel.unary_unary(
+            "/userService.UserService/UserAuth",
+            request_serializer=user__service__pb2.AuthRequest.SerializeToString,
+            response_deserializer=user__pb2.UserData.FromString,
+            _registered_method=True,
+        )
 
 
 class UserServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def UserSingIn(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
+    def UserAuth(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details("Method not implemented!")
@@ -61,6 +74,11 @@ def add_UserServiceServicer_to_server(servicer, server):
             servicer.UserSingIn,
             request_deserializer=user__service__pb2.SingInRequest.FromString,
             response_serializer=user__service__pb2.SingInResponse.SerializeToString,
+        ),
+        "UserAuth": grpc.unary_unary_rpc_method_handler(
+            servicer.UserAuth,
+            request_deserializer=user__service__pb2.AuthRequest.FromString,
+            response_serializer=user__pb2.UserData.SerializeToString,
         ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -95,6 +113,36 @@ class UserService(object):
             "/userService.UserService/UserSingIn",
             user__service__pb2.SingInRequest.SerializeToString,
             user__service__pb2.SingInResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True,
+        )
+
+    @staticmethod
+    def UserAuth(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            "/userService.UserService/UserAuth",
+            user__service__pb2.AuthRequest.SerializeToString,
+            user__pb2.UserData.FromString,
             options,
             channel_credentials,
             insecure,

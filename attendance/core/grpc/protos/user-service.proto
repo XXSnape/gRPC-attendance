@@ -7,8 +7,10 @@ import "user.proto";
 
 service UserService {
   rpc UserSingIn (SingInRequest) returns (SingInResponse) {}
+  rpc UserAuth (AuthRequest) returns (user.UserData) {}
 }
 
+message AuthRequest {}
 
 message SingInRequest {
   string email = 1;
