@@ -7,7 +7,10 @@ from sqladmin import Admin
 
 from core import settings
 from core.databases.sql.db_helper import db_helper
-from core.grpc.pb import user_service_pb2_grpc
+from core.grpc.pb import (
+    user_service_pb2_grpc,
+    lesson_service_pb2_grpc,
+)
 from api import router as api_router
 from core.admin import views as admin_views
 
@@ -20,7 +23,11 @@ async def lifespan(app: FastAPI):
         settings.run.grpc_url
     ) as channel:
         user_stub = user_service_pb2_grpc.UserServiceStub(channel)
+        lesson_stub = lesson_service_pb2_grpc.LessonServiceStub(
+            channel
+        )
         app.state.user_stub = user_stub
+        app.state.lesson_stub = lesson_stub
         yield
 
 

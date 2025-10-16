@@ -2,6 +2,7 @@ from typing import Annotated, Any, TypeAlias
 
 from fastapi import Request, Depends
 
+from core.grpc.pb.lesson_service_pb2_grpc import LessonServiceStub
 from core.grpc.pb.user_service_pb2_grpc import UserServiceStub
 
 
@@ -15,4 +16,7 @@ def get_stub(name: str):
 UserStub: TypeAlias = Annotated[
     UserServiceStub,
     Depends(get_stub(name="user_stub")),
+]
+LessonStub: TypeAlias = Annotated[
+    LessonServiceStub, Depends(get_stub(name="lesson_stub"))
 ]

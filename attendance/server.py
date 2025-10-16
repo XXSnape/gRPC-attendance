@@ -4,7 +4,11 @@ from core.databases.no_sql import documents
 from beanie import init_beanie
 from pymongo import AsyncMongoClient
 
-from core.grpc.pb import user_service_pb2_grpc
+from core.grpc.implementations.lesson import LessonServiceServicer
+from core.grpc.pb import (
+    user_service_pb2_grpc,
+    lesson_service_pb2_grpc,
+)
 from core.grpc.implementations.user import UserServiceServicer
 
 import grpc
@@ -17,6 +21,10 @@ async def main():
     user_service_pb2_grpc.add_UserServiceServicer_to_server(
         UserServiceServicer(), server
     )
+    lesson_service_pb2_grpc.add_LessonServiceServicer_to_server(
+        LessonServiceServicer(), server
+    )
+
     server.add_insecure_port(f"[::]:{settings.run.grpc_server_port}")
     client = AsyncMongoClient(str(settings.mongo_db.url))
     try:

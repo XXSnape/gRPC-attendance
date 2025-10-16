@@ -2,6 +2,7 @@ from core.config import settings
 from fastapi import APIRouter
 
 from .users import router as users_router
+from .lessons import router as lessons_router
 
 router = APIRouter(
     prefix=settings.api.v1.prefix,
@@ -11,4 +12,9 @@ router = APIRouter(
 router.include_router(
     users_router,
     prefix=settings.api.v1.users,
+)
+
+router.include_router(
+    lessons_router,
+    prefix=settings.api.v1.lessons,
 )

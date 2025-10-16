@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package lessonService;
+
+import "lesson.proto";
+
+service LessonService {
+  rpc GetLessons (LessonsRequest) returns (LessonsResponse) {}
+}
+
+message LessonsRequest {
+  string date = 1;
+}
+
+message LessonsResponse {
+  repeated lesson.Schedule lessons = 1;
+}

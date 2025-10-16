@@ -33,11 +33,11 @@ class HashedPasswordUserSchema(BaseUserSchema):
     password: bytes
 
 
-class UserData(IdSchema):
+class UserDataSchema(IdSchema):
 
     type: Literal[
         "student",
         "teacher",
         "administrator",
     ]
-    full_name: str
+    full_name: str | None = None

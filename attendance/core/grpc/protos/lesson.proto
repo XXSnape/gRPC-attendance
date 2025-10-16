@@ -1,0 +1,17 @@
+syntax = 'proto3';
+
+package lesson;
+
+message LessonData {
+  string id = 1;
+  string name = 2;
+}
+
+message Schedule {
+  int32 number = 1;
+  string type_of_lesson = 2;
+  optional int32 subgroup_number = 3;
+  LessonData lesson = 4;
+  string status = 5;
+  string time = 6;
+}

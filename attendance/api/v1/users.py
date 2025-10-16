@@ -14,7 +14,7 @@ router = APIRouter(tags=["Пользователи"])
 
 @router.post(
     "/sign-in/",
-    response_model=user.UserData,
+    response_model=user.UserDataSchema,
 )
 async def sign_in(
     user_in: user.UserInSchema,

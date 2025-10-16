@@ -1,6 +1,7 @@
 import uuid
+from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, PlainSerializer
 
 
 class BaseSchema(BaseModel):
@@ -8,4 +9,4 @@ class BaseSchema(BaseModel):
 
 
 class IdSchema(BaseSchema):
-    id: uuid.UUID
+    id: Annotated[uuid.UUID | str, PlainSerializer(lambda v: str(v))]
