@@ -1,4 +1,3 @@
-// src/components/Header.js
 import React from 'react';
 import { Button, Space } from 'antd';
 import { useAuth } from './AuthContext';
@@ -12,6 +11,10 @@ export default function Header() {
     navigate('/login');
   };
 
+  const handleUserClick = () => {
+    navigate('/me');
+  };
+
   const handleLogout = () => {
     logout();
     navigate('/login');
@@ -23,12 +26,9 @@ export default function Header() {
         <h1 className="text-xl font-bold">Мое SPA</h1>
         <Space>
           {user ? (
-            <>
-              <span>Привет, {user.full_name}</span>
-              <Button type="default" onClick={handleLogout}>
-                Выйти
-              </Button>
-            </>
+            <Button type="default" onClick={handleUserClick}>
+              {user.full_name}
+            </Button>
           ) : (
             <Button type="default" onClick={handleLoginClick}>
               Вход
