@@ -170,8 +170,12 @@ export default function SchedulePage() {
                               <Tag color={getTypeColor(lesson.type_of_lesson)}>
                                 {getTypeText(lesson.type_of_lesson)}
                               </Tag>
-                              <Tag color={getStatusColor(lesson.status)}>
-                                {lesson.status}
+                              <Tag
+                                color={getStatusColor(
+                                  lesson.attendance.decryption
+                                )}
+                              >
+                                {lesson.attendance.decryption}
                               </Tag>
                             </div>
                             <span className="text-gray-600 font-medium">

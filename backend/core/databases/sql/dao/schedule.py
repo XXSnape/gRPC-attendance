@@ -6,6 +6,8 @@ from core.databases.sql.models import (
     GroupSchedule,
     StudentGroup,
     Teacher,
+    GroupWithNumber,
+    Group,
 )
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload, selectinload
@@ -19,10 +21,10 @@ class GroupScheduleDAO(BaseDAO):
 
     async def get_user_lessons(
         self,
-        date: str,
+        date: str | None,
         user_id: uuid.UUID,
+        lesson_id: str | None = None,
     ):
-        date = datetime.date.fromisoformat(date)
         group_id_subq = (
             select(StudentGroup.group_id)
             .where(StudentGroup.student_id == user_id)
@@ -31,7 +33,6 @@ class GroupScheduleDAO(BaseDAO):
         query = (
             select(GroupSchedule)
             .where(
-                GroupSchedule.date == date,
                 GroupSchedule.group_id == group_id_subq,
             )
             .options(
@@ -46,6 +47,19 @@ class GroupScheduleDAO(BaseDAO):
                 ),
             )
         )
+        if date:
+            date = datetime.date.fromisoformat(date)
+            query = query.where(GroupSchedule.date == date)
+        if lesson_id:
+            query = query.where(
+                GroupSchedule.lesson_id == uuid.UUID(lesson_id)
+            ).options(
+                joinedload(GroupSchedule.group).joinedload(
+                    GroupWithNumber.group
+                )
+            )
+            result = await self._session.execute(query)
+            return result.scalars().one_or_none()
         result = await self._session.execute(query)
         return result.scalars().all()
 

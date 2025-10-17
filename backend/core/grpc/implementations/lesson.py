@@ -1,5 +1,6 @@
 import grpc
 
+
 from core.databases.sql.dao.schedule import GroupScheduleDAO
 from core.databases.sql.db_helper import db_helper
 from core.grpc.pb import (
@@ -8,7 +9,11 @@ from core.grpc.pb import (
     lesson_service_pb2_grpc,
 )
 from core.grpc.utils.user import get_user_data_from_metadata
-from core.schemas.lesson import BaseScheduleSchema
+from core.schemas.lesson import (
+    BaseScheduleSchema,
+    FullLessonDataSchema,
+)
+from core.schemas.user import UserAttendanceSchema
 
 
 class LessonServiceServicer(
@@ -32,7 +37,9 @@ class LessonServiceServicer(
                     lesson_pb2.Schedule(
                         **BaseScheduleSchema.model_validate(
                             lesson
-                        ).model_dump(mode="json")
+                        ).model_dump(
+                            mode="json", exclude={"transcript"}
+                        )
                     )
                     for lesson in lessons
                 ]
@@ -55,4 +62,36 @@ class LessonServiceServicer(
             )
             return lesson_service_pb2.LessonsForMonthResponse(
                 dates=[str(date) for date in dates]
+            )
+
+    async def GetLessonDetails(
+        self,
+        request: lesson_service_pb2.LessonDetailsRequest,
+        context: grpc.aio.ServicerContext,
+    ) -> lesson_service_pb2.LessonDetailsResponse:
+        user = await get_user_data_from_metadata(context)
+        async with (
+            db_helper.get_async_session_without_commit() as session
+        ):
+            dao = GroupScheduleDAO(session)
+            lesson = await dao.get_user_lessons(
+                date=None,
+                user_id=user.id,
+                lesson_id=request.lesson_id,
+            )
+            return lesson_service_pb2.LessonDetailsResponse(
+                **FullLessonDataSchema(
+                    schedule_data=BaseScheduleSchema.model_validate(
+                        lesson
+                    ),
+                    group=lesson.group,
+                    attendances=[
+                        UserAttendanceSchema(
+                            full_name="dad",
+                            decryption_of_full_name="wadwad",
+                            personal_number="123",
+                            is_prefect=False,
+                        )
+                    ],
+                ).model_dump(mode="json")
             )

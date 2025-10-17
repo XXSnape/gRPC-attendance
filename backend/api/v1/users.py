@@ -40,7 +40,6 @@ async def sign_in(
         grpc_response.user,
         preserving_proto_field_name=True,
     )
-    print("content", content)
     http_response = JSONResponse(content)
     http_response.set_cookie(
         key=settings.auth.token_name,

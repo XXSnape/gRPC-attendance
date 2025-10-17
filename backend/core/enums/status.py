@@ -1,7 +1,7 @@
-from enum import StrEnum
+from enum import IntEnum, auto
 
 
-class AttendanceStatus(StrEnum):
-    PRESENT = "+"
-    ABSENT = "Н"
-    SKIP_RESPECTFULLY = "У"
+class AttendanceStatus(IntEnum):
+    PRESENT = auto()
+    ABSENT = auto()
+    SKIP_RESPECTFULLY = auto()

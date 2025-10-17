@@ -4,10 +4,10 @@ import uuid
 from core.databases.sql.models.enums.type_of_lesson import (
     TypeOfLessonEnum,
 )
-from core.enums.status import AttendanceStatus
 from pydantic import computed_field
 
 from .address import AudienceSchema
+from .attendance import AttendanceSchema
 from .common import BaseSchema
 from .user import UserFullNameSchema, UserAttendanceSchema
 
@@ -15,6 +15,7 @@ from .user import UserFullNameSchema, UserAttendanceSchema
 class BaseLessonSchema(BaseSchema):
     id: uuid.UUID
     name: str
+    on_schedule: bool
 
 
 class BaseScheduleSchema(BaseSchema):
@@ -22,9 +23,10 @@ class BaseScheduleSchema(BaseSchema):
     type_of_lesson: TypeOfLessonEnum
     subgroup_number: int | None
     lesson: BaseLessonSchema
-    status: AttendanceStatus = AttendanceStatus.ABSENT
     audience: AudienceSchema
+    attendance: AttendanceSchema = AttendanceSchema()
     teachers: list[UserFullNameSchema]
+    can_be_edited_by_perfect: bool = False
 
     @computed_field
     @property
@@ -44,8 +46,14 @@ class LessonsDataSchema(BaseSchema):
     lessons: list[BaseScheduleSchema]
 
 
-class FullLessonDataSchema(BaseScheduleSchema):
-    students: list[UserAttendanceSchema]
+class GroupSchema(BaseSchema):
+    complete_name: str
+
+
+class FullLessonDataSchema(BaseSchema):
+    schedule_data: BaseScheduleSchema
+    group: GroupSchema
+    attendances: list[UserAttendanceSchema]
 
 
 class StudyDaysSchema(BaseSchema):

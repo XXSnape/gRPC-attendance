@@ -35,4 +35,20 @@ async def get_current_user(
         )
 
 
+def get_user_metadata(
+    user_data: Annotated[UserDataSchema, Depends(get_current_user)],
+) -> tuple[tuple[str, str], ...]:
+    metadata = tuple(
+        (str(k), str(v))
+        for k, v in user_data.model_dump(
+            exclude={"full_name"}
+        ).items()
+    )
+    return metadata
+
+
 UserDep = Annotated[UserDataSchema, Depends(get_current_user)]
+UserMetadataDep = Annotated[
+    tuple[tuple[str, str], ...],
+    Depends(get_user_metadata),
+]

@@ -45,6 +45,12 @@ class User(UUIDIdMixin, Base):
             f" {self.first_name[0].title()}. {self.patronymic[0].title()}."
         )
 
+    @hybrid_property
+    def decryption_of_full_name(self):
+        return (
+            f"{self.last_name} {self.first_name} {self.patronymic}"
+        )
+
     def __str__(self):
         return self.full_name
 

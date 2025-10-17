@@ -10,5 +10,6 @@ message UserData {
 
 message UserFullName {
   string full_name = 1;
+  string decryption_of_full_name = 2;
 }
 

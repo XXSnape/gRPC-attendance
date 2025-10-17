@@ -4,17 +4,20 @@ from typing import Literal
 from core.databases.sql.models.enums.gender import GenderEnum
 from pydantic import EmailStr
 
+from .attendance import AttendanceSchema
 from .common import BaseSchema, IdSchema
-from core.enums.status import AttendanceStatus
 
 
 class UserFullNameSchema(BaseSchema):
     full_name: str
+    decryption_of_full_name: str
 
 
-class UserAttendanceSchema(UserFullNameSchema):
-    status: AttendanceStatus = AttendanceStatus.ABSENT
+class UserAttendanceSchema(
+    UserFullNameSchema,
+):
     personal_number: str
+    attendance: AttendanceSchema = AttendanceSchema()
     is_prefect: bool = False
 
 

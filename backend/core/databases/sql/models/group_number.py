@@ -2,6 +2,7 @@ import uuid
 from typing import TYPE_CHECKING
 
 from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
@@ -41,3 +42,10 @@ class GroupWithNumber(UUIDIdMixin, Base):
     group: Mapped["Group"] = relationship(
         back_populates="numbers",
     )
+
+    @hybrid_property
+    def complete_name(self):
+        return (
+            f"{self.group.name.upper()}-{self.number}-"
+            f"({str(self.year_of_admission)[-2:]})"
+        )

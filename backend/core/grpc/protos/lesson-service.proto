@@ -7,6 +7,7 @@ import "lesson.proto";
 service LessonService {
   rpc GetLessons (LessonsRequest) returns (LessonsResponse) {}
   rpc GetLessonsForMonth (LessonsForMonthRequest) returns (LessonsForMonthResponse) {}
+  rpc GetLessonDetails (LessonDetailsRequest) returns (LessonDetailsResponse) {}
 }
 
 message LessonsRequest {
@@ -17,6 +18,9 @@ message LessonsResponse {
   repeated lesson.Schedule lessons = 1;
 }
 
+message LessonDetailsRequest {
+  string lesson_id = 1;
+}
 
 message LessonsForMonthRequest {
   int32 month = 1;
@@ -25,4 +29,10 @@ message LessonsForMonthRequest {
 
 message LessonsForMonthResponse {
   repeated string dates = 1;
+}
+
+message LessonDetailsResponse {
+  lesson.Schedule schedule_data = 1;
+  lesson.Group group = 2;
+  repeated lesson.StudentAttendance attendances = 3;
 }

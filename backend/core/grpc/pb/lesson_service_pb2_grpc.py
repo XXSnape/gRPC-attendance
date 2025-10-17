@@ -49,6 +49,12 @@ class LessonServiceStub(object):
             response_deserializer=lesson__service__pb2.LessonsForMonthResponse.FromString,
             _registered_method=True,
         )
+        self.GetLessonDetails = channel.unary_unary(
+            "/lessonService.LessonService/GetLessonDetails",
+            request_serializer=lesson__service__pb2.LessonDetailsRequest.SerializeToString,
+            response_deserializer=lesson__service__pb2.LessonDetailsResponse.FromString,
+            _registered_method=True,
+        )
 
 
 class LessonServiceServicer(object):
@@ -66,6 +72,12 @@ class LessonServiceServicer(object):
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
+    def GetLessonDetails(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
 
 def add_LessonServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -78,6 +90,11 @@ def add_LessonServiceServicer_to_server(servicer, server):
             servicer.GetLessonsForMonth,
             request_deserializer=lesson__service__pb2.LessonsForMonthRequest.FromString,
             response_serializer=lesson__service__pb2.LessonsForMonthResponse.SerializeToString,
+        ),
+        "GetLessonDetails": grpc.unary_unary_rpc_method_handler(
+            servicer.GetLessonDetails,
+            request_deserializer=lesson__service__pb2.LessonDetailsRequest.FromString,
+            response_serializer=lesson__service__pb2.LessonDetailsResponse.SerializeToString,
         ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -142,6 +159,36 @@ class LessonService(object):
             "/lessonService.LessonService/GetLessonsForMonth",
             lesson__service__pb2.LessonsForMonthRequest.SerializeToString,
             lesson__service__pb2.LessonsForMonthResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True,
+        )
+
+    @staticmethod
+    def GetLessonDetails(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            "/lessonService.LessonService/GetLessonDetails",
+            lesson__service__pb2.LessonDetailsRequest.SerializeToString,
+            lesson__service__pb2.LessonDetailsResponse.FromString,
             options,
             channel_credentials,
             insecure,

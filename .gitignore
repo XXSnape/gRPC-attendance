@@ -214,7 +214,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
-/db/
+/backend/db/
 /mongo_data/
 
 # Logs
@@ -241,3 +241,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+/backend/db/

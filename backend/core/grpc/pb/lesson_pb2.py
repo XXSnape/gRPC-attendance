@@ -22,7 +22,7 @@ from . import user_pb2 as user__pb2
 
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\n\x0clesson.proto\x12\x06lesson\x1a\nuser.proto"\x17\n\x07\x41\x64\x64ress\x12\x0c\n\x04name\x18\x01 \x01(\t":\n\x08\x41udience\x12\x0c\n\x04name\x18\x01 \x01(\t\x12 \n\x07\x61\x64\x64ress\x18\x02 \x01(\x0b\x32\x0f.lesson.Address"&\n\nLessonData\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t"\xf0\x01\n\x08Schedule\x12\x0e\n\x06number\x18\x01 \x01(\x05\x12\x16\n\x0etype_of_lesson\x18\x02 \x01(\t\x12\x1c\n\x0fsubgroup_number\x18\x03 \x01(\x05H\x00\x88\x01\x01\x12"\n\x06lesson\x18\x04 \x01(\x0b\x32\x12.lesson.LessonData\x12\x0e\n\x06status\x18\x05 \x01(\t\x12\x0c\n\x04time\x18\x06 \x01(\t\x12"\n\x08\x61udience\x18\x07 \x01(\x0b\x32\x10.lesson.Audience\x12$\n\x08teachers\x18\x08 \x03(\x0b\x32\x12.user.UserFullNameB\x12\n\x10_subgroup_numberb\x06proto3'
+    b'\n\x0clesson.proto\x12\x06lesson\x1a\nuser.proto"\x17\n\x07\x41\x64\x64ress\x12\x0c\n\x04name\x18\x01 \x01(\t":\n\x08\x41udience\x12\x0c\n\x04name\x18\x01 \x01(\t\x12 \n\x07\x61\x64\x64ress\x18\x02 \x01(\x0b\x32\x0f.lesson.Address";\n\nLessonData\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x13\n\x0bon_schedule\x18\x03 \x01(\x08"\x99\x01\n\nAttendance\x12\x33\n\x06status\x18\x01 \x01(\x0e\x32#.lesson.Attendance.AttendanceStatus\x12\x12\n\ndecryption\x18\x02 \x01(\t"B\n\x10\x41ttendanceStatus\x12\x0b\n\x07PRESENT\x10\x00\x12\n\n\x06\x41\x42SENT\x10\x01\x12\x15\n\x11SKIP_RESPECTFULLY\x10\x02"\x9c\x01\n\x11StudentAttendance\x12\x11\n\tfull_name\x18\x01 \x01(\t\x12\x1f\n\x17\x64\x65\x63ryption_of_full_name\x18\x02 \x01(\t\x12&\n\nattendance\x18\x03 \x01(\x0b\x32\x12.lesson.Attendance\x12\x17\n\x0fpersonal_number\x18\x04 \x01(\t\x12\x12\n\nis_prefect\x18\x05 \x01(\x08"\x1e\n\x05Group\x12\x15\n\rcomplete_name\x18\x01 \x01(\t"\xaa\x02\n\x08Schedule\x12\x0e\n\x06number\x18\x01 \x01(\x05\x12\x16\n\x0etype_of_lesson\x18\x02 \x01(\t\x12\x1c\n\x0fsubgroup_number\x18\x03 \x01(\x05H\x00\x88\x01\x01\x12"\n\x06lesson\x18\x04 \x01(\x0b\x32\x12.lesson.LessonData\x12&\n\nattendance\x18\x05 \x01(\x0b\x32\x12.lesson.Attendance\x12\x0c\n\x04time\x18\x06 \x01(\t\x12"\n\x08\x61udience\x18\x07 \x01(\x0b\x32\x10.lesson.Audience\x12$\n\x08teachers\x18\x08 \x03(\x0b\x32\x12.user.UserFullName\x12 \n\x18\x63\x61n_be_edited_by_perfect\x18\t \x01(\x08\x42\x12\n\x10_subgroup_numberb\x06proto3'
 )
 
 _globals = globals()
@@ -37,7 +37,15 @@ if not _descriptor._USE_C_DESCRIPTORS:
     _globals["_AUDIENCE"]._serialized_start = 61
     _globals["_AUDIENCE"]._serialized_end = 119
     _globals["_LESSONDATA"]._serialized_start = 121
-    _globals["_LESSONDATA"]._serialized_end = 159
-    _globals["_SCHEDULE"]._serialized_start = 162
-    _globals["_SCHEDULE"]._serialized_end = 402
+    _globals["_LESSONDATA"]._serialized_end = 180
+    _globals["_ATTENDANCE"]._serialized_start = 183
+    _globals["_ATTENDANCE"]._serialized_end = 336
+    _globals["_ATTENDANCE_ATTENDANCESTATUS"]._serialized_start = 270
+    _globals["_ATTENDANCE_ATTENDANCESTATUS"]._serialized_end = 336
+    _globals["_STUDENTATTENDANCE"]._serialized_start = 339
+    _globals["_STUDENTATTENDANCE"]._serialized_end = 495
+    _globals["_GROUP"]._serialized_start = 497
+    _globals["_GROUP"]._serialized_end = 527
+    _globals["_SCHEDULE"]._serialized_start = 530
+    _globals["_SCHEDULE"]._serialized_end = 828
 # @@protoc_insertion_point(module_scope)
