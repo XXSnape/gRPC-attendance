@@ -19,9 +19,9 @@ class StudentGroupDAO(BaseDAO):
                 # self.model.is_prefect.is_(True),
             )
             .options(
-                joinedload(StudentGroup.group).selectinload(
-                    GroupWithNumber.students
-                )
+                joinedload(
+                    StudentGroup.group_with_number
+                ).selectinload(GroupWithNumber.students_with_groups)
             )
         )
         result = await self._session.execute(query)

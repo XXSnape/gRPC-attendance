@@ -36,8 +36,10 @@ class GroupWithNumber(UUIDIdMixin, Base):
     schedules: Mapped[list["GroupSchedule"]] = relationship(
         back_populates="group",
     )
-    students: Mapped[list["StudentGroup"]] = relationship(
-        back_populates="group",
+    students_with_groups: Mapped[list["StudentGroup"]] = (
+        relationship(
+            back_populates="group_with_number",
+        )
     )
     group: Mapped["Group"] = relationship(
         back_populates="numbers",

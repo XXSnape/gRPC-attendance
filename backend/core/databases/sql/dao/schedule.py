@@ -60,7 +60,10 @@ class GroupScheduleDAO(BaseDAO):
             ).options(
                 joinedload(GroupSchedule.group).joinedload(
                     GroupWithNumber.group
-                )
+                ),
+                joinedload(GroupSchedule.group)
+                .selectinload(GroupWithNumber.students_with_groups)
+                .joinedload(StudentGroup.student),
             )
             result = await self._session.execute(query)
             return result.scalars().one_or_none()

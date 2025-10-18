@@ -3,7 +3,7 @@ from collections.abc import AsyncIterator
 
 import grpc
 from beanie.odm.operators.update.general import Set
-from loguru import logger
+from beanie.operators import In
 
 from core.databases.no_sql.documents.visit import Visit
 from core.databases.sql.dao.schedule import GroupScheduleDAO
@@ -84,23 +84,35 @@ class LessonServiceServicer(
                 user_id=user.id,
                 lesson_id=request.lesson_id,
             )
+            documents = await Visit.find(
+                Visit.lesson_id == uuid.UUID(request.lesson_id)
+            ).to_list()
+            attendances = []
+            for (
+                student_with_group
+            ) in lesson.group.students_with_groups:
+                schema = UserAttendanceSchema(
+                    full_name=student_with_group.student.full_name,
+                    decryption_of_full_name=student_with_group.student.decryption_of_full_name,
+                    personal_number=student_with_group.student.personal_number,
+                    is_prefect=student_with_group.is_prefect,
+                    user_id=student_with_group.student_id,
+                )
+                for document in documents:
+                    if (
+                        document.user_id
+                        == student_with_group.student_id
+                    ):
+                        schema.attendance.status = document.status
+                        break
+                attendances.append(schema)
             return lesson_service_pb2.LessonDetailsResponse(
                 **FullLessonDataSchema(
                     schedule_data=BaseScheduleSchema.model_validate(
                         lesson
                     ),
                     group=lesson.group,
-                    attendances=[
-                        UserAttendanceSchema(
-                            full_name="dad",
-                            decryption_of_full_name="wadwad",
-                            personal_number="123",
-                            is_prefect=False,
-                            user_id=uuid.UUID(
-                                "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-                            ),
-                        )
-                    ],
+                    attendances=attendances,
                 ).model_dump(mode="json")
             )
 
@@ -141,7 +153,8 @@ class LessonServiceServicer(
                 )
                 return
             students_ids = [
-                sg.student_id for sg in student_group.group.students
+                sg.student_id
+                for sg in student_group.group_with_number.students_with_groups
             ]
 
         async for request in request_iterator:

@@ -2,7 +2,7 @@ import datetime
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, func
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -51,6 +51,13 @@ class User(UUIDIdMixin, Base):
             f"{self.last_name} {self.first_name} {self.patronymic}"
         )
 
+    @decryption_of_full_name.expression
+    def decryption_of_full_name(cls):
+        """SQL-версия (для запросов)"""
+        return func.concat(
+            cls.last_name, " ", cls.first_name, " ", cls.patronymic
+        )
+
     def __str__(self):
         return self.full_name
 
@@ -74,10 +81,10 @@ class Student(User):
             back_populates="student",
         )
     )
-    groups: Mapped[list["StudentGroup"]] = relationship(
-        back_populates="student",
-        foreign_keys="StudentGroup.student_id",
-        primaryjoin="Student.id == StudentGroup.student_id",
+    students_with_groups: Mapped[list["StudentGroup"]] = (
+        relationship(
+            back_populates="student",
+        )
     )
 
     __mapper_args__ = {

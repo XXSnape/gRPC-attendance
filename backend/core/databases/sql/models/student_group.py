@@ -48,8 +48,9 @@ class StudentGroup(UUIDIdMixin, Base):
         server_default=false(),
     )
     student: Mapped["Student"] = relationship(
-        back_populates="groups",
+        back_populates="students_with_groups",
+        order_by="Student.decryption_of_full_name",
     )
-    group: Mapped["GroupWithNumber"] = relationship(
-        back_populates="students",
+    group_with_number: Mapped["GroupWithNumber"] = relationship(
+        back_populates="students_with_groups",
     )
