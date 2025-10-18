@@ -12,10 +12,7 @@ from core.grpc.pb import (
     user_service_pb2_grpc,
 )
 from fastapi import FastAPI
-from fastapi.templating import Jinja2Templates
 from sqladmin import Admin
-
-templates = Jinja2Templates(directory="templates")
 
 
 @asynccontextmanager

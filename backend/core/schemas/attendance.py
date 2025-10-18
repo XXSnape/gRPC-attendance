@@ -7,7 +7,7 @@ from .common import BaseSchema
 
 
 class AttendanceSchema(BaseSchema):
-    status: AttendanceStatus = AttendanceStatus.PRESENT
+    status: AttendanceStatus = AttendanceStatus.ABSENT
 
     @computed_field
     @property

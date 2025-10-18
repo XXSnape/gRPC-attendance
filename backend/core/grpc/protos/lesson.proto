@@ -33,11 +33,12 @@ message Attendance {
 
 
 message StudentAttendance {
-  string full_name = 1;
-  string decryption_of_full_name = 2;
-  Attendance attendance = 3;
-  string personal_number = 4;
-  bool is_prefect = 5;
+  string user_id = 1;
+  string full_name = 2;
+  string decryption_of_full_name = 3;
+  Attendance attendance = 4;
+  string personal_number = 5;
+  bool is_prefect = 6;
 }
 
 
@@ -50,7 +51,7 @@ message Schedule {
   string type_of_lesson = 2;
   optional int32 subgroup_number = 3;
   LessonData lesson = 4;
-  Attendance attendance = 5;
+  Attendance my_attendance = 5;
   string time = 6;
   Audience audience = 7;
   repeated user.UserFullName teachers = 8;

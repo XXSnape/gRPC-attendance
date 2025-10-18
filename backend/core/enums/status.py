@@ -1,7 +1,7 @@
-from enum import IntEnum, auto
+from enum import IntEnum
 
 
 class AttendanceStatus(IntEnum):
-    PRESENT = auto()
-    ABSENT = auto()
-    SKIP_RESPECTFULLY = auto()
+    PRESENT = 0
+    ABSENT = 1
+    SKIP_RESPECTFULLY = 2

@@ -8,6 +8,14 @@ service LessonService {
   rpc GetLessons (LessonsRequest) returns (LessonsResponse) {}
   rpc GetLessonsForMonth (LessonsForMonthRequest) returns (LessonsForMonthResponse) {}
   rpc GetLessonDetails (LessonDetailsRequest) returns (LessonDetailsResponse) {}
+  rpc SetStudentAttendance (stream StudentAttendanceRequest) returns (stream lesson.StudentAttendance) {}
+}
+
+
+message StudentAttendanceRequest {
+  string user_id = 1;
+  string lesson_id = 2;
+  lesson.Attendance attendance = 3;
 }
 
 message LessonsRequest {

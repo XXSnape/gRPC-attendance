@@ -49,18 +49,20 @@ class Attendance(_message.Message):
     def __init__(self, status: _Optional[_Union[Attendance.AttendanceStatus, str]] = ..., decryption: _Optional[str] = ...) -> None: ...
 
 class StudentAttendance(_message.Message):
-    __slots__ = ("full_name", "decryption_of_full_name", "attendance", "personal_number", "is_prefect")
+    __slots__ = ("user_id", "full_name", "decryption_of_full_name", "attendance", "personal_number", "is_prefect")
+    USER_ID_FIELD_NUMBER: _ClassVar[int]
     FULL_NAME_FIELD_NUMBER: _ClassVar[int]
     DECRYPTION_OF_FULL_NAME_FIELD_NUMBER: _ClassVar[int]
     ATTENDANCE_FIELD_NUMBER: _ClassVar[int]
     PERSONAL_NUMBER_FIELD_NUMBER: _ClassVar[int]
     IS_PREFECT_FIELD_NUMBER: _ClassVar[int]
+    user_id: str
     full_name: str
     decryption_of_full_name: str
     attendance: Attendance
     personal_number: str
     is_prefect: bool
-    def __init__(self, full_name: _Optional[str] = ..., decryption_of_full_name: _Optional[str] = ..., attendance: _Optional[_Union[Attendance, _Mapping]] = ..., personal_number: _Optional[str] = ..., is_prefect: bool = ...) -> None: ...
+    def __init__(self, user_id: _Optional[str] = ..., full_name: _Optional[str] = ..., decryption_of_full_name: _Optional[str] = ..., attendance: _Optional[_Union[Attendance, _Mapping]] = ..., personal_number: _Optional[str] = ..., is_prefect: bool = ...) -> None: ...
 
 class Group(_message.Message):
     __slots__ = ("complete_name",)
@@ -69,12 +71,12 @@ class Group(_message.Message):
     def __init__(self, complete_name: _Optional[str] = ...) -> None: ...
 
 class Schedule(_message.Message):
-    __slots__ = ("number", "type_of_lesson", "subgroup_number", "lesson", "attendance", "time", "audience", "teachers", "can_be_edited_by_perfect")
+    __slots__ = ("number", "type_of_lesson", "subgroup_number", "lesson", "my_attendance", "time", "audience", "teachers", "can_be_edited_by_perfect")
     NUMBER_FIELD_NUMBER: _ClassVar[int]
     TYPE_OF_LESSON_FIELD_NUMBER: _ClassVar[int]
     SUBGROUP_NUMBER_FIELD_NUMBER: _ClassVar[int]
     LESSON_FIELD_NUMBER: _ClassVar[int]
-    ATTENDANCE_FIELD_NUMBER: _ClassVar[int]
+    MY_ATTENDANCE_FIELD_NUMBER: _ClassVar[int]
     TIME_FIELD_NUMBER: _ClassVar[int]
     AUDIENCE_FIELD_NUMBER: _ClassVar[int]
     TEACHERS_FIELD_NUMBER: _ClassVar[int]
@@ -83,9 +85,9 @@ class Schedule(_message.Message):
     type_of_lesson: str
     subgroup_number: int
     lesson: LessonData
-    attendance: Attendance
+    my_attendance: Attendance
     time: str
     audience: Audience
     teachers: _containers.RepeatedCompositeFieldContainer[_user_pb2.UserFullName]
     can_be_edited_by_perfect: bool
-    def __init__(self, number: _Optional[int] = ..., type_of_lesson: _Optional[str] = ..., subgroup_number: _Optional[int] = ..., lesson: _Optional[_Union[LessonData, _Mapping]] = ..., attendance: _Optional[_Union[Attendance, _Mapping]] = ..., time: _Optional[str] = ..., audience: _Optional[_Union[Audience, _Mapping]] = ..., teachers: _Optional[_Iterable[_Union[_user_pb2.UserFullName, _Mapping]]] = ..., can_be_edited_by_perfect: bool = ...) -> None: ...
+    def __init__(self, number: _Optional[int] = ..., type_of_lesson: _Optional[str] = ..., subgroup_number: _Optional[int] = ..., lesson: _Optional[_Union[LessonData, _Mapping]] = ..., my_attendance: _Optional[_Union[Attendance, _Mapping]] = ..., time: _Optional[str] = ..., audience: _Optional[_Union[Audience, _Mapping]] = ..., teachers: _Optional[_Iterable[_Union[_user_pb2.UserFullName, _Mapping]]] = ..., can_be_edited_by_perfect: bool = ...) -> None: ...

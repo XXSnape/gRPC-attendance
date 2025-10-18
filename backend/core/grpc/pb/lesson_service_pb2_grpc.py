@@ -3,6 +3,7 @@
 import grpc
 import warnings
 
+from . import lesson_pb2 as lesson__pb2
 from . import lesson_service_pb2 as lesson__service__pb2
 
 GRPC_GENERATED_VERSION = "1.74.0"
@@ -55,6 +56,12 @@ class LessonServiceStub(object):
             response_deserializer=lesson__service__pb2.LessonDetailsResponse.FromString,
             _registered_method=True,
         )
+        self.SetStudentAttendance = channel.stream_stream(
+            "/lessonService.LessonService/SetStudentAttendance",
+            request_serializer=lesson__service__pb2.StudentAttendanceRequest.SerializeToString,
+            response_deserializer=lesson__pb2.StudentAttendance.FromString,
+            _registered_method=True,
+        )
 
 
 class LessonServiceServicer(object):
@@ -78,6 +85,12 @@ class LessonServiceServicer(object):
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
+    def SetStudentAttendance(self, request_iterator, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
 
 def add_LessonServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -95,6 +108,11 @@ def add_LessonServiceServicer_to_server(servicer, server):
             servicer.GetLessonDetails,
             request_deserializer=lesson__service__pb2.LessonDetailsRequest.FromString,
             response_serializer=lesson__service__pb2.LessonDetailsResponse.SerializeToString,
+        ),
+        "SetStudentAttendance": grpc.stream_stream_rpc_method_handler(
+            servicer.SetStudentAttendance,
+            request_deserializer=lesson__service__pb2.StudentAttendanceRequest.FromString,
+            response_serializer=lesson__pb2.StudentAttendance.SerializeToString,
         ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -189,6 +207,36 @@ class LessonService(object):
             "/lessonService.LessonService/GetLessonDetails",
             lesson__service__pb2.LessonDetailsRequest.SerializeToString,
             lesson__service__pb2.LessonDetailsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True,
+        )
+
+    @staticmethod
+    def SetStudentAttendance(
+        request_iterator,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.stream_stream(
+            request_iterator,
+            target,
+            "/lessonService.LessonService/SetStudentAttendance",
+            lesson__service__pb2.StudentAttendanceRequest.SerializeToString,
+            lesson__pb2.StudentAttendance.FromString,
             options,
             channel_credentials,
             insecure,

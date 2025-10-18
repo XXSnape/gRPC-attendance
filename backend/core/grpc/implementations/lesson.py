@@ -1,3 +1,8 @@
+import asyncio
+import datetime
+import uuid
+from collections.abc import AsyncIterator
+
 import grpc
 
 
@@ -37,9 +42,7 @@ class LessonServiceServicer(
                     lesson_pb2.Schedule(
                         **BaseScheduleSchema.model_validate(
                             lesson
-                        ).model_dump(
-                            mode="json", exclude={"transcript"}
-                        )
+                        ).model_dump(mode="json")
                     )
                     for lesson in lessons
                 ]
@@ -91,7 +94,26 @@ class LessonServiceServicer(
                             decryption_of_full_name="wadwad",
                             personal_number="123",
                             is_prefect=False,
+                            user_id=uuid.UUID(
+                                "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                            ),
                         )
                     ],
                 ).model_dump(mode="json")
+            )
+
+    async def SetStudentAttendance(
+        self,
+        request_iterator: AsyncIterator[
+            lesson_service_pb2.StudentAttendanceRequest
+        ],
+        context: grpc.aio.ServicerContext,
+    ) -> AsyncIterator[lesson_pb2.StudentAttendance]:
+        async for request in request_iterator:
+            yield lesson_pb2.StudentAttendance(
+                full_name="dad",
+                decryption_of_full_name="wadwad",
+                personal_number="123",
+                is_prefect=False,
+                user_id="3fa85f64-5717-4562-b3fc-2c963f66afa6",
             )

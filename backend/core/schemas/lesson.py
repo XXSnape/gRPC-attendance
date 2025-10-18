@@ -24,7 +24,7 @@ class BaseScheduleSchema(BaseSchema):
     subgroup_number: int | None
     lesson: BaseLessonSchema
     audience: AudienceSchema
-    attendance: AttendanceSchema = AttendanceSchema()
+    my_attendance: AttendanceSchema = AttendanceSchema()
     teachers: list[UserFullNameSchema]
     can_be_edited_by_perfect: bool = False
 
@@ -58,3 +58,12 @@ class FullLessonDataSchema(BaseSchema):
 
 class StudyDaysSchema(BaseSchema):
     dates: list[datetime.date]
+
+
+class MarkStudentAttendanceSchema(BaseSchema):
+    user_id: uuid.UUID
+    attendance: AttendanceSchema
+
+
+class ReadLessonStudentAttendanceSchema(BaseSchema):
+    attendances: list[UserAttendanceSchema]

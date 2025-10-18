@@ -1,4 +1,5 @@
 import datetime
+import uuid
 from typing import Literal
 
 from core.databases.sql.models.enums.gender import GenderEnum
@@ -16,6 +17,7 @@ class UserFullNameSchema(BaseSchema):
 class UserAttendanceSchema(
     UserFullNameSchema,
 ):
+    user_id: uuid.UUID
     personal_number: str
     attendance: AttendanceSchema = AttendanceSchema()
     is_prefect: bool = False
