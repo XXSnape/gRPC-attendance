@@ -66,4 +66,4 @@ class MarkStudentAttendanceSchema(BaseSchema):
 
 
 class ReadLessonStudentAttendanceSchema(BaseSchema):
-    attendances: list[UserAttendanceSchema]
+    attendances: list[MarkStudentAttendanceSchema]

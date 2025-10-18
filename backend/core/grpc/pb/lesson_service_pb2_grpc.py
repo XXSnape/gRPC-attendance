@@ -3,7 +3,6 @@
 import grpc
 import warnings
 
-from . import lesson_pb2 as lesson__pb2
 from . import lesson_service_pb2 as lesson__service__pb2
 
 GRPC_GENERATED_VERSION = "1.74.0"
@@ -59,7 +58,7 @@ class LessonServiceStub(object):
         self.SetStudentAttendance = channel.stream_stream(
             "/lessonService.LessonService/SetStudentAttendance",
             request_serializer=lesson__service__pb2.StudentAttendanceRequest.SerializeToString,
-            response_deserializer=lesson__pb2.StudentAttendance.FromString,
+            response_deserializer=lesson__service__pb2.StudentAttendanceResponse.FromString,
             _registered_method=True,
         )
 
@@ -112,7 +111,7 @@ def add_LessonServiceServicer_to_server(servicer, server):
         "SetStudentAttendance": grpc.stream_stream_rpc_method_handler(
             servicer.SetStudentAttendance,
             request_deserializer=lesson__service__pb2.StudentAttendanceRequest.FromString,
-            response_serializer=lesson__pb2.StudentAttendance.SerializeToString,
+            response_serializer=lesson__service__pb2.StudentAttendanceResponse.SerializeToString,
         ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -236,7 +235,7 @@ class LessonService(object):
             target,
             "/lessonService.LessonService/SetStudentAttendance",
             lesson__service__pb2.StudentAttendanceRequest.SerializeToString,
-            lesson__pb2.StudentAttendance.FromString,
+            lesson__service__pb2.StudentAttendanceResponse.FromString,
             options,
             channel_credentials,
             insecure,

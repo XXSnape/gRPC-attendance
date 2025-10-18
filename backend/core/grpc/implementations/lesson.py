@@ -1,12 +1,13 @@
-import asyncio
-import datetime
 import uuid
 from collections.abc import AsyncIterator
 
 import grpc
+from beanie.odm.operators.update.general import Set
+from loguru import logger
 
-
+from core.databases.no_sql.documents.visit import Visit
 from core.databases.sql.dao.schedule import GroupScheduleDAO
+from core.databases.sql.dao.student_group import StudentGroupDAO
 from core.databases.sql.db_helper import db_helper
 from core.grpc.pb import (
     lesson_pb2,
@@ -14,6 +15,7 @@ from core.grpc.pb import (
     lesson_service_pb2_grpc,
 )
 from core.grpc.utils.user import get_user_data_from_metadata
+from core.schemas.attendance import AttendanceSchema
 from core.schemas.lesson import (
     BaseScheduleSchema,
     FullLessonDataSchema,
@@ -108,12 +110,59 @@ class LessonServiceServicer(
             lesson_service_pb2.StudentAttendanceRequest
         ],
         context: grpc.aio.ServicerContext,
-    ) -> AsyncIterator[lesson_pb2.StudentAttendance]:
-        async for request in request_iterator:
-            yield lesson_pb2.StudentAttendance(
-                full_name="dad",
-                decryption_of_full_name="wadwad",
-                personal_number="123",
-                is_prefect=False,
-                user_id="3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    ) -> AsyncIterator[lesson_service_pb2.StudentAttendanceResponse]:
+        user = await get_user_data_from_metadata(context)
+        metadata = dict(context.invocation_metadata())
+        lesson_id = metadata.get("lesson_id")
+        async with (
+            db_helper.get_async_session_without_commit() as session
+        ):
+            dao = StudentGroupDAO(session=session)
+            student_group = await dao.get_group_by_student_id(
+                user_id=user.id
             )
+            if student_group is None:
+                await context.abort(
+                    grpc.StatusCode.NOT_FOUND,
+                    "Группа студента не найдена или он не является старостой",
+                )
+                return
+            check = await GroupScheduleDAO(
+                session=session
+            ).check_group_has_lesson(
+                lesson_id=lesson_id,
+                group_id=student_group.group_id,
+            )
+
+            if not lesson_id or not check:
+                await context.abort(
+                    grpc.StatusCode.NOT_FOUND,
+                    "Пара не найдена в расписании вашей группы",
+                )
+                return
+            students_ids = [
+                sg.student_id for sg in student_group.group.students
+            ]
+
+        async for request in request_iterator:
+            if uuid.UUID(request.user_id) in students_ids:
+                await Visit.find_one(
+                    Visit.lesson_id == uuid.UUID(lesson_id),
+                    Visit.user_id == uuid.UUID(request.user_id),
+                ).upsert(
+                    Set({Visit.status: request.attendance.status}),
+                    on_insert=Visit(
+                        lesson_id=uuid.UUID(lesson_id),
+                        user_id=uuid.UUID(request.user_id),
+                        status=request.attendance.status,
+                    ),
+                )
+
+                yield lesson_service_pb2.StudentAttendanceResponse(
+                    user_id=request.user_id,
+                    attendance=lesson_pb2.Attendance(
+                        **AttendanceSchema(
+                            status=request.attendance.status
+                        ).model_dump(mode="json")
+                    ),
+                )

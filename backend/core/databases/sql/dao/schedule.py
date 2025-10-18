@@ -7,10 +7,14 @@ from core.databases.sql.models import (
     StudentGroup,
     Teacher,
     GroupWithNumber,
-    Group,
+    Schedule,
 )
-from sqlalchemy import select
-from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy import select, func
+from sqlalchemy.orm import (
+    joinedload,
+    selectinload,
+    with_polymorphic,
+)
 
 from .base import BaseDAO
 from sqlalchemy import extract
@@ -81,3 +85,20 @@ class GroupScheduleDAO(BaseDAO):
         )
         result = await self._session.execute(query)
         return result.scalars().all()
+
+    async def check_group_has_lesson(
+        self, lesson_id: str, group_id: uuid.UUID
+    ) -> bool:
+
+        schedule_poly = with_polymorphic(Schedule, [GroupSchedule])
+
+        query = (
+            select(func.count())
+            .select_from(schedule_poly)
+            .where(
+                schedule_poly.lesson_id == uuid.UUID(lesson_id),
+                schedule_poly.GroupSchedule.group_id == group_id,
+            )
+        )
+        result = await self._session.execute(query)
+        return result.scalar() > 0

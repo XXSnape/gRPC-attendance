@@ -4,6 +4,9 @@ import uuid
 from typing import AsyncIterator
 
 import grpc
+
+from core.databases.sql.dao.student_group import StudentGroupDAO
+from core.databases.sql.db_helper import db_helper
 from core.dependencies.stubs import LessonStub
 from core.dependencies.user import UserMetadataDep
 from core.grpc.pb import lesson_service_pb2, lesson_pb2
@@ -91,16 +94,31 @@ async def mark_lesson_attendance(
     stub: LessonStub,
     attendance_data: list[lesson.MarkStudentAttendanceSchema],
 ):
+    # async with (
+    #     db_helper.get_async_session_without_commit() as session
+    # ):
+    #     dao = StudentGroupDAO(session=session)
+    #     student_group = await dao.get_group_by_student_id(
+    #         user_id=uuid.UUID(user_metadata[0][1])
+    #     )
+    #     students_ids = [
+    #         sg.student_id for sg in student_group.group.students
+    #     ]
+    #     print(students_ids)
+    #     return lesson.ReadLessonStudentAttendanceSchema(
+    #         attendances=[]
+    #     )
+
     request_stream = create_attendances(
         attendance_data=attendance_data,
-        lesson_id=lesson_id,
     )
+    metadata = user_metadata + (("lesson_id", str(lesson_id)),)
     try:
         response_stream: AsyncIterator[
             lesson_pb2.StudentAttendance
         ] = stub.SetStudentAttendance(
             request_stream,
-            metadata=user_metadata,
+            metadata=metadata,
         )
         attendances = []
         async for response in response_stream:
@@ -109,9 +127,9 @@ async def mark_lesson_attendance(
             attendances=attendances
         )
     except grpc.aio.AioRpcError as exc:
-        logger.error(
+        logger.exception(
             "Ошибка при обновлении посещаемости для пары с ID {}: {} {}",
-            attendance_data.lesson_id,
+            lesson_id,
             exc.code(),
             exc.details(),
         )
@@ -144,7 +162,6 @@ async def get_lesson_by_id(
             attendances=response.attendances,
         )
     except grpc.aio.AioRpcError as exc:
-        logger.exception("errr")
         logger.error(
             "Ошибка при получении детали пары с ID {}: {} {}",
             lesson_id,

@@ -85,7 +85,7 @@ class DatabaseConfig(BaseSettings):
     postgres_user: str
     postgres_password: str
     postgres_db: str
-    echo: bool = False
+    echo: bool = True
 
     naming_convention: dict[str, str] = {
         "ix": "ix_%(column_0_label)s",

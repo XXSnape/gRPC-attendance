@@ -1,3 +1,5 @@
+from sqlalchemy.ext.asyncio import AsyncAttrs
+
 from core.config import settings
 from sqlalchemy import MetaData
 from sqlalchemy.orm import (
@@ -8,7 +10,7 @@ from sqlalchemy.orm import (
 )
 
 
-class Base(DeclarativeBase):
+class Base(AsyncAttrs, DeclarativeBase):
     """
     Базовый класс для всех моделей SQLAlchemy.
     """

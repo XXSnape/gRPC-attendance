@@ -22,4 +22,3 @@ class Visit(Document):
                 name="user_lesson_unique"
             ),
         ]
-

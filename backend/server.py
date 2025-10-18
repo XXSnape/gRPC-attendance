@@ -28,9 +28,7 @@ async def main():
     try:
         await init_beanie(
             database=client.db_name,
-            document_models=[
-                documents.Token,
-            ],
+            document_models=[documents.Token, documents.Visit],
         )
         await server.start()
         logger.success(
