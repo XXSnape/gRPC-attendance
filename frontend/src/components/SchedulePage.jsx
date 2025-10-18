@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/ru";
 import ru_RU from "antd/locale/ru_RU";
 import axios from "axios";
+import { getTypeColor, getStatusColor } from '../utils/constants';
 
 dayjs.locale("ru");
 
@@ -80,45 +81,6 @@ export default function SchedulePage() {
     navigate(`/lessons/${lessonId}`);
   };
 
-  const getTypeColor = (type) => {
-    switch (type) {
-      case "ЛK":
-        return "geekblue";
-      case "ПР":
-        return "cyan";
-      case "ЛАБ":
-        return "magenta";
-      default:
-        return "gray";
-    }
-  };
-
-  const getTypeText = (type) => {
-    switch (type) {
-      case "ЛK":
-        return "Лекция";
-      case "ПР":
-        return "Практика";
-      case "ЛАБ":
-        return "Лабораторная";
-      default:
-        return type;
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Н":
-        return "red";
-      case "+":
-        return "green";
-      case "У":
-        return "gray";
-      default:
-        return "red";
-    }
-  };
-
   const dateFullCellRender = (date) => {
     const dateStr = date.format("YYYY-MM-DD");
     const hasLessons = studyDays.includes(dateStr);
@@ -168,14 +130,14 @@ export default function SchedulePage() {
                           <div className="flex justify-between items-start mb-2">
                             <div className="flex items-center gap-2">
                               <Tag color={getTypeColor(lesson.type_of_lesson)}>
-                                {getTypeText(lesson.type_of_lesson)}
+                                {lesson.type_of_lesson}
                               </Tag>
                               <Tag
                                 color={getStatusColor(
-                                  lesson.attendance.decryption
+                                  lesson.my_attendance.decryption
                                 )}
                               >
-                                {lesson.attendance.decryption}
+                                {lesson.my_attendance.decryption}
                               </Tag>
                             </div>
                             <span className="text-gray-600 font-medium">
