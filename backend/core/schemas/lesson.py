@@ -54,6 +54,7 @@ class FullLessonDataSchema(BaseSchema):
     schedule_data: BaseScheduleSchema
     group: GroupSchema
     attendances: list[UserAttendanceSchema]
+    is_prefect: bool = False
 
 
 class StudyDaysSchema(BaseSchema):

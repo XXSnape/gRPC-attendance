@@ -74,6 +74,7 @@ class LessonServiceServicer(
         request: lesson_service_pb2.LessonDetailsRequest,
         context: grpc.aio.ServicerContext,
     ) -> lesson_service_pb2.LessonDetailsResponse:
+        is_current_user_prefect = False
         user = await get_user_data_from_metadata(context)
         async with (
             db_helper.get_async_session_without_commit() as session
@@ -84,15 +85,18 @@ class LessonServiceServicer(
                 user_id=user.id,
                 lesson_id=request.lesson_id,
             )
-            print("hello1")
             documents = await Visit.find(
                 Visit.lesson_id == uuid.UUID(request.lesson_id)
             ).to_list()
-            print("hello2")
             attendances = []
+            user_uuid = uuid.UUID(user.id)
             for (
                 student_with_group
             ) in lesson.group.students_with_groups:
+                if student_with_group.student_id == user_uuid:
+                    is_current_user_prefect = (
+                        student_with_group.is_prefect
+                    )
                 schema = UserAttendanceSchema(
                     full_name=student_with_group.student.full_name,
                     decryption_of_full_name=student_with_group.student.decryption_of_full_name,
@@ -115,6 +119,7 @@ class LessonServiceServicer(
                     ),
                     group=lesson.group,
                     attendances=attendances,
+                    is_prefect=is_current_user_prefect,
                 ).model_dump(mode="json")
             )
 

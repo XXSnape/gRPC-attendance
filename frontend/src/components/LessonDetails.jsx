@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Descriptions, Radio, Tag, Alert, Button, Spin, message } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { getTypeColor, getStatusColor } from '../utils/constants';
-import { useAuth } from './AuthContext';
 
 const api = axios.create({
   baseURL: 'http://localhost:8000/api/v1',
@@ -13,11 +12,11 @@ const api = axios.create({
 
 export default function LessonDetail() {
   const { lessonId } = useParams();
-  const { user } = useAuth();
   const [lessonData, setLessonData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [attendances, setAttendances] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [isPerfect, setIsPerfect] = useState(false);
 
   useEffect(() => {
     fetchLessonData();
@@ -28,6 +27,7 @@ export default function LessonDetail() {
       const response = await api.get(`/lessons/${lessonId}`);
       setLessonData(response.data);
       setAttendances(response.data.attendances);
+      setIsPerfect(response.data.is_prefect);
     } catch (error) {
       console.error('Error fetching lesson data:', error);
     } finally {
@@ -61,9 +61,7 @@ export default function LessonDetail() {
     }
   };
 
-  // Проверяем является ли пользователь старостой
-  const isUserPerfect = !user?.is_perfect;
-  const canEdit = isUserPerfect;
+  const canEdit = isPerfect;
 
   if (loading) {
     return (

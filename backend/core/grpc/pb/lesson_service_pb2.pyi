@@ -56,11 +56,13 @@ class LessonsForMonthResponse(_message.Message):
     def __init__(self, dates: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class LessonDetailsResponse(_message.Message):
-    __slots__ = ("schedule_data", "group", "attendances")
+    __slots__ = ("schedule_data", "group", "attendances", "is_prefect")
     SCHEDULE_DATA_FIELD_NUMBER: _ClassVar[int]
     GROUP_FIELD_NUMBER: _ClassVar[int]
     ATTENDANCES_FIELD_NUMBER: _ClassVar[int]
+    IS_PREFECT_FIELD_NUMBER: _ClassVar[int]
     schedule_data: _lesson_pb2.Schedule
     group: _lesson_pb2.Group
     attendances: _containers.RepeatedCompositeFieldContainer[_lesson_pb2.StudentAttendance]
-    def __init__(self, schedule_data: _Optional[_Union[_lesson_pb2.Schedule, _Mapping]] = ..., group: _Optional[_Union[_lesson_pb2.Group, _Mapping]] = ..., attendances: _Optional[_Iterable[_Union[_lesson_pb2.StudentAttendance, _Mapping]]] = ...) -> None: ...
+    is_prefect: bool
+    def __init__(self, schedule_data: _Optional[_Union[_lesson_pb2.Schedule, _Mapping]] = ..., group: _Optional[_Union[_lesson_pb2.Group, _Mapping]] = ..., attendances: _Optional[_Iterable[_Union[_lesson_pb2.StudentAttendance, _Mapping]]] = ..., is_prefect: bool = ...) -> None: ...

@@ -156,11 +156,7 @@ async def get_lesson_by_id(
             request,
             metadata=user_metadata,
         )
-        return lesson.FullLessonDataSchema(
-            schedule_data=response.schedule_data,
-            group=response.group,
-            attendances=response.attendances,
-        )
+        return lesson.FullLessonDataSchema.model_validate(response)
     except grpc.aio.AioRpcError as exc:
         logger.error(
             "Ошибка при получении детали пары с ID {}: {} {}",

@@ -48,4 +48,5 @@ message LessonDetailsResponse {
   lesson.Schedule schedule_data = 1;
   lesson.Group group = 2;
   repeated lesson.StudentAttendance attendances = 3;
+  bool is_prefect = 4;
 }

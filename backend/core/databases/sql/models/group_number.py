@@ -48,6 +48,6 @@ class GroupWithNumber(UUIDIdMixin, Base):
     @hybrid_property
     def complete_name(self):
         return (
-            f"{self.group.name.upper()}-{self.number}-"
-            f"({str(self.year_of_admission)[-2:]})"
+            f"{self.group.name.upper()}-{str(self.number).zfill(2)}-"
+            f"{str(self.year_of_admission)[-2:]}"
         )
