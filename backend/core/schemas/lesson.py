@@ -61,7 +61,7 @@ class StudyDaysSchema(BaseSchema):
 
 
 class MarkStudentAttendanceSchema(BaseSchema):
-    user_id: uuid.UUID
+    student_id: uuid.UUID
     attendance: AttendanceSchema
 
 

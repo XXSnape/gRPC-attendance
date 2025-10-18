@@ -13,12 +13,12 @@ service LessonService {
 
 
 message StudentAttendanceRequest {
-  string user_id = 1;
+  string student_id = 1;
   lesson.Attendance attendance = 3;
 }
 
 message StudentAttendanceResponse {
-  string user_id = 1;
+  string student_id = 1;
   lesson.Attendance attendance = 2;
 }
 

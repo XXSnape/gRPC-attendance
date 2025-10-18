@@ -49,20 +49,20 @@ class Attendance(_message.Message):
     def __init__(self, status: _Optional[_Union[Attendance.AttendanceStatus, str]] = ..., decryption: _Optional[str] = ...) -> None: ...
 
 class StudentAttendance(_message.Message):
-    __slots__ = ("user_id", "full_name", "decryption_of_full_name", "attendance", "personal_number", "is_prefect")
-    USER_ID_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("student_id", "full_name", "decryption_of_full_name", "attendance", "personal_number", "is_prefect")
+    STUDENT_ID_FIELD_NUMBER: _ClassVar[int]
     FULL_NAME_FIELD_NUMBER: _ClassVar[int]
     DECRYPTION_OF_FULL_NAME_FIELD_NUMBER: _ClassVar[int]
     ATTENDANCE_FIELD_NUMBER: _ClassVar[int]
     PERSONAL_NUMBER_FIELD_NUMBER: _ClassVar[int]
     IS_PREFECT_FIELD_NUMBER: _ClassVar[int]
-    user_id: str
+    student_id: str
     full_name: str
     decryption_of_full_name: str
     attendance: Attendance
     personal_number: str
     is_prefect: bool
-    def __init__(self, user_id: _Optional[str] = ..., full_name: _Optional[str] = ..., decryption_of_full_name: _Optional[str] = ..., attendance: _Optional[_Union[Attendance, _Mapping]] = ..., personal_number: _Optional[str] = ..., is_prefect: bool = ...) -> None: ...
+    def __init__(self, student_id: _Optional[str] = ..., full_name: _Optional[str] = ..., decryption_of_full_name: _Optional[str] = ..., attendance: _Optional[_Union[Attendance, _Mapping]] = ..., personal_number: _Optional[str] = ..., is_prefect: bool = ...) -> None: ...
 
 class Group(_message.Message):
     __slots__ = ("complete_name",)

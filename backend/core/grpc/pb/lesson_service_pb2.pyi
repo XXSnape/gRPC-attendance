@@ -8,20 +8,20 @@ from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class StudentAttendanceRequest(_message.Message):
-    __slots__ = ("user_id", "attendance")
-    USER_ID_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("student_id", "attendance")
+    STUDENT_ID_FIELD_NUMBER: _ClassVar[int]
     ATTENDANCE_FIELD_NUMBER: _ClassVar[int]
-    user_id: str
+    student_id: str
     attendance: _lesson_pb2.Attendance
-    def __init__(self, user_id: _Optional[str] = ..., attendance: _Optional[_Union[_lesson_pb2.Attendance, _Mapping]] = ...) -> None: ...
+    def __init__(self, student_id: _Optional[str] = ..., attendance: _Optional[_Union[_lesson_pb2.Attendance, _Mapping]] = ...) -> None: ...
 
 class StudentAttendanceResponse(_message.Message):
-    __slots__ = ("user_id", "attendance")
-    USER_ID_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("student_id", "attendance")
+    STUDENT_ID_FIELD_NUMBER: _ClassVar[int]
     ATTENDANCE_FIELD_NUMBER: _ClassVar[int]
-    user_id: str
+    student_id: str
     attendance: _lesson_pb2.Attendance
-    def __init__(self, user_id: _Optional[str] = ..., attendance: _Optional[_Union[_lesson_pb2.Attendance, _Mapping]] = ...) -> None: ...
+    def __init__(self, student_id: _Optional[str] = ..., attendance: _Optional[_Union[_lesson_pb2.Attendance, _Mapping]] = ...) -> None: ...
 
 class LessonsRequest(_message.Message):
     __slots__ = ("date",)

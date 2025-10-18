@@ -8,7 +8,7 @@ from pymongo import IndexModel, ASCENDING
 
 class Visit(Document):
 
-    user_id: uuid.UUID
+    student_id: uuid.UUID
     status: AttendanceStatus
     lesson_id: uuid.UUID
 
@@ -17,7 +17,7 @@ class Visit(Document):
         name = "visits"
         indexes = [
             IndexModel(
-                [("user_id", ASCENDING), ("lesson_id", ASCENDING)],
+                [("student_id", ASCENDING), ("lesson_id", ASCENDING)],
                 unique=True,
                 name="user_lesson_unique"
             ),

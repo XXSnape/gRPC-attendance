@@ -6,6 +6,7 @@ message UserData {
   string id = 1;
   string type = 2;
   string full_name = 3;
+  bool is_prefect = 4;
 }
 
 message UserFullName {

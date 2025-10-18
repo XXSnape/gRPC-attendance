@@ -24,6 +24,7 @@ class Token(Document):
         "teacher",
         "administrator",
     ]
+    is_prefect: bool = False
 
     class Settings:
         name = "tokens"

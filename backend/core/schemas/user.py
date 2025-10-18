@@ -17,7 +17,7 @@ class UserFullNameSchema(BaseSchema):
 class UserAttendanceSchema(
     UserFullNameSchema,
 ):
-    user_id: uuid.UUID
+    student_id: uuid.UUID
     personal_number: str
     attendance: AttendanceSchema = AttendanceSchema()
     is_prefect: bool = False
@@ -57,3 +57,4 @@ class UserDataSchema(IdSchema):
         "administrator",
     ]
     full_name: str | None = None
+    is_prefect: bool = False

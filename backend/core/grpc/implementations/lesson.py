@@ -84,9 +84,11 @@ class LessonServiceServicer(
                 user_id=user.id,
                 lesson_id=request.lesson_id,
             )
+            print("hello1")
             documents = await Visit.find(
                 Visit.lesson_id == uuid.UUID(request.lesson_id)
             ).to_list()
+            print("hello2")
             attendances = []
             for (
                 student_with_group
@@ -96,11 +98,11 @@ class LessonServiceServicer(
                     decryption_of_full_name=student_with_group.student.decryption_of_full_name,
                     personal_number=student_with_group.student.personal_number,
                     is_prefect=student_with_group.is_prefect,
-                    user_id=student_with_group.student_id,
+                    student_id=student_with_group.student_id,
                 )
                 for document in documents:
                     if (
-                        document.user_id
+                        document.student_id
                         == student_with_group.student_id
                     ):
                         schema.attendance.status = document.status
@@ -158,21 +160,22 @@ class LessonServiceServicer(
             ]
 
         async for request in request_iterator:
-            if uuid.UUID(request.user_id) in students_ids:
+            if uuid.UUID(request.student_id) in students_ids:
                 await Visit.find_one(
                     Visit.lesson_id == uuid.UUID(lesson_id),
-                    Visit.user_id == uuid.UUID(request.user_id),
+                    Visit.student_id
+                    == uuid.UUID(request.student_id),
                 ).upsert(
                     Set({Visit.status: request.attendance.status}),
                     on_insert=Visit(
                         lesson_id=uuid.UUID(lesson_id),
-                        user_id=uuid.UUID(request.user_id),
+                        student_id=uuid.UUID(request.student_id),
                         status=request.attendance.status,
                     ),
                 )
 
                 yield lesson_service_pb2.StudentAttendanceResponse(
-                    user_id=request.user_id,
+                    student_id=request.student_id,
                     attendance=lesson_pb2.Attendance(
                         **AttendanceSchema(
                             status=request.attendance.status

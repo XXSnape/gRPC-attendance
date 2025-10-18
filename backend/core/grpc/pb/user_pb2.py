@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nuser.proto\x12\x04user\"7\n\x08UserData\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04type\x18\x02 \x01(\t\x12\x11\n\tfull_name\x18\x03 \x01(\t\"B\n\x0cUserFullName\x12\x11\n\tfull_name\x18\x01 \x01(\t\x12\x1f\n\x17\x64\x65\x63ryption_of_full_name\x18\x02 \x01(\tb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nuser.proto\x12\x04user\"K\n\x08UserData\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04type\x18\x02 \x01(\t\x12\x11\n\tfull_name\x18\x03 \x01(\t\x12\x12\n\nis_prefect\x18\x04 \x01(\x08\"B\n\x0cUserFullName\x12\x11\n\tfull_name\x18\x01 \x01(\t\x12\x1f\n\x17\x64\x65\x63ryption_of_full_name\x18\x02 \x01(\tb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,7 +32,7 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'user_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_USERDATA']._serialized_start=20
-  _globals['_USERDATA']._serialized_end=75
-  _globals['_USERFULLNAME']._serialized_start=77
-  _globals['_USERFULLNAME']._serialized_end=143
+  _globals['_USERDATA']._serialized_end=95
+  _globals['_USERFULLNAME']._serialized_start=97
+  _globals['_USERFULLNAME']._serialized_end=163
 # @@protoc_insertion_point(module_scope)

@@ -33,7 +33,7 @@ message Attendance {
 
 
 message StudentAttendance {
-  string user_id = 1;
+  string student_id = 1;
   string full_name = 2;
   string decryption_of_full_name = 3;
   Attendance attendance = 4;

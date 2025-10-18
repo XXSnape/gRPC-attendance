@@ -21,7 +21,6 @@ class Base(AsyncAttrs, DeclarativeBase):
         naming_convention=settings.db.naming_convention,
     )
 
-    id: Mapped[int] = mapped_column(primary_key=True)
     number_output_fields = 3
 
     @declared_attr.directive
