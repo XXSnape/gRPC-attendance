@@ -6,15 +6,15 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
-from .mixins.id_uuid import UUIDIdMixin
 
 if TYPE_CHECKING:
     from .group import Group
-    from .schedule import GroupSchedule
+
     from .student_group import StudentGroup
+    from .group_schedule import GroupSchedule
 
 
-class GroupWithNumber(UUIDIdMixin, Base):
+class GroupWithNumber(Base):
     __tablename__ = "group_numbers"
     __table_args__ = (
         UniqueConstraint(
@@ -33,9 +33,6 @@ class GroupWithNumber(UUIDIdMixin, Base):
     )
     number: Mapped[int]
     year_of_admission: Mapped[int]
-    schedules: Mapped[list["GroupSchedule"]] = relationship(
-        back_populates="group",
-    )
     students_with_groups: Mapped[list["StudentGroup"]] = (
         relationship(
             back_populates="group_with_number",
@@ -43,6 +40,11 @@ class GroupWithNumber(UUIDIdMixin, Base):
     )
     group: Mapped["Group"] = relationship(
         back_populates="numbers",
+    )
+    groups_with_subgroups: Mapped[list["GroupSchedule"]] = (
+        relationship(
+            back_populates="group_with_number",
+        )
     )
 
     @hybrid_property

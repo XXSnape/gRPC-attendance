@@ -10,16 +10,15 @@ from .base import Base
 from .enums.degree import DegreeEnum
 from .enums.gender import GenderEnum
 from .enums.rank import RankEnum
-from .mixins.id_uuid import UUIDIdMixin
 
 if TYPE_CHECKING:
     from .department import Department
-    from .schedule import PersonalSchedule, Schedule
+    from .schedule import Schedule
     from .schedule_exceptions import ScheduleException
     from .student_group import StudentGroup
 
 
-class User(UUIDIdMixin, Base):
+class User(Base):
     first_name: Mapped[str]
     last_name: Mapped[str]
     patronymic: Mapped[str]
@@ -72,9 +71,6 @@ class Student(User):
     )
     personal_number: Mapped[str] = mapped_column(
         unique=True,
-    )
-    schedules: Mapped[list["PersonalSchedule"]] = relationship(
-        back_populates="student",
     )
     schedule_exceptions: Mapped[list["ScheduleException"]] = (
         relationship(

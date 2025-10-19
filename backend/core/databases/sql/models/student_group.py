@@ -11,14 +11,13 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base
 from .enums.form_of_education import FormOfEducationEnum
 from .enums.type_of_refund import TypeOfRefundEnum
-from .mixins.id_uuid import UUIDIdMixin
 
 if TYPE_CHECKING:
     from .group_number import GroupWithNumber
     from .user import Student
 
 
-class StudentGroup(UUIDIdMixin, Base):
+class StudentGroup(Base):
     __tablename__ = "students_groups"
 
     __table_args__ = (

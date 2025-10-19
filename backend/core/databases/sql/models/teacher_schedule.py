@@ -4,10 +4,9 @@ from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base
-from .mixins.id_uuid import UUIDIdMixin
 
 
-class TeacherSchedule(UUIDIdMixin, Base):
+class TeacherSchedule(Base):
     __tablename__ = "teachers_schedules"
     __table_args__ = (
         UniqueConstraint(

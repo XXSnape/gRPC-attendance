@@ -4,13 +4,12 @@ from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
-from .mixins.id_uuid import UUIDIdMixin
 
 if TYPE_CHECKING:
     from .group import Group
 
 
-class Specialization(UUIDIdMixin, Base):
+class Specialization(Base):
     name: Mapped[str] = mapped_column(
         unique=True,
     )

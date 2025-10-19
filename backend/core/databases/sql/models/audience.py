@@ -5,14 +5,13 @@ from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
-from .mixins.id_uuid import UUIDIdMixin
 
 if TYPE_CHECKING:
     from .address import Address
     from .schedule import Schedule
 
 
-class Audience(UUIDIdMixin, Base):
+class Audience(Base):
     __table_args__ = (
         UniqueConstraint(
             "name",

@@ -5,14 +5,13 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
-from .mixins.id_uuid import UUIDIdMixin
 
 if TYPE_CHECKING:
     from .schedule import Schedule
     from .user import Student
 
 
-class ScheduleException(UUIDIdMixin, Base):
+class ScheduleException(Base):
     __tablename__ = "schedule_exceptions"
 
     schedule_id: Mapped[uuid.UUID] = mapped_column(

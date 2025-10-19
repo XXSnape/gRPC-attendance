@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
-from .mixins.id_uuid import UUIDIdMixin
 
 if TYPE_CHECKING:
     from .lesson import Lesson
@@ -14,7 +13,7 @@ if TYPE_CHECKING:
     from .user import Teacher
 
 
-class Department(UUIDIdMixin, Base):
+class Department(Base):
     name: Mapped[str] = mapped_column(
         unique=True,
     )

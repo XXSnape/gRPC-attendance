@@ -5,14 +5,13 @@ from sqlalchemy import ForeignKey, true
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
-from .mixins.id_uuid import UUIDIdMixin
 
 if TYPE_CHECKING:
     from .department import Department
     from .schedule import Schedule
 
 
-class Lesson(UUIDIdMixin, Base):
+class Lesson(Base):
     name: Mapped[str] = mapped_column(unique=True)
     department_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey(

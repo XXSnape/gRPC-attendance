@@ -1,3 +1,6 @@
+import uuid
+
+from sqlalchemy import UUID, func
 from sqlalchemy.ext.asyncio import AsyncAttrs
 
 from core.config import settings
@@ -16,6 +19,12 @@ class Base(AsyncAttrs, DeclarativeBase):
     """
 
     __abstract__ = True
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        server_default=func.uuid_generate_v7(),
+        primary_key=True,
+    )
 
     metadata = MetaData(
         naming_convention=settings.db.naming_convention,

@@ -14,13 +14,13 @@ from core.databases.sql.models import (
     GroupWithNumber,
     Lesson,
     LessonType,
-    PersonalSchedule,
     ScheduleException,
     Specialization,
     Student,
     StudentGroup,
     Teacher,
     TeacherSchedule,
+    Schedule,
 )
 from core.databases.sql.models.enums.form_of_education import (
     FormOfEducationEnum,
@@ -46,6 +46,7 @@ def get_user_form():
 
 class HashingPasswordMixin:
     column_details_exclude_list = ["password"]
+    column_exclude_list = ["id", "type", "password"]
     form_excluded_columns = [
         "id",
         "type",
@@ -144,19 +145,10 @@ class LessonTypeAdmin(ModelView, model=LessonType):
 
 
 class GroupScheduleAdmin(ModelView, model=GroupSchedule):
-    column_list = [
-        "id",
-        "group_id",
-        "lesson",
-        "group",
-        "number",
-        "date",
-        "type_of_lesson",
-    ]
-    form_excluded_columns = ["id", "type"]
+    column_list = "__all__"
 
 
-class PersonalScheduleAdmin(ModelView, model=PersonalSchedule):
+class ScheduleAdmin(ModelView, model=Schedule):
     column_list = "__all__"
 
 
@@ -174,7 +166,7 @@ class UserGroupAdmin(ModelView, model=StudentGroup):
             db_helper.get_async_session_with_commit() as session
         ):
             student_id = uuid.UUID(data["student"])
-            group_id = uuid.UUID(data["group"])
+            group_id = uuid.UUID(data["group_with_number"])
 
             obj = StudentGroup(
                 student_id=student_id,

@@ -6,8 +6,7 @@ from .group import Group as Group
 from .group_number import GroupWithNumber as GroupWithNumber
 from .lesson import Lesson as Lesson
 from .lesson import LessonType as LessonType
-from .schedule import GroupSchedule as GroupSchedule
-from .schedule import PersonalSchedule as PersonalSchedule
+from .group_schedule import GroupSchedule as GroupSchedule
 from .schedule import Schedule as Schedule
 from .schedule_exceptions import ScheduleException
 from .specialization import Specialization as Specialization

@@ -6,7 +6,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
 from .enums.level import LevelEnum
-from .mixins.id_uuid import UUIDIdMixin
 
 if TYPE_CHECKING:
     from .department import Department
@@ -14,7 +13,7 @@ if TYPE_CHECKING:
     from .specialization import Specialization
 
 
-class Group(UUIDIdMixin, Base):
+class Group(Base):
     __table_args__ = (
         UniqueConstraint(
             "level",
