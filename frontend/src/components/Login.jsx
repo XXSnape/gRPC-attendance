@@ -5,6 +5,7 @@ import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { useAuth } from "./AuthContext";
 import { useNavigate } from "react-router-dom";
+import { Navigate } from 'react-router-dom';
 
 // Создаем экземпляр для логина тоже с withCredentials
 const api = axios.create({
@@ -13,6 +14,7 @@ const api = axios.create({
 });
 
 export default function LoginForm() {
+  
   const [loading, setLoading] = React.useState(false);
   const { login, user } = useAuth();
   const navigate = useNavigate();

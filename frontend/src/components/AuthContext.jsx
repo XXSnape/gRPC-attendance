@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await api.post('/users/logout/');
+      await api.post('/users/sign-out/'); // Исправлено с /users/logout/ на /users/sign-out/
     } catch (error) {
       console.error('Logout error:', error);
     } finally {

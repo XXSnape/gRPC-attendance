@@ -6,6 +6,8 @@ import Header from './components/Header';
 import LoginForm from './components/Login';
 import SchedulePage from './components/SchedulePage';
 import LessonDetails from './components/LessonDetails';
+import ProfilePage from './components/ProfilePage';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -14,9 +16,31 @@ function App() {
         <div className="min-h-screen">
           <Header />
           <Routes>
-            <Route path="/" element={<SchedulePage />} />
             <Route path="/login" element={<LoginForm />} />
-            <Route path="/lessons/:lessonId" element={<LessonDetails />} />
+            <Route 
+              path="/" 
+              element={
+                <ProtectedRoute>
+                  <SchedulePage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/lessons/:lessonId" 
+              element={
+                <ProtectedRoute>
+                  <LessonDetails />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/me" 
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              } 
+            />
           </Routes>
         </div>
       </Router>
