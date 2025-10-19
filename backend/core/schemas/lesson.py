@@ -8,7 +8,7 @@ from pydantic import computed_field
 
 from .address import AudienceSchema
 from .attendance import AttendanceSchema
-from .common import BaseSchema
+from .common import BaseSchema, IdSchema
 from .user import UserFullNameSchema, UserAttendanceSchema
 
 
@@ -18,15 +18,21 @@ class BaseLessonSchema(BaseSchema):
     on_schedule: bool
 
 
-class BaseScheduleSchema(BaseSchema):
+class StudentLessonSchema(BaseSchema):
+    attendance: AttendanceSchema
+    group_id: uuid.UUID | str
+    is_prefect: bool | None = None
+
+
+class BaseScheduleSchema(IdSchema):
     number: int
     type_of_lesson: TypeOfLessonEnum
     subgroup_number: int | None
     lesson: BaseLessonSchema
     audience: AudienceSchema
-    my_attendance: AttendanceSchema = AttendanceSchema()
+    student_data: StudentLessonSchema | None
     teachers: list[UserFullNameSchema]
-    can_be_edited_by_perfect: bool = False
+    can_be_edited_by_prefect: bool | None = None
 
     @computed_field
     @property
@@ -46,15 +52,15 @@ class LessonsDataSchema(BaseSchema):
     lessons: list[BaseScheduleSchema]
 
 
-class GroupSchema(BaseSchema):
+class GroupSchema(IdSchema):
     complete_name: str
+    attendances: list[UserAttendanceSchema]
+    can_be_edited_by_prefect: bool | None = False
 
 
 class FullLessonDataSchema(BaseSchema):
     schedule_data: BaseScheduleSchema
-    group: GroupSchema
-    attendances: list[UserAttendanceSchema]
-    is_prefect: bool = False
+    groups: list[GroupSchema]
 
 
 class StudyDaysSchema(BaseSchema):

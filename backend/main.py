@@ -54,7 +54,6 @@ views = [
     admin_views.LessonAdmin,
     admin_views.LessonTypeAdmin,
     admin_views.GroupScheduleAdmin,
-    admin_views.PersonalScheduleAdmin,
     admin_views.ScheduleExceptionAdmin,
     admin_views.UserGroupAdmin,
     admin_views.SpecializationAdmin,
@@ -62,6 +61,7 @@ views = [
     admin_views.StudentAdmin,
     admin_views.TeacherAdmin,
     admin_views.AdministratorAdmin,
+    admin_views.ScheduleAdmin,
 ]
 
 admin = Admin(

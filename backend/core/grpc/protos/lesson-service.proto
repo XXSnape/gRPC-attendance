@@ -32,7 +32,7 @@ message LessonsResponse {
 }
 
 message LessonDetailsRequest {
-  string lesson_id = 1;
+  string schedule_id = 1;
 }
 
 message LessonsForMonthRequest {
@@ -46,7 +46,5 @@ message LessonsForMonthResponse {
 
 message LessonDetailsResponse {
   lesson.Schedule schedule_data = 1;
-  lesson.Group group = 2;
-  repeated lesson.StudentAttendance attendances = 3;
-  bool is_prefect = 4;
+  repeated lesson.GroupLesson groups = 2;
 }

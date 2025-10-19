@@ -4,6 +4,8 @@ from typing import AsyncIterator
 
 import grpc
 
+from core.databases.sql.dao.schedule import GroupScheduleDAO
+from core.databases.sql.db_helper import db_helper
 from core.dependencies.stubs import LessonStub
 from core.dependencies.user import UserMetadataDep
 from core.grpc.pb import lesson_service_pb2, lesson_pb2
@@ -81,12 +83,13 @@ async def get_study_days(
         )
 
 
-@router.post(
-    "/{lesson_id}/mark-attendance/",
+@router.put(
+    "/{lesson_id}/groups/{group_id}/mark-attendance/",
     response_model=lesson.ReadLessonStudentAttendanceSchema,
 )
 async def mark_lesson_attendance(
     lesson_id: uuid.UUID,
+    group_id: uuid.UUID,
     user_metadata: UserMetadataDep,
     stub: LessonStub,
     attendance_data: list[lesson.MarkStudentAttendanceSchema],
@@ -95,7 +98,10 @@ async def mark_lesson_attendance(
     request_stream = create_attendances(
         attendance_data=attendance_data,
     )
-    metadata = user_metadata + (("lesson_id", str(lesson_id)),)
+    metadata = user_metadata + (
+        ("lesson_id", str(lesson_id)),
+        ("group_id", str(group_id)),
+    )
     try:
         response_stream: AsyncIterator[
             lesson_pb2.StudentAttendance
@@ -123,16 +129,17 @@ async def mark_lesson_attendance(
 
 
 @router.get(
-    "/{lesson_id}/",
+    "/{schedule_id}/",
     response_model=lesson.FullLessonDataSchema,
 )
 async def get_lesson_by_id(
-    lesson_id: uuid.UUID,
+    schedule_id: uuid.UUID,
     user_metadata: UserMetadataDep,
     stub: LessonStub,
 ):
+
     request = lesson_service_pb2.LessonDetailsRequest(
-        lesson_id=str(lesson_id),
+        schedule_id=str(schedule_id),
     )
     try:
         response = await stub.GetLessonDetails(
@@ -141,9 +148,9 @@ async def get_lesson_by_id(
         )
         return lesson.FullLessonDataSchema.model_validate(response)
     except grpc.aio.AioRpcError as exc:
-        logger.error(
+        logger.exception(
             "Ошибка при получении детали пары с ID {}: {} {}",
-            lesson_id,
+            schedule_id,
             exc.code(),
             exc.details(),
         )
