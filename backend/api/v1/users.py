@@ -1,10 +1,18 @@
+from typing import Annotated
+
 import grpc
 from core import settings
 from core.dependencies.stubs import UserStub
-from core.dependencies.user import UserDep
+from core.dependencies.user import UserDep, cookie_scheme
 from core.grpc.pb import user_service_pb2
 from core.schemas import user
-from fastapi import APIRouter, HTTPException, status
+from fastapi import (
+    APIRouter,
+    HTTPException,
+    status,
+    Response,
+    Depends,
+)
 from fastapi.responses import JSONResponse
 from google.protobuf.json_format import MessageToDict
 from loguru import logger
@@ -49,6 +57,35 @@ async def sign_in(
         samesite="strict",
     )
     return http_response
+
+
+@router.post(
+    "/sign-out/",
+)
+async def sign_out(
+    token: Annotated[str, Depends(cookie_scheme)],
+    stub: UserStub,
+):
+    grpc_request = user_service_pb2.LogoutRequest(
+        token=token,
+    )
+    try:
+        await stub.UserLogout(grpc_request)
+    except grpc.aio.AioRpcError as exc:
+        logger.error(
+            "Ошибка при выходе пользователя: {} {}",
+            exc.code(),
+            exc.details(),
+        )
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=exc.details(),
+        )
+    response = Response()
+    response.delete_cookie(
+        key=settings.auth.token_name,
+    )
+    return response
 
 
 @router.get("/me/", response_model=user.UserDataSchema)

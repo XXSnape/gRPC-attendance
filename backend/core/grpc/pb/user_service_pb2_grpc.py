@@ -50,6 +50,12 @@ class UserServiceStub(object):
             response_deserializer=user__pb2.UserData.FromString,
             _registered_method=True,
         )
+        self.UserLogout = channel.unary_unary(
+            "/userService.UserService/UserLogout",
+            request_serializer=user__service__pb2.LogoutRequest.SerializeToString,
+            response_deserializer=user__service__pb2.LogoutResponse.FromString,
+            _registered_method=True,
+        )
 
 
 class UserServiceServicer(object):
@@ -67,6 +73,12 @@ class UserServiceServicer(object):
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
+    def UserLogout(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
 
 def add_UserServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -79,6 +91,11 @@ def add_UserServiceServicer_to_server(servicer, server):
             servicer.UserAuth,
             request_deserializer=user__service__pb2.AuthRequest.FromString,
             response_serializer=user__pb2.UserData.SerializeToString,
+        ),
+        "UserLogout": grpc.unary_unary_rpc_method_handler(
+            servicer.UserLogout,
+            request_deserializer=user__service__pb2.LogoutRequest.FromString,
+            response_serializer=user__service__pb2.LogoutResponse.SerializeToString,
         ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -143,6 +160,36 @@ class UserService(object):
             "/userService.UserService/UserAuth",
             user__service__pb2.AuthRequest.SerializeToString,
             user__pb2.UserData.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True,
+        )
+
+    @staticmethod
+    def UserLogout(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            "/userService.UserService/UserLogout",
+            user__service__pb2.LogoutRequest.SerializeToString,
+            user__service__pb2.LogoutResponse.FromString,
             options,
             channel_credentials,
             insecure,

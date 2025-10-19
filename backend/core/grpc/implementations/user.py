@@ -1,4 +1,5 @@
 import secrets
+from typing import reveal_type
 
 import grpc
 from argon2 import PasswordHasher
@@ -7,7 +8,11 @@ from core import settings
 from core.databases.no_sql.documents import Token
 from core.databases.sql.dao.user import UserDAO
 from core.databases.sql.db_helper import db_helper
-from core.grpc.pb import user_pb2, user_service_pb2, user_service_pb2_grpc
+from core.grpc.pb import (
+    user_pb2,
+    user_service_pb2,
+    user_service_pb2_grpc,
+)
 from core.schemas.user import UserEmailSchema
 
 
@@ -82,3 +87,19 @@ class UserServiceServicer(
             type=token_document.type,
             full_name=token_document.full_name,
         )
+
+    async def UserLogout(
+        self,
+        request: user_service_pb2.LogoutRequest,
+        context: grpc.aio.ServicerContext,
+    ) -> user_service_pb2.LogoutResponse:
+
+        result = await Token.find_one(
+            Token.token == request.token
+        ).delete()
+        if result.deleted_count == 0:
+            await context.abort(
+                grpc.StatusCode.NOT_FOUND,
+                details="Токен не найден",
+            )
+        return user_service_pb2.LogoutResponse()
