@@ -18,7 +18,7 @@ from core.grpc.utils.user import get_user_data_from_metadata
 from core.schemas.attendance import AttendanceSchema
 from core.schemas.lesson import (
     BaseScheduleSchema,
-    FullLessonDataSchema,
+    FullScheduleDataSchema,
     StudentLessonSchema,
     GroupSchema,
 )
@@ -119,7 +119,7 @@ class LessonServiceServicer(
                     "Пара не найдена в расписании вашей группы",
                 )
             print("result", result, type(result))
-            schedule, user_group_id = result[0]
+            schedule, user_group_id = result
 
             groups = []
             documents = await Visit.find(
@@ -200,7 +200,7 @@ class LessonServiceServicer(
             )
 
             return lesson_service_pb2.LessonDetailsResponse(
-                **FullLessonDataSchema(
+                **FullScheduleDataSchema(
                     schedule_data=schedule_data,
                     groups=groups,
                 ).model_dump(mode="json")

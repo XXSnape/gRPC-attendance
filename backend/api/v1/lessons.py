@@ -130,9 +130,9 @@ async def mark_lesson_attendance(
 
 @router.get(
     "/{schedule_id}/",
-    response_model=lesson.FullLessonDataSchema,
+    response_model=lesson.FullScheduleDataSchema,
 )
-async def get_lesson_by_id(
+async def get_schedule_by_id(
     schedule_id: uuid.UUID,
     user_metadata: UserMetadataDep,
     stub: LessonStub,
@@ -146,7 +146,7 @@ async def get_lesson_by_id(
             request,
             metadata=user_metadata,
         )
-        return lesson.FullLessonDataSchema.model_validate(response)
+        return lesson.FullScheduleDataSchema.model_validate(response)
     except grpc.aio.AioRpcError as exc:
         logger.exception(
             "Ошибка при получении детали пары с ID {}: {} {}",

@@ -58,7 +58,7 @@ class GroupSchema(IdSchema):
     can_be_edited_by_prefect: bool | None = False
 
 
-class FullLessonDataSchema(BaseSchema):
+class FullScheduleDataSchema(BaseSchema):
     schedule_data: BaseScheduleSchema
     groups: list[GroupSchema]
 
