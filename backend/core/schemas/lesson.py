@@ -26,6 +26,7 @@ class StudentLessonSchema(BaseSchema):
 
 class BaseScheduleSchema(IdSchema):
     number: int
+    date: datetime.date
     type_of_lesson: TypeOfLessonEnum
     subgroup_number: int | None
     lesson: BaseLessonSchema

@@ -62,6 +62,7 @@ class LessonServiceServicer(
                     **BaseScheduleSchema(
                         id=group_schedule.schedule.id,
                         number=group_schedule.schedule.number,
+                        date=group_schedule.schedule.date,
                         type_of_lesson=group_schedule.schedule.type_of_lesson,
                         subgroup_number=group_schedule.subgroup_number,
                         lesson=group_schedule.schedule.lesson,
@@ -189,6 +190,7 @@ class LessonServiceServicer(
             schedule_data = BaseScheduleSchema(
                 id=schedule.id,
                 number=schedule.number,
+                date=schedule.date,
                 type_of_lesson=schedule.type_of_lesson,
                 subgroup_number=subgroup_number,
                 lesson=schedule.lesson,

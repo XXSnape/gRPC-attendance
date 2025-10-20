@@ -87,9 +87,10 @@ class StudentLesson(_message.Message):
     def __init__(self, attendance: _Optional[_Union[Attendance, _Mapping]] = ..., group_id: _Optional[str] = ..., is_prefect: bool = ...) -> None: ...
 
 class Schedule(_message.Message):
-    __slots__ = ("id", "number", "type_of_lesson", "subgroup_number", "lesson", "student_data", "time", "audience", "teachers", "can_be_edited_by_prefect")
+    __slots__ = ("id", "number", "date", "type_of_lesson", "subgroup_number", "lesson", "student_data", "time", "audience", "teachers", "can_be_edited_by_prefect")
     ID_FIELD_NUMBER: _ClassVar[int]
     NUMBER_FIELD_NUMBER: _ClassVar[int]
+    DATE_FIELD_NUMBER: _ClassVar[int]
     TYPE_OF_LESSON_FIELD_NUMBER: _ClassVar[int]
     SUBGROUP_NUMBER_FIELD_NUMBER: _ClassVar[int]
     LESSON_FIELD_NUMBER: _ClassVar[int]
@@ -100,6 +101,7 @@ class Schedule(_message.Message):
     CAN_BE_EDITED_BY_PREFECT_FIELD_NUMBER: _ClassVar[int]
     id: str
     number: int
+    date: str
     type_of_lesson: str
     subgroup_number: int
     lesson: LessonData
@@ -108,4 +110,4 @@ class Schedule(_message.Message):
     audience: Audience
     teachers: _containers.RepeatedCompositeFieldContainer[_user_pb2.UserFullName]
     can_be_edited_by_prefect: bool
-    def __init__(self, id: _Optional[str] = ..., number: _Optional[int] = ..., type_of_lesson: _Optional[str] = ..., subgroup_number: _Optional[int] = ..., lesson: _Optional[_Union[LessonData, _Mapping]] = ..., student_data: _Optional[_Union[StudentLesson, _Mapping]] = ..., time: _Optional[str] = ..., audience: _Optional[_Union[Audience, _Mapping]] = ..., teachers: _Optional[_Iterable[_Union[_user_pb2.UserFullName, _Mapping]]] = ..., can_be_edited_by_prefect: bool = ...) -> None: ...
+    def __init__(self, id: _Optional[str] = ..., number: _Optional[int] = ..., date: _Optional[str] = ..., type_of_lesson: _Optional[str] = ..., subgroup_number: _Optional[int] = ..., lesson: _Optional[_Union[LessonData, _Mapping]] = ..., student_data: _Optional[_Union[StudentLesson, _Mapping]] = ..., time: _Optional[str] = ..., audience: _Optional[_Union[Audience, _Mapping]] = ..., teachers: _Optional[_Iterable[_Union[_user_pb2.UserFullName, _Mapping]]] = ..., can_be_edited_by_prefect: bool = ...) -> None: ...

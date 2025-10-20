@@ -58,12 +58,13 @@ message StudentLesson {
 message Schedule {
   string id = 1;
   int32 number = 2;
-  string type_of_lesson = 3;
-  optional int32 subgroup_number = 4;
-  LessonData lesson = 5;
-  optional StudentLesson student_data = 6;
-  string time = 7;
-  Audience audience = 8;
-  repeated user.UserFullName teachers = 9;
-  optional bool can_be_edited_by_prefect = 10;
+  string date = 3;
+  string type_of_lesson = 4;
+  optional int32 subgroup_number = 5;
+  LessonData lesson = 6;
+  optional StudentLesson student_data = 7;
+  string time = 8;
+  Audience audience = 9;
+  repeated user.UserFullName teachers = 10;
+  optional bool can_be_edited_by_prefect = 11;
 }

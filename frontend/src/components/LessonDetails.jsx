@@ -156,7 +156,7 @@ export default function LessonDetail() {
                 </Tag>
               </Descriptions.Item>
               <Descriptions.Item label="Дата и время">
-                {schedule_data.time}
+                <Tag>{`${schedule_data.date} ${schedule_data.time}`}</Tag>
               </Descriptions.Item>
               <Descriptions.Item label="Аудитория">
                 <Tooltip title={schedule_data.audience.address.name}>
