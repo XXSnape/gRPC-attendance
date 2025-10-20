@@ -84,11 +84,11 @@ async def get_study_days(
 
 
 @router.put(
-    "/{lesson_id}/groups/{group_id}/mark-attendance/",
+    "/{schedule_id}/groups/{group_id}/attendance/",
     response_model=lesson.ReadLessonStudentAttendanceSchema,
 )
 async def mark_lesson_attendance(
-    lesson_id: uuid.UUID,
+    schedule_id: uuid.UUID,
     group_id: uuid.UUID,
     user_metadata: UserMetadataDep,
     stub: LessonStub,
@@ -99,7 +99,7 @@ async def mark_lesson_attendance(
         attendance_data=attendance_data,
     )
     metadata = user_metadata + (
-        ("lesson_id", str(lesson_id)),
+        ("schedule_id", str(schedule_id)),
         ("group_id", str(group_id)),
     )
     try:
@@ -118,13 +118,13 @@ async def mark_lesson_attendance(
     except grpc.aio.AioRpcError as exc:
         logger.exception(
             "Ошибка при обновлении посещаемости для пары с ID {}: {} {}",
-            lesson_id,
+            schedule_id,
             exc.code(),
             exc.details(),
         )
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Ошибка при обновлении посещаемости",
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=exc.details(),
         )
 
 

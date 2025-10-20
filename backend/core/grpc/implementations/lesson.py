@@ -118,7 +118,6 @@ class LessonServiceServicer(
                     grpc.StatusCode.NOT_FOUND,
                     "Пара не найдена в расписании вашей группы",
                 )
-            print("result", result, type(result))
             schedule, user_group_id = result
 
             groups = []
@@ -137,7 +136,7 @@ class LessonServiceServicer(
                     group_with_subgroup.group_with_number
                 )
                 group_schema = GroupSchema(
-                    id=group_with_number.group_id,
+                    id=group_with_number.id,
                     complete_name=group_with_number.complete_name,
                     attendances=[],
                 )
@@ -215,48 +214,47 @@ class LessonServiceServicer(
     ) -> AsyncIterator[lesson_service_pb2.StudentAttendanceResponse]:
         user = await get_user_data_from_metadata(context)
         metadata = dict(context.invocation_metadata())
-        lesson_id = metadata.get("lesson_id")
+        schedule_id = metadata.get("schedule_id")
+        group_id = metadata.get("group_id")
+        if schedule_id is None or group_id is None:
+            await context.abort(
+                grpc.StatusCode.INVALID_ARGUMENT,
+                "Отсутствуют необходимые метаданные: schedule_id или group_id",
+            )
+            return
         async with (
             db_helper.get_async_session_without_commit() as session
         ):
-            dao = StudentGroupDAO(session=session)
-            student_group = await dao.get_group_by_student_id(
-                user_id=user.id
+            dao = GroupScheduleDAO(session=session)
+            is_prefect = await dao.check_is_prefect_in_group(
+                group_id=group_id, user_id=user.id
             )
-            if student_group is None:
+            if not is_prefect:
                 await context.abort(
-                    grpc.StatusCode.NOT_FOUND,
-                    "Группа студента не найдена или он не является старостой",
+                    grpc.StatusCode.PERMISSION_DENIED,
+                    "Пользователь не является старостой группы или не имеет прав на изменение посещаемости",
                 )
-                return
-            check = await GroupScheduleDAO(
-                session=session
-            ).check_group_has_lesson(
-                lesson_id=lesson_id,
-                group_id=student_group.group_id,
+            group_schedule = await dao.get_students_of_group(
+                schedule_id=schedule_id,
+                group_id=group_id,
             )
-
-            if not lesson_id or not check:
-                await context.abort(
-                    grpc.StatusCode.NOT_FOUND,
-                    "Пара не найдена в расписании вашей группы",
-                )
-                return
+            students_with_groups = (
+                group_schedule.group_with_number.students_with_groups
+            )
             students_ids = [
-                sg.student_id
-                for sg in student_group.group_with_number.students_with_groups
+                sg.student_id for sg in students_with_groups
             ]
 
         async for request in request_iterator:
             if uuid.UUID(request.student_id) in students_ids:
                 await Visit.find_one(
-                    Visit.lesson_id == uuid.UUID(lesson_id),
+                    Visit.schedule_id == uuid.UUID(schedule_id),
                     Visit.student_id
                     == uuid.UUID(request.student_id),
                 ).upsert(
                     Set({Visit.status: request.attendance.status}),
                     on_insert=Visit(
-                        lesson_id=uuid.UUID(lesson_id),
+                        schedule_id=uuid.UUID(schedule_id),
                         student_id=uuid.UUID(request.student_id),
                         status=request.attendance.status,
                     ),

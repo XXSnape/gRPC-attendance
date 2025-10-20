@@ -79,7 +79,8 @@ class GroupScheduleDAO(BaseDAO):
             .where(
                 GroupSchedule.group_id == group_id_subq,
             )
-        ).distinct()
+            .limit(1)
+        )
         exist_result = await self._session.execute(exists_query)
         if exist_result.scalar_one_or_none() is None:
             return None
@@ -133,19 +134,37 @@ class GroupScheduleDAO(BaseDAO):
         result = await self._session.execute(query)
         return result.scalars().all()
 
-    async def check_group_has_lesson(
-        self, lesson_id: str, group_id: uuid.UUID
+    async def check_is_prefect_in_group(
+        self, group_id: str, user_id: uuid.UUID
     ) -> bool:
 
-        schedule_poly = with_polymorphic(Schedule, [GroupSchedule])
+        query = (
+            select(StudentGroup).where(
+                StudentGroup.group_id == uuid.UUID(group_id),
+                StudentGroup.student_id == user_id,
+                StudentGroup.is_prefect.is_(True),
+            )
+        ).limit(1)
+        result = await self._session.execute(query)
+        return result.scalar_one_or_none() is not None
+
+    async def get_students_of_group(
+        self,
+        schedule_id: str,
+        group_id: str,
+    ) -> GroupSchedule | None:
 
         query = (
-            select(func.count())
-            .select_from(schedule_poly)
+            select(GroupSchedule)
             .where(
-                schedule_poly.lesson_id == uuid.UUID(lesson_id),
-                schedule_poly.GroupSchedule.group_id == group_id,
+                GroupSchedule.group_id == uuid.UUID(group_id),
+                GroupSchedule.schedule_id == uuid.UUID(schedule_id),
+            )
+            .options(
+                joinedload(
+                    GroupSchedule.group_with_number
+                ).selectinload(GroupWithNumber.students_with_groups)
             )
         )
         result = await self._session.execute(query)
-        return result.scalar() > 0
+        return result.scalar_one_or_none()
