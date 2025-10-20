@@ -58,3 +58,7 @@ class UserDataSchema(IdSchema):
     ]
     full_name: str | None = None
     is_prefect: bool = False
+
+
+class UserUUIDDataSchema(UserDataSchema):
+    id: uuid.UUID

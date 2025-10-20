@@ -6,7 +6,6 @@ from beanie.odm.operators.update.general import Set
 
 from core.databases.no_sql.documents.visit import Visit
 from core.databases.sql.dao.schedule import GroupScheduleDAO
-from core.databases.sql.dao.student_group import StudentGroupDAO
 from core.databases.sql.db_helper import db_helper
 from core.enums.status import AttendanceStatus
 from core.grpc.pb import (
@@ -34,22 +33,18 @@ class LessonServiceServicer(
         context: grpc.aio.ServicerContext,
     ) -> lesson_service_pb2.LessonsResponse:
         user = await get_user_data_from_metadata(context)
-        user_uuid = uuid.UUID(user.id)
         async with (
             db_helper.get_async_session_without_commit() as session
         ):
             dao = GroupScheduleDAO(session)
             group_schedules = await dao.get_user_lessons(
-                request.date, user_uuid
+                request.date, user.id
             )
             lessons = []
             for group_schedule in group_schedules:
-                docs = await Visit.find(
-                    Visit.student_id == user_uuid
-                ).to_list()
                 visit = await Visit.find_one(
                     Visit.schedule_id == group_schedule.schedule.id,
-                    Visit.student_id == user_uuid,
+                    Visit.student_id == user.id,
                 )
 
                 student_data = StudentLessonSchema(
@@ -88,7 +83,6 @@ class LessonServiceServicer(
         context: grpc.aio.ServicerContext,
     ) -> lesson_service_pb2.LessonsForMonthResponse:
         user = await get_user_data_from_metadata(context)
-        user_uuid = uuid.UUID(user.id)
         async with (
             db_helper.get_async_session_without_commit() as session
         ):
@@ -96,7 +90,7 @@ class LessonServiceServicer(
             dates = await dao.get_user_lessons_for_month(
                 month=request.month,
                 year=request.year,
-                user_id=user_uuid,
+                user_id=user.id,
             )
             return lesson_service_pb2.LessonsForMonthResponse(
                 dates=[str(date) for date in dates]
@@ -111,13 +105,12 @@ class LessonServiceServicer(
         user_status = AttendanceSchema()
         subgroup_number = None
         user = await get_user_data_from_metadata(context)
-        user_uuid = uuid.UUID(user.id)
         async with (
             db_helper.get_async_session_without_commit() as session
         ):
             dao = GroupScheduleDAO(session)
             result = await dao.get_lesson_details(
-                user_id=user_uuid,
+                user_id=user.id,
                 schedule_id=request.schedule_id,
             )
             if result is None:
@@ -153,10 +146,7 @@ class LessonServiceServicer(
                     for (
                         student_with_group
                     ) in group_with_number.students_with_groups:
-                        if (
-                            student_with_group.student_id
-                            == user_uuid
-                        ):
+                        if student_with_group.student_id == user.id:
                             is_current_user_prefect = (
                                 student_with_group.is_prefect
                             )
@@ -178,7 +168,7 @@ class LessonServiceServicer(
                                 )
                                 if (
                                     student_with_group.student_id
-                                    == user_uuid
+                                    == user.id
                                 ):
                                     user_status.status = (
                                         document.status
@@ -223,7 +213,6 @@ class LessonServiceServicer(
         metadata = dict(context.invocation_metadata())
         schedule_id = metadata.get("schedule_id")
         group_id = metadata.get("group_id")
-        user_uuid = uuid.UUID(user.id)
         if schedule_id is None or group_id is None:
             await context.abort(
                 grpc.StatusCode.INVALID_ARGUMENT,
@@ -235,7 +224,7 @@ class LessonServiceServicer(
         ):
             dao = GroupScheduleDAO(session=session)
             is_prefect = await dao.check_is_prefect_in_group(
-                group_id=group_id, user_id=user_uuid
+                group_id=group_id, user_id=user.id
             )
             if not is_prefect:
                 await context.abort(

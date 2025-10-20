@@ -9,11 +9,10 @@ from core.databases.sql.models import (
     GroupWithNumber,
     Schedule,
 )
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.orm import (
     joinedload,
     selectinload,
-    with_polymorphic,
 )
 
 from .base import BaseDAO
