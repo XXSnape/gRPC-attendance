@@ -190,36 +190,37 @@ export default function LessonDetail() {
             title={`Посещения группы ${targetGroup?.complete_name || 'Не указана'}`}
             className="shadow-sm"
           >
-            {/* Статистика и кнопки */}
-            <div className="flex justify-between items-center mb-6">
-              <div className="text-lg font-medium">
-                Отмечено {markedCount} из {attendances.length}
+            {/* Статистика и кнопки (только для старосты) */}
+            {canEdit && (
+              <div className="flex justify-between items-center mb-6">
+                <div className="text-lg font-medium">
+                  Отмечено {markedCount} из {attendances.length}
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    size="large"
+                    onClick={handleMarkAll}
+                  >
+                    Отметить всех
+                  </Button>
+                  <Button size="large">
+                    Перейти к статистике журнала
+                  </Button>
+                </div>
               </div>
-              <div className="flex gap-2">
-                <Button 
-                  disabled={!canEdit} 
-                  size="large"
-                  onClick={handleMarkAll}
-                >
-                  Отметить всех
-                </Button>
-                <Button size="large">
-                  Перейти к статистике журнала
-                </Button>
-              </div>
-            </div>
+            )}
 
-            {/* Предупреждение */}
+            {/* Предупреждение для не-старосты */}
             {!canEdit && (
               <Alert
                 message="Только староста может отмечать студентов"
-                type="warning"
-                className="mb-6 text-center"
+                type="error"
+                className="mb-4 text-center"
               />
             )}
 
             {/* Список студентов */}
-            <div className="space-y-4">
+            <div className="space-y-4 mt-4">
               {attendances.map((student, index) => (
                 <div
                   key={index}
