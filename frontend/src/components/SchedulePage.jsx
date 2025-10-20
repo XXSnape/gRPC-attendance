@@ -125,7 +125,7 @@ export default function SchedulePage() {
                         <Card
                           size="small"
                           className="w-full cursor-pointer hover:shadow-md transition-shadow"
-                          onClick={() => handleLessonClick(lesson.lesson.id)}
+                          onClick={() => handleLessonClick(lesson.id)}
                         >
                           <div className="flex justify-between items-start mb-2">
                             <div className="flex items-center gap-2">
@@ -134,11 +134,14 @@ export default function SchedulePage() {
                               </Tag>
                               <Tag
                                 color={getStatusColor(
-                                  lesson.my_attendance.decryption
+                                  lesson.student_data.attendance.decryption
                                 )}
                               >
-                                {lesson.my_attendance.decryption}
+                                {lesson.student_data.attendance.decryption}
                               </Tag>
+                              {lesson.can_be_edited_by_prefect && (
+                                <Tag color="orange">открыто старосте</Tag>
+                              )}
                             </div>
                             <span className="text-gray-600 font-medium">
                               {lesson.time}
