@@ -15,6 +15,7 @@ export default function LessonDetail() {
   const [lessonData, setLessonData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [attendances, setAttendances] = useState([]);
+  const [originalAttendances, setOriginalAttendances] = useState([]); // Сохраняем исходные данные
   const [saving, setSaving] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   const [markedCount, setMarkedCount] = useState(0);
@@ -36,6 +37,7 @@ export default function LessonDetail() {
       
       const groupAttendances = targetGroup ? targetGroup.attendances : [];
       setAttendances(groupAttendances);
+      setOriginalAttendances(JSON.parse(JSON.stringify(groupAttendances))); // Сохраняем копию исходных данных
       setMarkedCount(groupAttendances.filter(a => a.attendance.status === 0).length);
     } catch (error) {
       console.error('Error fetching lesson data:', error);
@@ -48,7 +50,26 @@ export default function LessonDetail() {
     const updatedAttendances = [...attendances];
     updatedAttendances[studentIndex].attendance.status = status;
     setAttendances(updatedAttendances);
-    // Убрали обновление markedCount здесь
+  };
+
+  const handleMarkAll = () => {
+    const allMarked = attendances.every(student => student.attendance.status === 0);
+    const newStatus = allMarked ? 1 : 0; // Если все +, то ставим Н, иначе +
+    
+    const updatedAttendances = attendances.map(student => ({
+      ...student,
+      attendance: {
+        ...student.attendance,
+        status: newStatus
+      }
+    }));
+    
+    setAttendances(updatedAttendances);
+  };
+
+  const handleCancel = () => {
+    // Сбрасываем к исходным данным
+    setAttendances(JSON.parse(JSON.stringify(originalAttendances)));
   };
 
   const handleSaveAttendance = async () => {
@@ -77,7 +98,7 @@ export default function LessonDetail() {
       }));
       
       setAttendances(newAttendances);
-      // Обновляем markedCount только после ответа от API
+      setOriginalAttendances(JSON.parse(JSON.stringify(newAttendances))); // Обновляем исходные данные
       setMarkedCount(newAttendances.filter(a => a.attendance.status === 0).length);
       
       messageApi.success('Посещаемость успешно сохранена');
@@ -175,7 +196,11 @@ export default function LessonDetail() {
                 Отмечено {markedCount} из {attendances.length}
               </div>
               <div className="flex gap-2">
-                <Button disabled={!canEdit} size="large">
+                <Button 
+                  disabled={!canEdit} 
+                  size="large"
+                  onClick={handleMarkAll}
+                >
                   Отметить всех
                 </Button>
                 <Button size="large">
@@ -227,9 +252,15 @@ export default function LessonDetail() {
               ))}
             </div>
 
-            {/* Кнопка сохранения для старосты */}
+            {/* Кнопки сохранения и отмены для старосты */}
             {canEdit && (
-              <div className="flex justify-end mt-6">
+              <div className="flex justify-end gap-2 mt-6">
+                <Button 
+                  size="large"
+                  onClick={handleCancel}
+                >
+                  Отменить
+                </Button>
                 <Button 
                   type="primary" 
                   size="large" 
