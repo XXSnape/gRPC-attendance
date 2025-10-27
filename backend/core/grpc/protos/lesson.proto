@@ -55,6 +55,11 @@ message StudentLesson {
   optional bool is_prefect = 3;
 }
 
+message TotalAttendance {
+  int32 total_students = 1;
+  int32 present_students = 2;
+}
+
 message Schedule {
   string id = 1;
   int32 number = 2;
@@ -64,7 +69,9 @@ message Schedule {
   LessonData lesson = 6;
   optional StudentLesson student_data = 7;
   string time = 8;
-  Audience audience = 9;
+  repeated Audience audiences = 9;
   repeated user.UserFullName teachers = 10;
   optional bool can_be_edited_by_prefect = 11;
+  repeated string group_names = 12;
+  optional TotalAttendance total_attendance = 13;
 }

@@ -86,8 +86,16 @@ class StudentLesson(_message.Message):
     is_prefect: bool
     def __init__(self, attendance: _Optional[_Union[Attendance, _Mapping]] = ..., group_id: _Optional[str] = ..., is_prefect: bool = ...) -> None: ...
 
+class TotalAttendance(_message.Message):
+    __slots__ = ("total_students", "present_students")
+    TOTAL_STUDENTS_FIELD_NUMBER: _ClassVar[int]
+    PRESENT_STUDENTS_FIELD_NUMBER: _ClassVar[int]
+    total_students: int
+    present_students: int
+    def __init__(self, total_students: _Optional[int] = ..., present_students: _Optional[int] = ...) -> None: ...
+
 class Schedule(_message.Message):
-    __slots__ = ("id", "number", "date", "type_of_lesson", "subgroup_number", "lesson", "student_data", "time", "audience", "teachers", "can_be_edited_by_prefect")
+    __slots__ = ("id", "number", "date", "type_of_lesson", "subgroup_number", "lesson", "student_data", "time", "audiences", "teachers", "can_be_edited_by_prefect", "group_names", "total_attendance")
     ID_FIELD_NUMBER: _ClassVar[int]
     NUMBER_FIELD_NUMBER: _ClassVar[int]
     DATE_FIELD_NUMBER: _ClassVar[int]
@@ -96,9 +104,11 @@ class Schedule(_message.Message):
     LESSON_FIELD_NUMBER: _ClassVar[int]
     STUDENT_DATA_FIELD_NUMBER: _ClassVar[int]
     TIME_FIELD_NUMBER: _ClassVar[int]
-    AUDIENCE_FIELD_NUMBER: _ClassVar[int]
+    AUDIENCES_FIELD_NUMBER: _ClassVar[int]
     TEACHERS_FIELD_NUMBER: _ClassVar[int]
     CAN_BE_EDITED_BY_PREFECT_FIELD_NUMBER: _ClassVar[int]
+    GROUP_NAMES_FIELD_NUMBER: _ClassVar[int]
+    TOTAL_ATTENDANCE_FIELD_NUMBER: _ClassVar[int]
     id: str
     number: int
     date: str
@@ -107,7 +117,9 @@ class Schedule(_message.Message):
     lesson: LessonData
     student_data: StudentLesson
     time: str
-    audience: Audience
+    audiences: _containers.RepeatedCompositeFieldContainer[Audience]
     teachers: _containers.RepeatedCompositeFieldContainer[_user_pb2.UserFullName]
     can_be_edited_by_prefect: bool
-    def __init__(self, id: _Optional[str] = ..., number: _Optional[int] = ..., date: _Optional[str] = ..., type_of_lesson: _Optional[str] = ..., subgroup_number: _Optional[int] = ..., lesson: _Optional[_Union[LessonData, _Mapping]] = ..., student_data: _Optional[_Union[StudentLesson, _Mapping]] = ..., time: _Optional[str] = ..., audience: _Optional[_Union[Audience, _Mapping]] = ..., teachers: _Optional[_Iterable[_Union[_user_pb2.UserFullName, _Mapping]]] = ..., can_be_edited_by_prefect: bool = ...) -> None: ...
+    group_names: _containers.RepeatedScalarFieldContainer[str]
+    total_attendance: TotalAttendance
+    def __init__(self, id: _Optional[str] = ..., number: _Optional[int] = ..., date: _Optional[str] = ..., type_of_lesson: _Optional[str] = ..., subgroup_number: _Optional[int] = ..., lesson: _Optional[_Union[LessonData, _Mapping]] = ..., student_data: _Optional[_Union[StudentLesson, _Mapping]] = ..., time: _Optional[str] = ..., audiences: _Optional[_Iterable[_Union[Audience, _Mapping]]] = ..., teachers: _Optional[_Iterable[_Union[_user_pb2.UserFullName, _Mapping]]] = ..., can_be_edited_by_prefect: bool = ..., group_names: _Optional[_Iterable[str]] = ..., total_attendance: _Optional[_Union[TotalAttendance, _Mapping]] = ...) -> None: ...

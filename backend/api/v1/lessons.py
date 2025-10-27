@@ -11,8 +11,8 @@ from core.schemas import lesson
 from fastapi import APIRouter
 from loguru import logger
 
-from services.grpc_errors import catch_errors
-from services.lesson import create_attendances
+from utils.grpc_errors import catch_errors
+from utils.lesson import create_attendances
 
 router = APIRouter(tags=["Пары"])
 

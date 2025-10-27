@@ -15,7 +15,7 @@ from fastapi.responses import JSONResponse
 from google.protobuf.json_format import MessageToDict
 from loguru import logger
 
-from services.grpc_errors import catch_errors
+from utils.grpc_errors import catch_errors
 
 router = APIRouter(tags=["Пользователи"])
 

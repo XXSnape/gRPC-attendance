@@ -24,16 +24,23 @@ class StudentLessonSchema(BaseSchema):
     is_prefect: bool | None = None
 
 
+class TotalAttendance(BaseSchema):
+    total_students: int
+    present_students: int
+
+
 class BaseScheduleSchema(IdSchema):
     number: int
     date: datetime.date
     type_of_lesson: TypeOfLessonEnum
     subgroup_number: int | None
     lesson: BaseLessonSchema
-    audience: AudienceSchema
+    audiences: list[AudienceSchema]
     student_data: StudentLessonSchema | None
     teachers: list[UserFullNameSchema]
+    group_names: list[str]
     can_be_edited_by_prefect: bool | None = None
+    total_attendance: TotalAttendance | None = None
 
     @computed_field
     @property

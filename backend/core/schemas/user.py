@@ -50,15 +50,9 @@ class HashedPasswordUserSchema(BaseUserSchema):
 
 
 class UserDataSchema(IdSchema):
-
     type: Literal[
         "student",
         "teacher",
         "administrator",
     ]
     full_name: str | None = None
-    is_prefect: bool = False
-
-
-class UserUUIDDataSchema(UserDataSchema):
-    id: uuid.UUID
