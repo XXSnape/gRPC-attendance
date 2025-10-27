@@ -4,15 +4,14 @@ from typing import AsyncIterator
 
 import grpc
 
-from core.databases.sql.dao.schedule import GroupScheduleDAO
-from core.databases.sql.db_helper import db_helper
 from core.dependencies.stubs import LessonStub
 from core.dependencies.user import UserMetadataDep
 from core.grpc.pb import lesson_service_pb2, lesson_pb2
 from core.schemas import lesson
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter
 from loguru import logger
 
+from services.grpc_errors import catch_errors
 from services.lesson import create_attendances
 
 router = APIRouter(tags=["Пары"])
@@ -43,9 +42,9 @@ async def get_lessons_by_date(
             exc.code(),
             exc.details(),
         )
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Ошибка при получении пар",
+        catch_errors(
+            exc,
+            "Ошибка при получении пар",
         )
 
 
@@ -77,9 +76,9 @@ async def get_study_days(
             exc.code(),
             exc.details(),
         )
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Ошибка при получении учебных дней",
+        catch_errors(
+            exc,
+            "Ошибка при получении учебных дней",
         )
 
 
@@ -116,15 +115,15 @@ async def mark_lesson_attendance(
             attendances=attendances
         )
     except grpc.aio.AioRpcError as exc:
-        logger.exception(
+        logger.error(
             "Ошибка при обновлении посещаемости для пары с ID {}: {} {}",
             schedule_id,
             exc.code(),
             exc.details(),
         )
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=exc.details(),
+        catch_errors(
+            exc,
+            "Ошибка при обновлении посещаемости",
         )
 
 
@@ -148,13 +147,13 @@ async def get_schedule_by_id(
         )
         return lesson.FullScheduleDataSchema.model_validate(response)
     except grpc.aio.AioRpcError as exc:
-        logger.exception(
+        logger.error(
             "Ошибка при получении детали пары с ID {}: {} {}",
             schedule_id,
             exc.code(),
             exc.details(),
         )
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Ошибка при получении детали пары",
+        catch_errors(
+            exc,
+            "Ошибка при получении деталей пары",
         )

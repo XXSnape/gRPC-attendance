@@ -8,14 +8,14 @@ from core.grpc.pb import user_service_pb2
 from core.schemas import user
 from fastapi import (
     APIRouter,
-    HTTPException,
-    status,
     Response,
     Depends,
 )
 from fastapi.responses import JSONResponse
 from google.protobuf.json_format import MessageToDict
 from loguru import logger
+
+from services.grpc_errors import catch_errors
 
 router = APIRouter(tags=["Пользователи"])
 
@@ -34,15 +34,15 @@ async def sign_in(
     try:
         grpc_response = await stub.UserSingIn(grpc_request)
     except grpc.aio.AioRpcError as exc:
-        logger.debug(
-            "Попытка входа с неверным логином или паролем: {} {} {}",
+        logger.error(
+            "Безуспешная попытка входа в аккаунт: {} {} {}",
             user_in,
             exc.code(),
             exc.details(),
         )
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Неверный логин или пароль",
+        catch_errors(
+            exc,
+            "Ошибка при входе пользователя",
         )
     content = MessageToDict(
         grpc_response.user,
@@ -77,10 +77,7 @@ async def sign_out(
             exc.code(),
             exc.details(),
         )
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=exc.details(),
-        )
+        catch_errors(exc, "Ошибка при выходе пользователя")
     response = Response()
     response.delete_cookie(
         key=settings.auth.token_name,
