@@ -1,7 +1,7 @@
 from typing import NoReturn
 
+from fastapi import HTTPException, status
 from grpc import StatusCode
-from fastapi import status, HTTPException
 from grpc.aio import AioRpcError
 from loguru import logger
 

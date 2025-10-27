@@ -4,6 +4,7 @@ from typing import Literal
 
 from core.databases.sql.models.enums.gender import GenderEnum
 from pydantic import EmailStr
+from services.base import BaseService
 
 from .attendance import AttendanceSchema
 from .common import BaseSchema, IdSchema
@@ -56,3 +57,15 @@ class UserDataSchema(IdSchema):
         "administrator",
     ]
     full_name: str | None = None
+
+    def get_service_by_role(self) -> type[BaseService]:
+        from services.student import StudentService
+        from services.teacher import TeacherService
+
+        match self.type:
+            case "student":
+                return StudentService
+            case "teacher":
+                return TeacherService
+            case _:
+                return StudentService

@@ -1,9 +1,8 @@
 import uuid
-from core.enums.status import AttendanceStatus
-
 
 from beanie import Document
-from pymongo import IndexModel, ASCENDING
+from core.enums.status import AttendanceStatus
+from pymongo import ASCENDING, IndexModel
 
 
 class Visit(Document):

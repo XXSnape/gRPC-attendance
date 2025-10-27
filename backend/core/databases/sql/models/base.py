@@ -1,10 +1,8 @@
 import uuid
 
-from sqlalchemy import UUID, func
-from sqlalchemy.ext.asyncio import AsyncAttrs
-
 from core.config import settings
-from sqlalchemy import MetaData
+from sqlalchemy import UUID, MetaData, func
+from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,

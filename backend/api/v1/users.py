@@ -8,13 +8,12 @@ from core.grpc.pb import user_service_pb2
 from core.schemas import user
 from fastapi import (
     APIRouter,
-    Response,
     Depends,
+    Response,
 )
 from fastapi.responses import JSONResponse
 from google.protobuf.json_format import MessageToDict
 from loguru import logger
-
 from utils.grpc_errors import catch_errors
 
 router = APIRouter(tags=["Пользователи"])

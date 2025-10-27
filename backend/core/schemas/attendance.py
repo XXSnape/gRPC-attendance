@@ -1,8 +1,8 @@
 from typing import Literal
 
+from core.enums.status import AttendanceStatus
 from pydantic import computed_field
 
-from core.enums.status import AttendanceStatus
 from .common import BaseSchema
 
 

@@ -3,9 +3,8 @@ from collections.abc import AsyncIterator
 
 import grpc
 from beanie.odm.operators.update.general import Set
-
 from core.databases.no_sql.documents.visit import Visit
-from core.databases.sql.dao.schedule import GroupScheduleDAO
+from core.databases.sql.dao.group_schedule import GroupScheduleDAO
 from core.databases.sql.db_helper import db_helper
 from core.enums.status import AttendanceStatus
 from core.grpc.pb import (
@@ -18,8 +17,8 @@ from core.schemas.attendance import AttendanceSchema
 from core.schemas.lesson import (
     BaseScheduleSchema,
     FullScheduleDataSchema,
-    StudentLessonSchema,
     GroupSchema,
+    StudentLessonSchema,
 )
 from core.schemas.user import UserAttendanceSchema
 
@@ -83,18 +82,18 @@ class LessonServiceServicer(
         context: grpc.aio.ServicerContext,
     ) -> lesson_service_pb2.LessonsForMonthResponse:
         user = await get_user_data_from_metadata(context)
+        service = user.get_service_by_role()
+        print("service:", service)
         async with (
             db_helper.get_async_session_without_commit() as session
         ):
-            dao = GroupScheduleDAO(session)
-            dates = await dao.get_user_lessons_for_month(
+            service_obj = service(session)
+            response = await service_obj.get_user_lessons_for_month(
                 month=request.month,
                 year=request.year,
                 user_id=user.id,
             )
-            return lesson_service_pb2.LessonsForMonthResponse(
-                dates=[str(date) for date in dates]
-            )
+            return response
 
     async def GetLessonDetails(
         self,

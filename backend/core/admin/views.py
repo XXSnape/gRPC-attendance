@@ -14,13 +14,13 @@ from core.databases.sql.models import (
     GroupWithNumber,
     Lesson,
     LessonType,
+    Schedule,
     ScheduleException,
     Specialization,
     Student,
     StudentGroup,
     Teacher,
     TeacherSchedule,
-    Schedule,
 )
 from core.databases.sql.models.enums.form_of_education import (
     FormOfEducationEnum,

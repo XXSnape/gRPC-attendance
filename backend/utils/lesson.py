@@ -1,6 +1,3 @@
-import uuid
-
-
 from core.grpc.pb import lesson_service_pb2
 from core.schemas import lesson
 

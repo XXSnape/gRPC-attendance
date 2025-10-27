@@ -9,7 +9,7 @@ from pydantic import computed_field
 from .address import AudienceSchema
 from .attendance import AttendanceSchema
 from .common import BaseSchema, IdSchema
-from .user import UserFullNameSchema, UserAttendanceSchema
+from .user import UserAttendanceSchema, UserFullNameSchema
 
 
 class BaseLessonSchema(BaseSchema):

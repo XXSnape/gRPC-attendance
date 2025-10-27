@@ -5,9 +5,9 @@ from .base import Base as Base
 from .department import Department as Department
 from .group import Group as Group
 from .group_number import GroupWithNumber as GroupWithNumber
+from .group_schedule import GroupSchedule as GroupSchedule
 from .lesson import Lesson as Lesson
 from .lesson import LessonType as LessonType
-from .group_schedule import GroupSchedule as GroupSchedule
 from .schedule import Schedule as Schedule
 from .schedule_exceptions import ScheduleException
 from .specialization import Specialization as Specialization

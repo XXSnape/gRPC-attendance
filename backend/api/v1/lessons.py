@@ -3,14 +3,12 @@ import uuid
 from typing import AsyncIterator
 
 import grpc
-
 from core.dependencies.stubs import LessonStub
 from core.dependencies.user import UserMetadataDep
-from core.grpc.pb import lesson_service_pb2, lesson_pb2
+from core.grpc.pb import lesson_pb2, lesson_service_pb2
 from core.schemas import lesson
 from fastapi import APIRouter
 from loguru import logger
-
 from utils.grpc_errors import catch_errors
 from utils.lesson import create_attendances
 

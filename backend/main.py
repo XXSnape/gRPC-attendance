@@ -1,8 +1,6 @@
 from contextlib import asynccontextmanager
 
 import grpc
-from starlette.middleware.cors import CORSMiddleware
-
 from api import router as api_router
 from core import settings
 from core.admin import views as admin_views
@@ -13,6 +11,7 @@ from core.grpc.pb import (
 )
 from fastapi import FastAPI
 from sqladmin import Admin
+from starlette.middleware.cors import CORSMiddleware
 
 
 @asynccontextmanager

@@ -4,22 +4,21 @@ import uuid
 from core.databases.sql.models import (
     Audience,
     GroupSchedule,
-    StudentGroup,
-    Teacher,
     GroupWithNumber,
     Schedule,
+    StudentGroup,
+    Teacher,
 )
-from sqlalchemy import select
+from sqlalchemy import extract, select
 from sqlalchemy.orm import (
     joinedload,
     selectinload,
 )
 
-from .base import BaseDAO
-from sqlalchemy import extract
+from .protocols.schedule import ScheduleProtocol
 
 
-class GroupScheduleDAO(BaseDAO):
+class GroupScheduleDAO(ScheduleProtocol):
     model = GroupSchedule
 
     def get_subquery_group_id_by_user(self, user_id: uuid.UUID):
