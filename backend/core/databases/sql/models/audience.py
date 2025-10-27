@@ -27,7 +27,8 @@ class Audience(Base):
         )
     )
     schedules: Mapped[list["Schedule"]] = relationship(
-        back_populates="audience",
+        back_populates="audiences",
+        secondary="audiences_schedules",
     )
     address: Mapped["Address"] = relationship(
         back_populates="audiences",

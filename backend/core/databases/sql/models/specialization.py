@@ -13,7 +13,7 @@ class Specialization(Base):
     name: Mapped[str] = mapped_column(
         unique=True,
     )
-    code: Mapped[str] = mapped_column(String(20), unique=True)
+    code: Mapped[str] = mapped_column(String(20))
     groups: Mapped[list["Group"]] = relationship(
         back_populates="specialization",
     )

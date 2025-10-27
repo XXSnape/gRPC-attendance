@@ -1,5 +1,6 @@
 from .address import Address as Address
 from .audience import Audience as Audience
+from .audience_schedule import AudienceSchedule as AudienceSchedule
 from .base import Base as Base
 from .department import Department as Department
 from .group import Group as Group

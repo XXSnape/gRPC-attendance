@@ -6,6 +6,7 @@ from sqlalchemy import (
     CheckConstraint,
     ForeignKey,
     UniqueConstraint,
+    null,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -25,12 +26,17 @@ class Schedule(Base):
         CheckConstraint(
             "number >= 1 AND number <= 6", name="idx_number"
         ),
+        CheckConstraint(
+            "subgroup_number IS NULL or "
+            "(subgroup_number >= 1 AND subgroup_number <= 2)",
+            name="idx_subgroup_number",
+        ),
         UniqueConstraint(
             "type_of_lesson",
             "date",
             "number",
             "lesson_id",
-            "audience_id",
+            "subgroup_number",
             name="idx_uniq_schedule",
         ),
     )
@@ -38,6 +44,10 @@ class Schedule(Base):
     type_of_lesson: Mapped[TypeOfLessonEnum]
     date: Mapped[datetime.date]
     number: Mapped[int]
+    subgroup_number: Mapped[int | None] = mapped_column(
+        default=None,
+        server_default=null(),
+    )
 
     lesson_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey(
@@ -45,18 +55,13 @@ class Schedule(Base):
             ondelete="CASCADE",
         )
     )
-    audience_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey(
-            "audiences.id",
-            ondelete="CASCADE",
-        )
-    )
 
     lesson: Mapped["Lesson"] = relationship(
         back_populates="schedules",
     )
-    audience: Mapped["Audience"] = relationship(
+    audiences: Mapped[list["Audience"]] = relationship(
         back_populates="schedules",
+        secondary="audiences_schedules",
     )
     exceptions: Mapped[list["ScheduleException"]] = relationship(
         back_populates="schedule",

@@ -19,21 +19,11 @@ if TYPE_CHECKING:
 class GroupSchedule(Base):
     __tablename__ = "groups_schedules"
     __table_args__ = (
-        CheckConstraint(
-            "subgroup_number IS NULL or "
-            "(subgroup_number >= 1 AND subgroup_number <= 2)",
-            name="idx_subgroup",
-        ),
         UniqueConstraint(
-            "subgroup_number",
             "group_id",
             "schedule_id",
             name="idx_uniq_subgroup_schedule",
         ),
-    )
-    subgroup_number: Mapped[int | None] = mapped_column(
-        default=None,
-        server_default=null(),
     )
     group_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey(
