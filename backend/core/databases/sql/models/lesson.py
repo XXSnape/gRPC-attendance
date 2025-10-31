@@ -1,7 +1,7 @@
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, true
+from sqlalchemy import ForeignKey, true, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
@@ -12,16 +12,19 @@ if TYPE_CHECKING:
 
 
 class Lesson(Base):
+    __table_args__ = (
+        UniqueConstraint(
+            "name",
+            "department_id",
+            name="idx_uniq_lesson_department",
+        ),
+    )
     name: Mapped[str] = mapped_column(unique=True)
     department_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey(
             "departments.id",
             ondelete="CASCADE",
         )
-    )
-    on_schedule: Mapped[bool] = mapped_column(
-        default=True,
-        server_default=true(),
     )
     department: Mapped["Department"] = relationship(
         back_populates="lessons",

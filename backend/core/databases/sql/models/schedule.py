@@ -7,6 +7,7 @@ from sqlalchemy import (
     ForeignKey,
     UniqueConstraint,
     null,
+    true,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -48,7 +49,10 @@ class Schedule(Base):
         default=None,
         server_default=null(),
     )
-
+    is_standardized: Mapped[bool] = mapped_column(
+        default=True,
+        server_default=true(),
+    )
     lesson_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey(
             "lessons.id",

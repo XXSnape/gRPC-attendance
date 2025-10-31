@@ -31,9 +31,9 @@ class User(Base):
     gender: Mapped[GenderEnum]
     date_of_birth: Mapped[datetime.date]
 
-    type: Mapped[str]
+    role: Mapped[str]
     __mapper_args__ = {
-        "polymorphic_on": "type",
+        "polymorphic_on": "role",
         "polymorphic_identity": "user",
     }
 
