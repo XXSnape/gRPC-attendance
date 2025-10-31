@@ -54,4 +54,14 @@ class TeacherScheduleDAO(ScheduleProtocol):
         user_id: uuid.UUID,
         schedule_id: uuid.UUID,
     ) -> Schedule | None:
-        pass
+        query = (
+            select(Schedule)
+            .join(TeacherSchedule)
+            .where(
+                TeacherSchedule.teacher_id == user_id,
+                Schedule.id == schedule_id,
+            )
+            .options(*self.LESSON_DETAILS_OPTIONS)
+        )
+        result = await self._session.execute(query)
+        return result.scalar_one_or_none()

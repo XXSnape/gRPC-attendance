@@ -2,17 +2,14 @@ import datetime
 import uuid
 
 from core.databases.sql.models import (
-    Audience,
     GroupSchedule,
     GroupWithNumber,
     Schedule,
     StudentGroup,
-    Teacher,
 )
 from sqlalchemy import extract, select, func
 from sqlalchemy.orm import (
     joinedload,
-    selectinload,
 )
 
 from .protocols.schedule import ScheduleProtocol

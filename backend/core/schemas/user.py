@@ -1,10 +1,12 @@
 import datetime
 import uuid
-from typing import Literal
+from typing import Literal, TYPE_CHECKING
 
 from core.databases.sql.models.enums.gender import GenderEnum
 from pydantic import EmailStr
-from services.base import BaseService
+
+if TYPE_CHECKING:
+    from services.base import BaseService
 
 from .attendance import AttendanceSchema
 from .common import BaseSchema, IdSchema
@@ -58,7 +60,7 @@ class UserDataSchema(IdSchema):
     ]
     full_name: str | None = None
 
-    def get_service_by_role(self) -> type[BaseService]:
+    def get_service_by_role(self) -> type["BaseService"]:
         from services.student import StudentService
         from services.teacher import TeacherService
 

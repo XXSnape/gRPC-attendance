@@ -1,6 +1,8 @@
 import datetime
 import uuid
 
+import grpc
+
 from core.databases.no_sql.documents import Visit
 from core.databases.sql.dao.group_schedule import GroupScheduleDAO
 from core.databases.sql.dao.teacher_schedule import (
@@ -8,13 +10,19 @@ from core.databases.sql.dao.teacher_schedule import (
 )
 from core.enums.status import AttendanceStatus
 from core.grpc.pb import lesson_service_pb2, lesson_pb2
-from core.schemas.lesson import TotalAttendance, BaseScheduleSchema
+from core.schemas.lesson import (
+    TotalAttendance,
+    BaseScheduleSchema,
+)
 
 from .base import BaseService
 
 
 class TeacherService(BaseService):
     dao_class = TeacherScheduleDAO
+    can_t_view_lesson_details = (
+        "Запишитесь на это занятие, чтобы просмотреть детали."
+    )
 
     async def get_schedule_by_date(
         self,
@@ -63,4 +71,11 @@ class TeacherService(BaseService):
         self,
         user_id: uuid.UUID,
         schedule_id: uuid.UUID,
-    ): ...
+        context: grpc.aio.ServicerContext,
+    ) -> lesson_service_pb2.LessonDetailsResponse:
+        return await self.get_groups_and_attendances(
+            schedule_id=schedule_id,
+            user_id=user_id,
+            context=context,
+            student_group_id=None,
+        )
