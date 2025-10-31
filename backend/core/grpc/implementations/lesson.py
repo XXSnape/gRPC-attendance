@@ -42,47 +42,6 @@ class LessonServiceServicer(
                 date=date,
                 user_id=user.id,
             )
-            # date = datetime.date.fromisoformat(request.date)
-            # dao = GroupScheduleDAO(session)
-            # group_schedules = await dao.get_user_lessons(
-            #     request.date, user.id
-            # )
-            # lessons = []
-            # for group_schedule in group_schedules:
-            #     visit = await Visit.find_one(
-            #         Visit.schedule_id == group_schedule.schedule.id,
-            #         Visit.student_id == user.id,
-            #     )
-            #
-            #     student_data = StudentLessonSchema(
-            #         attendance=AttendanceSchema(
-            #             status=(
-            #                 visit.status
-            #                 if visit is not None
-            #                 else AttendanceStatus.ABSENT
-            #             )
-            #         ),
-            #         group_id=group_schedule.group_id,
-            #     )
-            #     lesson_data = lesson_pb2.Schedule(
-            #         **BaseScheduleSchema(
-            #             id=group_schedule.schedule.id,
-            #             number=group_schedule.schedule.number,
-            #             date=group_schedule.schedule.date,
-            #             type_of_lesson=group_schedule.schedule.type_of_lesson,
-            #             subgroup_number=group_schedule.subgroup_number,
-            #             lesson=group_schedule.schedule.lesson,
-            #             audience=group_schedule.schedule.audience,
-            #             teachers=group_schedule.schedule.teachers,
-            #             student_data=student_data,
-            #             can_be_edited_by_prefect=False,
-            #         ).model_dump(mode="json")
-            #     )
-            #     lessons.append(lesson_data)
-            #
-            # return lesson_service_pb2.LessonsResponse(
-            #     lessons=lessons
-            # )
 
     async def GetLessonsForMonth(
         self,

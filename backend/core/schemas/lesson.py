@@ -1,15 +1,17 @@
 import datetime
 import uuid
+from typing import Annotated
 
 from core.databases.sql.models.enums.type_of_lesson import (
     TypeOfLessonEnum,
 )
-from pydantic import computed_field
+from pydantic import computed_field, BeforeValidator
 
 from .address import AudienceSchema
 from .attendance import AttendanceSchema
 from .common import BaseSchema, IdSchema
 from .user import UserAttendanceSchema, UserFullNameSchema
+from .validators.grpc_converter import gRPCValidator
 
 
 class BaseLessonSchema(BaseSchema):
@@ -36,11 +38,17 @@ class BaseScheduleSchema(IdSchema):
     subgroup_number: int | None
     lesson: BaseLessonSchema
     audiences: list[AudienceSchema]
-    student_data: StudentLessonSchema | None
+    student_data: Annotated[
+        StudentLessonSchema | None,
+        gRPCValidator,
+    ]
     teachers: list[UserFullNameSchema]
     group_names: list[str]
     can_be_edited_by_prefect: bool | None = None
-    total_attendance: TotalAttendance | None = None
+    total_attendance: Annotated[
+        TotalAttendance | None,
+        gRPCValidator,
+    ]
 
     @computed_field
     @property

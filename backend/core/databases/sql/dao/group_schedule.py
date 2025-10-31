@@ -61,6 +61,15 @@ class GroupScheduleDAO(ScheduleProtocol):
         result = await self._session.execute(query)
         return list(result.scalars().all())
 
+    async def get_number_of_students_in_groups(
+        self, groups: list[uuid.UUID]
+    ) -> int:
+        query = select(func.count()).where(
+            StudentGroup.group_id.in_(groups)
+        )
+        result = await self._session.execute(query)
+        return result.scalar_one()
+
     async def get_schedule_by_date(
         self,
         date: datetime.date,
