@@ -66,105 +66,16 @@ class LessonServiceServicer(
         request: lesson_service_pb2.LessonDetailsRequest,
         context: grpc.aio.ServicerContext,
     ) -> lesson_service_pb2.LessonDetailsResponse:
-        is_current_user_prefect = False
-        user_status = AttendanceSchema()
-        subgroup_number = None
         user = await get_user_data_from_metadata(context)
+        service = user.get_service_by_role()
         async with (
             db_helper.get_async_session_without_commit() as session
         ):
-            dao = GroupScheduleDAO(session)
-            result = await dao.get_lesson_details(
+            service_obj = service(session)
+            return await service_obj.get_lesson_details(
                 user_id=user.id,
-                schedule_id=request.schedule_id,
-            )
-            if result is None:
-                await context.abort(
-                    grpc.StatusCode.NOT_FOUND,
-                    "Пара не найдена в расписании вашей группы",
-                )
-            schedule, user_group_id = result
-
-            groups = []
-            documents = await Visit.find(
-                Visit.schedule_id == uuid.UUID(request.schedule_id)
-            ).to_list()
-            for (
-                group_with_subgroup
-            ) in schedule.groups_with_subgroups:
-                if group_with_subgroup.group_id == user_group_id:
-                    subgroup_number = (
-                        group_with_subgroup.subgroup_number
-                    )
-                group_with_number = (
-                    group_with_subgroup.group_with_number
-                )
-                group_schema = GroupSchema(
-                    id=group_with_number.id,
-                    complete_name=group_with_number.complete_name,
-                    attendances=[],
-                )
-                groups.append(group_schema)
-                if group_with_number.id == user_group_id:
-
-                    group_attendances = []
-                    for (
-                        student_with_group
-                    ) in group_with_number.students_with_groups:
-                        if student_with_group.student_id == user.id:
-                            is_current_user_prefect = (
-                                student_with_group.is_prefect
-                            )
-
-                        schema = UserAttendanceSchema(
-                            full_name=student_with_group.student.full_name,
-                            decryption_of_full_name=student_with_group.student.decryption_of_full_name,
-                            personal_number=student_with_group.student.personal_number,
-                            is_prefect=student_with_group.is_prefect,
-                            student_id=student_with_group.student_id,
-                        )
-                        for document in documents:
-                            if (
-                                document.student_id
-                                == student_with_group.student_id
-                            ):
-                                schema.attendance.status = (
-                                    document.status
-                                )
-                                if (
-                                    student_with_group.student_id
-                                    == user.id
-                                ):
-                                    user_status.status = (
-                                        document.status
-                                    )
-                                break
-                        group_attendances.append(schema)
-                    group_schema.attendances = group_attendances
-
-            student_data = StudentLessonSchema(
-                attendance=user_status,
-                group_id=user_group_id,
-                is_prefect=is_current_user_prefect,
-            )
-            schedule_data = BaseScheduleSchema(
-                id=schedule.id,
-                number=schedule.number,
-                date=schedule.date,
-                type_of_lesson=schedule.type_of_lesson,
-                subgroup_number=subgroup_number,
-                lesson=schedule.lesson,
-                audience=schedule.audience,
-                teachers=schedule.teachers,
-                student_data=student_data,
-                can_be_edited_by_prefect=False,
-            )
-
-            return lesson_service_pb2.LessonDetailsResponse(
-                **FullScheduleDataSchema(
-                    schedule_data=schedule_data,
-                    groups=groups,
-                ).model_dump(mode="json")
+                schedule_id=uuid.UUID(request.schedule_id),
+                context=context,
             )
 
     async def SetStudentAttendance(

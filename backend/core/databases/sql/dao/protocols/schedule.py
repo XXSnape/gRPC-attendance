@@ -10,6 +10,7 @@ from core.databases.sql.models import (
     Audience,
     Teacher,
     GroupWithNumber,
+    StudentGroup,
 )
 
 
@@ -28,6 +29,11 @@ class ScheduleProtocol(BaseDAO, ABC):
             GroupWithNumber.group
         ),
     )
+    LESSON_DETAILS_OPTIONS = SCHEDULE_OPTIONS + (
+        selectinload(Schedule.groups_with_numbers)
+        .selectinload(GroupWithNumber.students_with_groups)
+        .joinedload(StudentGroup.student),
+    )
 
     @abstractmethod
     async def get_user_lessons_for_month(
@@ -43,3 +49,11 @@ class ScheduleProtocol(BaseDAO, ABC):
         date: datetime.date,
         user_id: uuid.UUID,
     ) -> list[Schedule]: ...
+
+    @abstractmethod
+    async def get_lesson_details(
+        self,
+        user_id: uuid.UUID,
+        schedule_id: uuid.UUID,
+    ) -> Schedule | None:
+        pass

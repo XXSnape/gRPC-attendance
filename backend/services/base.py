@@ -2,6 +2,8 @@ import datetime
 import uuid
 from abc import ABC, abstractmethod
 
+import grpc
+
 from core.databases.sql.dao.protocols.schedule import (
     ScheduleProtocol,
 )
@@ -37,4 +39,12 @@ class BaseService(ABC):
         self,
         date: datetime.date,
         user_id: uuid.UUID,
-    ): ...
+    ) -> lesson_service_pb2.LessonsResponse: ...
+
+    @abstractmethod
+    async def get_lesson_details(
+        self,
+        user_id: uuid.UUID,
+        schedule_id: uuid.UUID,
+        context: grpc.aio.ServicerContext,
+    ) -> lesson_service_pb2.LessonDetailsResponse: ...

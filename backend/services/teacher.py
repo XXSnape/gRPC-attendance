@@ -42,27 +42,25 @@ class TeacherService(BaseService):
                 total_students=number_of_students,
                 present_students=present_students,
             )
+            schedule.student_data = None
+            schedule.can_be_edited_by_prefect = False
+            schedule.group_names = [
+                gwn.complete_name
+                for gwn in schedule.groups_with_numbers
+            ]
+            schedule.total_attendance = total_attendance
 
             lesson_data = lesson_pb2.Schedule(
-                **BaseScheduleSchema(
-                    id=schedule.id,
-                    number=schedule.number,
-                    date=schedule.date,
-                    type_of_lesson=schedule.type_of_lesson,
-                    subgroup_number=schedule.subgroup_number,
-                    is_standardized=schedule.is_standardized,
-                    lesson=schedule.lesson,
-                    audiences=schedule.audiences,
-                    teachers=schedule.teachers,
-                    student_data=None,
-                    can_be_edited_by_prefect=False,
-                    group_names=[
-                        gwn.complete_name
-                        for gwn in schedule.groups_with_numbers
-                    ],
-                    total_attendance=total_attendance,
+                **BaseScheduleSchema.model_validate(
+                    schedule
                 ).model_dump(mode="json")
             )
             lessons.append(lesson_data)
 
         return lesson_service_pb2.LessonsResponse(lessons=lessons)
+
+    async def get_lesson_details(
+        self,
+        user_id: uuid.UUID,
+        schedule_id: uuid.UUID,
+    ): ...

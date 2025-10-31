@@ -95,45 +95,23 @@ class GroupScheduleDAO(ScheduleProtocol):
     async def get_lesson_details(
         self,
         user_id: uuid.UUID,
-        schedule_id: str,
+        schedule_id: uuid.UUID,
     ):
-        group_id_subq = self.get_subquery_group_id_by_user(user_id)
-        exists_query = (
-            select(1)
-            .select_from(GroupSchedule)
-            .join(Schedule)
+        group_id_subq = self.get_query_group_id_by_user(
+            user_id
+        ).scalar_subquery()
+
+        query = (
+            select(Schedule)
+            .join(GroupSchedule)
             .where(
                 GroupSchedule.group_id == group_id_subq,
+                Schedule.id == schedule_id,
             )
-            .limit(1)
-        )
-        exist_result = await self._session.execute(exists_query)
-        if exist_result.scalar_one_or_none() is None:
-            return None
-        query = (
-            select(Schedule, group_id_subq)
-            .where(Schedule.id == uuid.UUID(schedule_id))
-            .options(
-                joinedload(Schedule.audience).joinedload(
-                    Audience.address
-                ),
-                joinedload(Schedule.lesson),
-                selectinload(Schedule.teachers).load_only(
-                    Teacher.first_name,
-                    Teacher.last_name,
-                    Teacher.patronymic,
-                ),
-                selectinload(Schedule.groups_with_subgroups)
-                .joinedload(GroupSchedule.group_with_number)
-                .joinedload(GroupWithNumber.group),
-                selectinload(Schedule.groups_with_subgroups)
-                .joinedload(GroupSchedule.group_with_number)
-                .selectinload(GroupWithNumber.students_with_groups)
-                .joinedload(StudentGroup.student),
-            )
+            .options(*self.LESSON_DETAILS_OPTIONS)
         )
         result = await self._session.execute(query)
-        return result.first()
+        return result.scalar_one_or_none()
 
     async def get_user_lessons_for_month(
         self,

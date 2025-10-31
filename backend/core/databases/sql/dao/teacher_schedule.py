@@ -48,3 +48,10 @@ class TeacherScheduleDAO(ScheduleProtocol):
         )
         result = await self._session.execute(query)
         return list(result.scalars().all())
+
+    async def get_lesson_details(
+        self,
+        user_id: uuid.UUID,
+        schedule_id: uuid.UUID,
+    ) -> Schedule | None:
+        pass
