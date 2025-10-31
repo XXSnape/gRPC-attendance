@@ -46,10 +46,10 @@ def get_user_form():
 
 class HashingPasswordMixin:
     column_details_exclude_list = ["password"]
-    column_exclude_list = ["id", "type", "password"]
+    column_exclude_list = ["id", "role", "password"]
     form_excluded_columns = [
         "id",
-        "type",
+        "role",
     ]
 
     async def on_model_change(
@@ -129,13 +129,11 @@ class LessonAdmin(ModelView, model=Lesson):
     column_list = [Lesson.name, Lesson.department]
     column_details_list = [
         Lesson.name,
-        Lesson.on_schedule,
         Lesson.department,
     ]
 
     form_columns = [
         Lesson.name,
-        Lesson.on_schedule,
         Lesson.department,
     ]
 

@@ -19,7 +19,7 @@ class Token(Document):
     token: Indexed(str, unique=True)
     full_name: str
     user_id: uuid.UUID
-    type: Literal[
+    role: Literal[
         "student",
         "teacher",
         "administrator",

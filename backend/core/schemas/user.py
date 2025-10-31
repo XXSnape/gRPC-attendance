@@ -38,7 +38,7 @@ class BaseUserSchema(UserInSchema):
     patronymic: str
     is_active: bool
     gender: GenderEnum
-    type: Literal[
+    role: Literal[
         "student",
         "teacher",
         "administrator",
@@ -51,7 +51,7 @@ class HashedPasswordUserSchema(BaseUserSchema):
 
 
 class UserDataSchema(IdSchema):
-    type: Literal[
+    role: Literal[
         "student",
         "teacher",
         "administrator",
@@ -62,7 +62,7 @@ class UserDataSchema(IdSchema):
         from services.student import StudentService
         from services.teacher import TeacherService
 
-        match self.type:
+        match self.role:
             case "student":
                 return StudentService
             case "teacher":

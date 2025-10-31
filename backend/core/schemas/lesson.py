@@ -15,12 +15,11 @@ from .user import UserAttendanceSchema, UserFullNameSchema
 class BaseLessonSchema(BaseSchema):
     id: uuid.UUID
     name: str
-    on_schedule: bool
 
 
 class StudentLessonSchema(BaseSchema):
     attendance: AttendanceSchema
-    group_id: uuid.UUID | str
+    group_id: uuid.UUID
     is_prefect: bool | None = None
 
 
@@ -33,6 +32,7 @@ class BaseScheduleSchema(IdSchema):
     number: int
     date: datetime.date
     type_of_lesson: TypeOfLessonEnum
+    is_standardized: bool
     subgroup_number: int | None
     lesson: BaseLessonSchema
     audiences: list[AudienceSchema]

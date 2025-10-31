@@ -1,14 +1,10 @@
-from collections.abc import Iterable as _Iterable
-from collections.abc import Mapping as _Mapping
-from typing import ClassVar as _ClassVar
-from typing import Optional as _Optional
-from typing import Union as _Union
-
 import user_pb2 as _user_pb2
-from google.protobuf import descriptor as _descriptor
-from google.protobuf import message as _message
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from collections.abc import Iterable as _Iterable, Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -27,14 +23,12 @@ class Audience(_message.Message):
     def __init__(self, name: _Optional[str] = ..., address: _Optional[_Union[Address, _Mapping]] = ...) -> None: ...
 
 class LessonData(_message.Message):
-    __slots__ = ("id", "name", "on_schedule")
+    __slots__ = ("id", "name")
     ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
-    ON_SCHEDULE_FIELD_NUMBER: _ClassVar[int]
     id: str
     name: str
-    on_schedule: bool
-    def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ..., on_schedule: bool = ...) -> None: ...
+    def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ...) -> None: ...
 
 class Attendance(_message.Message):
     __slots__ = ("status", "decryption")
@@ -99,11 +93,12 @@ class TotalAttendance(_message.Message):
     def __init__(self, total_students: _Optional[int] = ..., present_students: _Optional[int] = ...) -> None: ...
 
 class Schedule(_message.Message):
-    __slots__ = ("id", "number", "date", "type_of_lesson", "subgroup_number", "lesson", "student_data", "time", "audiences", "teachers", "can_be_edited_by_prefect", "group_names", "total_attendance")
+    __slots__ = ("id", "number", "date", "type_of_lesson", "is_standardized", "subgroup_number", "lesson", "student_data", "time", "audiences", "teachers", "can_be_edited_by_prefect", "group_names", "total_attendance")
     ID_FIELD_NUMBER: _ClassVar[int]
     NUMBER_FIELD_NUMBER: _ClassVar[int]
     DATE_FIELD_NUMBER: _ClassVar[int]
     TYPE_OF_LESSON_FIELD_NUMBER: _ClassVar[int]
+    IS_STANDARDIZED_FIELD_NUMBER: _ClassVar[int]
     SUBGROUP_NUMBER_FIELD_NUMBER: _ClassVar[int]
     LESSON_FIELD_NUMBER: _ClassVar[int]
     STUDENT_DATA_FIELD_NUMBER: _ClassVar[int]
@@ -117,6 +112,7 @@ class Schedule(_message.Message):
     number: int
     date: str
     type_of_lesson: str
+    is_standardized: bool
     subgroup_number: int
     lesson: LessonData
     student_data: StudentLesson
@@ -126,4 +122,4 @@ class Schedule(_message.Message):
     can_be_edited_by_prefect: bool
     group_names: _containers.RepeatedScalarFieldContainer[str]
     total_attendance: TotalAttendance
-    def __init__(self, id: _Optional[str] = ..., number: _Optional[int] = ..., date: _Optional[str] = ..., type_of_lesson: _Optional[str] = ..., subgroup_number: _Optional[int] = ..., lesson: _Optional[_Union[LessonData, _Mapping]] = ..., student_data: _Optional[_Union[StudentLesson, _Mapping]] = ..., time: _Optional[str] = ..., audiences: _Optional[_Iterable[_Union[Audience, _Mapping]]] = ..., teachers: _Optional[_Iterable[_Union[_user_pb2.UserFullName, _Mapping]]] = ..., can_be_edited_by_prefect: bool = ..., group_names: _Optional[_Iterable[str]] = ..., total_attendance: _Optional[_Union[TotalAttendance, _Mapping]] = ...) -> None: ...
+    def __init__(self, id: _Optional[str] = ..., number: _Optional[int] = ..., date: _Optional[str] = ..., type_of_lesson: _Optional[str] = ..., is_standardized: bool = ..., subgroup_number: _Optional[int] = ..., lesson: _Optional[_Union[LessonData, _Mapping]] = ..., student_data: _Optional[_Union[StudentLesson, _Mapping]] = ..., time: _Optional[str] = ..., audiences: _Optional[_Iterable[_Union[Audience, _Mapping]]] = ..., teachers: _Optional[_Iterable[_Union[_user_pb2.UserFullName, _Mapping]]] = ..., can_be_edited_by_prefect: bool = ..., group_names: _Optional[_Iterable[str]] = ..., total_attendance: _Optional[_Union[TotalAttendance, _Mapping]] = ...) -> None: ...

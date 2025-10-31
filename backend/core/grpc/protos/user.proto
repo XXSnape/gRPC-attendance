@@ -4,7 +4,7 @@ package user;
 
 message UserData {
   string id = 1;
-  string type = 2;
+  string role = 2;
   string full_name = 3;
 }
 

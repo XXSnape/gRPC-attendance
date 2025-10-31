@@ -16,7 +16,6 @@ message Audience {
 message LessonData {
   string id = 1;
   string name = 2;
-  bool on_schedule = 3;
 }
 
 
@@ -65,13 +64,14 @@ message Schedule {
   int32 number = 2;
   string date = 3;
   string type_of_lesson = 4;
-  optional int32 subgroup_number = 5;
-  LessonData lesson = 6;
-  optional StudentLesson student_data = 7;
-  string time = 8;
-  repeated Audience audiences = 9;
-  repeated user.UserFullName teachers = 10;
-  optional bool can_be_edited_by_prefect = 11;
-  repeated string group_names = 12;
-  optional TotalAttendance total_attendance = 13;
+  bool is_standardized = 5;
+  optional int32 subgroup_number = 6;
+  LessonData lesson = 7;
+  optional StudentLesson student_data = 8;
+  string time = 9;
+  repeated Audience audiences = 10;
+  repeated user.UserFullName teachers = 11;
+  optional bool can_be_edited_by_prefect = 12;
+  repeated string group_names = 13;
+  optional TotalAttendance total_attendance = 14;
 }

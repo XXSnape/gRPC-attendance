@@ -1,5 +1,4 @@
 import secrets
-from typing import reveal_type
 
 import grpc
 from argon2 import PasswordHasher
@@ -51,13 +50,13 @@ class UserServiceServicer(
                     token=token,
                     user_id=user.id,
                     full_name=user.full_name,
-                    type=user.type,
+                    role=user.role,
                 )
             )
             return user_service_pb2.SingInResponse(
                 token=document.token,
                 user=user_pb2.UserData(
-                    type=document.type,
+                    role=document.role,
                     full_name=document.full_name,
                     id=str(document.user_id),
                 ),
@@ -84,7 +83,7 @@ class UserServiceServicer(
             )
         return user_pb2.UserData(
             id=str(token_document.user_id),
-            type=token_document.type,
+            role=token_document.role,
             full_name=token_document.full_name,
         )
 
