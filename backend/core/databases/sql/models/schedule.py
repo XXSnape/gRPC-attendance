@@ -16,7 +16,7 @@ from .enums.type_of_lesson import TypeOfLessonEnum
 
 if TYPE_CHECKING:
     from .audience import Audience
-    from .group_schedule import GroupSchedule
+    from .group_number import GroupWithNumber
     from .lesson import Lesson
     from .schedule_exceptions import ScheduleException
     from .user import Teacher
@@ -74,8 +74,9 @@ class Schedule(Base):
         secondary="teachers_schedules",
         back_populates="schedules",
     )
-    groups_with_subgroups: Mapped[list["GroupSchedule"]] = (
+    groups_with_numbers: Mapped[list["GroupWithNumber"]] = (
         relationship(
-            back_populates="schedule",
+            secondary="groups_schedules",
+            back_populates="schedules",
         )
     )

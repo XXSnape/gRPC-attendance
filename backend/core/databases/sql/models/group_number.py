@@ -9,8 +9,8 @@ from .base import Base
 
 if TYPE_CHECKING:
     from .group import Group
-    from .group_schedule import GroupSchedule
     from .student_group import StudentGroup
+    from .schedule import Schedule
 
 
 class GroupWithNumber(Base):
@@ -40,14 +40,13 @@ class GroupWithNumber(Base):
     group: Mapped["Group"] = relationship(
         back_populates="numbers",
     )
-    groups_with_subgroups: Mapped[list["GroupSchedule"]] = (
-        relationship(
-            back_populates="group_with_number",
-        )
+    schedules: Mapped[list["Schedule"]] = relationship(
+        secondary="groups_schedules",
+        back_populates="groups_with_numbers",
     )
 
     @hybrid_property
-    def complete_name(self):
+    def complete_name(self) -> str:
         return (
             f"{self.group.name.upper()}-{str(self.number).zfill(2)}-"
             f"{str(self.year_of_admission)[-2:]}"

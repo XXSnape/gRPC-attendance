@@ -9,7 +9,7 @@ from core.databases.sql.models import (
     StudentGroup,
     Teacher,
 )
-from sqlalchemy import extract, select
+from sqlalchemy import extract, select, func
 from sqlalchemy.orm import (
     joinedload,
     selectinload,
@@ -21,48 +21,67 @@ from .protocols.schedule import ScheduleProtocol
 class GroupScheduleDAO(ScheduleProtocol):
     model = GroupSchedule
 
-    def get_subquery_group_id_by_user(self, user_id: uuid.UUID):
-        group_id_subq = (
-            select(StudentGroup.group_id)
-            .where(
-                StudentGroup.student_id == user_id,
-            )
-            .scalar_subquery()
+    def get_query_group_id_by_user(self, student_id: uuid.UUID):
+        group_id_query = select(StudentGroup.group_id).where(
+            StudentGroup.student_id == student_id,
         )
-        return group_id_subq
+        return group_id_query
 
-    async def get_user_lessons(
+    async def is_student_prefect(
         self,
-        date: str,
+        student_id: uuid.UUID,
+        group_id: uuid.UUID,
+    ) -> bool:
+        query = (
+            select(1)
+            .where(
+                StudentGroup.student_id == student_id,
+                StudentGroup.is_prefect.is_(True),
+                StudentGroup.group_id == group_id,
+            )
+            .limit(1)
+        )
+        result = await self._session.execute(query)
+        return result.scalar_one_or_none() is not None
+
+    async def get_group_id_by_student(
+        self, student_id: uuid.UUID
+    ) -> uuid.UUID | None:
+        result = await self._session.execute(
+            self.get_query_group_id_by_user(student_id)
+        )
+        return result.scalar_one_or_none()
+
+    async def get_students_in_group(
+        self, group_id: uuid.UUID
+    ) -> list[uuid.UUID]:
+        query = select(StudentGroup.student_id).where(
+            StudentGroup.group_id == group_id,
+        )
+        result = await self._session.execute(query)
+        return list(result.scalars().all())
+
+    async def get_schedule_by_date(
+        self,
+        date: datetime.date,
         user_id: uuid.UUID,
     ):
-        date = datetime.date.fromisoformat(date)
-        group_id_subq = self.get_subquery_group_id_by_user(user_id)
+        group_id_subq = self.get_query_group_id_by_user(
+            user_id
+        ).scalar_subquery()
         query = (
-            select(GroupSchedule)
-            .join(Schedule)
+            select(Schedule)
+            .join(
+                GroupSchedule,
+            )
             .where(
                 GroupSchedule.group_id == group_id_subq,
                 Schedule.date == date,
             )
-            .options(
-                joinedload(GroupSchedule.schedule).joinedload(
-                    Schedule.lesson
-                ),
-                joinedload(GroupSchedule.schedule)
-                .joinedload(Schedule.audience)
-                .joinedload(Audience.address),
-                joinedload(GroupSchedule.schedule)
-                .selectinload(Schedule.teachers)
-                .load_only(
-                    Teacher.first_name,
-                    Teacher.last_name,
-                    Teacher.patronymic,
-                ),
-            )
+            .options(*self.SCHEDULE_OPTIONS)
         )
         result = await self._session.execute(query)
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def get_lesson_details(
         self,

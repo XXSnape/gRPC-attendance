@@ -1,5 +1,6 @@
+import datetime
 import uuid
-from abc import ABC
+from abc import ABC, abstractmethod
 
 from core.databases.sql.dao.protocols.schedule import (
     ScheduleProtocol,
@@ -30,3 +31,10 @@ class BaseService(ABC):
         return lesson_service_pb2.LessonsForMonthResponse(
             dates=[str(date) for date in dates]
         )
+
+    @abstractmethod
+    async def get_schedule_by_date(
+        self,
+        date: datetime.date,
+        user_id: uuid.UUID,
+    ): ...

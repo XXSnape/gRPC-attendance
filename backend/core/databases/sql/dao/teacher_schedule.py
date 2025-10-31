@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 from core.databases.sql.models import Schedule, TeacherSchedule
 from sqlalchemy import extract, select
@@ -25,6 +26,25 @@ class TeacherScheduleDAO(ScheduleProtocol):
                 extract("MONTH", Schedule.date) == month,
                 TeacherSchedule.teacher_id == user_id,
             )
+        )
+        result = await self._session.execute(query)
+        return list(result.scalars().all())
+
+    async def get_schedule_by_date(
+        self,
+        date: datetime.date,
+        user_id: uuid.UUID,
+    ):
+        query = (
+            select(Schedule)
+            .join(
+                TeacherSchedule,
+            )
+            .where(
+                TeacherSchedule.teacher_id == user_id,
+                Schedule.date == date,
+            )
+            .options(*self.SCHEDULE_OPTIONS)
         )
         result = await self._session.execute(query)
         return list(result.scalars().all())

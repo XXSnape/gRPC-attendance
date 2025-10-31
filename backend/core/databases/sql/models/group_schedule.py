@@ -9,10 +9,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
 
-if TYPE_CHECKING:
-    from .group_number import GroupWithNumber
-    from .schedule import Schedule
-
 
 class GroupSchedule(Base):
     __tablename__ = "groups_schedules"
@@ -34,11 +30,4 @@ class GroupSchedule(Base):
             "schedules.id",
             ondelete="CASCADE",
         )
-    )
-
-    schedule: Mapped["Schedule"] = relationship(
-        back_populates="groups_with_subgroups",
-    )
-    group_with_number: Mapped["GroupWithNumber"] = relationship(
-        back_populates="groups_with_subgroups",
     )
