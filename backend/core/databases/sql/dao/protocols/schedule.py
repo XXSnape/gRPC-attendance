@@ -10,7 +10,6 @@ from core.databases.sql.models import (
     Audience,
     Teacher,
     GroupWithNumber,
-    StudentGroup,
 )
 
 
@@ -28,11 +27,6 @@ class ScheduleProtocol(BaseDAO, ABC):
         selectinload(Schedule.groups_with_numbers).joinedload(
             GroupWithNumber.group
         ),
-    )
-    LESSON_DETAILS_OPTIONS = SCHEDULE_OPTIONS + (
-        selectinload(Schedule.groups_with_numbers)
-        .selectinload(GroupWithNumber.students_with_groups)
-        .joinedload(StudentGroup.student),
     )
 
     @abstractmethod
@@ -55,5 +49,4 @@ class ScheduleProtocol(BaseDAO, ABC):
         self,
         user_id: uuid.UUID,
         schedule_id: uuid.UUID,
-    ) -> Schedule | None:
-        pass
+    ) -> Schedule | None: ...

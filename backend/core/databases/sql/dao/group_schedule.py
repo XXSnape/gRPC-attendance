@@ -10,6 +10,7 @@ from core.databases.sql.models import (
 from sqlalchemy import extract, select, func
 from sqlalchemy.orm import (
     joinedload,
+    selectinload,
 )
 
 from .protocols.schedule import ScheduleProtocol
@@ -105,7 +106,21 @@ class GroupScheduleDAO(ScheduleProtocol):
                 GroupSchedule.group_id == group_id_subq,
                 Schedule.id == schedule_id,
             )
-            .options(*self.LESSON_DETAILS_OPTIONS)
+            .options(
+                *(
+                    self.SCHEDULE_OPTIONS
+                    + (
+                        selectinload(Schedule.groups_with_numbers)
+                        .selectinload(
+                            GroupWithNumber.students_with_groups.and_(
+                                StudentGroup.group_id
+                                == group_id_subq
+                            )
+                        )
+                        .joinedload(StudentGroup.student),
+                    )
+                )
+            )
         )
         result = await self._session.execute(query)
         return result.scalar_one_or_none()

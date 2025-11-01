@@ -13,6 +13,7 @@ from core.grpc.pb import lesson_service_pb2, lesson_pb2
 from core.schemas.lesson import (
     TotalAttendance,
     BaseScheduleSchema,
+    FullScheduleDataSchema,
 )
 
 from .base import BaseService
@@ -73,9 +74,17 @@ class TeacherService(BaseService):
         schedule_id: uuid.UUID,
         context: grpc.aio.ServicerContext,
     ) -> lesson_service_pb2.LessonDetailsResponse:
-        return await self.get_groups_and_attendances(
+        schedule, groups = await self.get_schedule_and_groups(
             schedule_id=schedule_id,
             user_id=user_id,
             context=context,
-            student_group_id=None,
+        )
+        schedule.student_data = None
+        return lesson_service_pb2.LessonDetailsResponse(
+            **FullScheduleDataSchema(
+                schedule_data=BaseScheduleSchema.model_validate(
+                    schedule
+                ),
+                groups=groups,
+            ).model_dump(mode="json")
         )

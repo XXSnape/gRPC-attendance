@@ -14,13 +14,6 @@ from core.grpc.pb import (
 )
 from core.grpc.utils.user import get_user_data_from_metadata
 from core.schemas.attendance import AttendanceSchema
-from core.schemas.lesson import (
-    BaseScheduleSchema,
-    FullScheduleDataSchema,
-    GroupSchema,
-    StudentLessonSchema,
-)
-from core.schemas.user import UserAttendanceSchema
 
 
 class LessonServiceServicer(

@@ -1,7 +1,14 @@
 import uuid
 from datetime import datetime
 
-from core.databases.sql.models import Schedule, TeacherSchedule
+from sqlalchemy.orm import selectinload
+
+from core.databases.sql.models import (
+    Schedule,
+    TeacherSchedule,
+    GroupWithNumber,
+    StudentGroup,
+)
 from sqlalchemy import extract, select
 
 from .protocols.schedule import ScheduleProtocol
@@ -61,7 +68,18 @@ class TeacherScheduleDAO(ScheduleProtocol):
                 TeacherSchedule.teacher_id == user_id,
                 Schedule.id == schedule_id,
             )
-            .options(*self.LESSON_DETAILS_OPTIONS)
+            .options(
+                *(
+                    self.SCHEDULE_OPTIONS
+                    + (
+                        selectinload(Schedule.groups_with_numbers)
+                        .selectinload(
+                            GroupWithNumber.students_with_groups
+                        )
+                        .joinedload(StudentGroup.student),
+                    )
+                )
+            )
         )
         result = await self._session.execute(query)
         return result.scalar_one_or_none()

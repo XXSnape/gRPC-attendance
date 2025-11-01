@@ -1,6 +1,11 @@
 import uuid
+from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    BeforeValidator,
+)
 
 
 class BaseSchema(BaseModel):
@@ -8,4 +13,9 @@ class BaseSchema(BaseModel):
 
 
 class IdSchema(BaseSchema):
-    id: uuid.UUID | str
+    id: Annotated[
+        uuid.UUID,
+        BeforeValidator(
+            lambda v: uuid.UUID(v) if isinstance(v, str) else v
+        ),
+    ]

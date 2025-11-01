@@ -13,6 +13,7 @@ from core.schemas.lesson import (
     StudentLessonSchema,
     BaseScheduleSchema,
     TotalAttendance,
+    FullScheduleDataSchema,
 )
 
 from .base import BaseService
@@ -98,17 +99,35 @@ class StudentService(BaseService):
         schedule_id: uuid.UUID,
         context: grpc.aio.ServicerContext,
     ) -> lesson_service_pb2.LessonDetailsResponse:
-        student_group_id = await self.dao_class(
-            session=self._session
-        ).get_group_id_by_student(user_id)
-        if not student_group_id:
-            await context.abort(
-                grpc.StatusCode.NOT_FOUND,
-                "Вы не состоите ни в одной группе",
-            )
-        return await self.get_groups_and_attendances(
+        schedule, groups = await self.get_schedule_and_groups(
             schedule_id=schedule_id,
             user_id=user_id,
             context=context,
-            student_group_id=student_group_id,
+        )
+        student_group_id = await self.dao_class(
+            session=self._session
+        ).get_group_id_by_student(user_id)
+        student_data = StudentLessonSchema(
+            attendance=AttendanceSchema(),
+            group_id=student_group_id,
+            is_prefect=False,
+        )
+        for group in groups:
+            for user_attendance in group.attendances:
+                if user_attendance.student_id == user_id:
+                    student_data.attendance.status = (
+                        user_attendance.attendance.status
+                    )
+                    student_data.is_prefect = (
+                        user_attendance.is_prefect
+                    )
+                    break
+        schedule.student_data = student_data
+        return lesson_service_pb2.LessonDetailsResponse(
+            **FullScheduleDataSchema(
+                schedule_data=BaseScheduleSchema.model_validate(
+                    schedule
+                ),
+                groups=groups,
+            ).model_dump(mode="json")
         )
