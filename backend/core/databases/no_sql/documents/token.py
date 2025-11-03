@@ -7,9 +7,7 @@ from core import settings
 from pydantic import Field
 from pymongo import ASCENDING, IndexModel
 
-
-def generate_utc_dt():
-    return datetime.datetime.now(datetime.UTC)
+from .utils.dt import generate_utc_dt
 
 
 class Token(Document):
@@ -24,7 +22,6 @@ class Token(Document):
         "teacher",
         "administrator",
     ]
-    is_prefect: bool = False
 
     class Settings:
         name = "tokens"
@@ -34,4 +31,3 @@ class Token(Document):
                 expireAfterSeconds=settings.auth.token_duration,
             ),
         ]
-

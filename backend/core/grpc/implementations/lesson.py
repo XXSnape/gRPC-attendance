@@ -82,55 +82,23 @@ class LessonServiceServicer(
         metadata = dict(context.invocation_metadata())
         schedule_id = metadata.get("schedule_id")
         group_id = metadata.get("group_id")
+        service = user.get_service_by_role()
         if schedule_id is None or group_id is None:
             await context.abort(
                 grpc.StatusCode.INVALID_ARGUMENT,
-                "Отсутствуют необходимые метаданные: schedule_id или group_id",
+                "Отсутствуют необходимые метаданные: пара по расписанию или группа",
             )
             return
         async with (
             db_helper.get_async_session_without_commit() as session
         ):
-            dao = GroupScheduleDAO(session=session)
-            is_prefect = await dao.check_is_prefect_in_group(
-                group_id=group_id, user_id=user.id
+            service_obj = service(session)
+            async_iterator = service_obj.set_students_attendance(
+                user_id=user.id,
+                schedule_id=uuid.UUID(schedule_id),
+                group_id=uuid.UUID(group_id),
+                request_iterator=request_iterator,
+                context=context,
             )
-            if not is_prefect:
-                await context.abort(
-                    grpc.StatusCode.PERMISSION_DENIED,
-                    "Пользователь не является старостой группы или не имеет прав на изменение посещаемости",
-                )
-            group_schedule = await dao.get_students_of_group(
-                schedule_id=schedule_id,
-                group_id=group_id,
-            )
-            students_with_groups = (
-                group_schedule.group_with_number.students_with_groups
-            )
-            students_ids = [
-                sg.student_id for sg in students_with_groups
-            ]
-
-        async for request in request_iterator:
-            if uuid.UUID(request.student_id) in students_ids:
-                await Visit.find_one(
-                    Visit.schedule_id == uuid.UUID(schedule_id),
-                    Visit.student_id
-                    == uuid.UUID(request.student_id),
-                ).upsert(
-                    Set({Visit.status: request.attendance.status}),
-                    on_insert=Visit(
-                        schedule_id=uuid.UUID(schedule_id),
-                        student_id=uuid.UUID(request.student_id),
-                        status=request.attendance.status,
-                    ),
-                )
-
-                yield lesson_service_pb2.StudentAttendanceResponse(
-                    student_id=request.student_id,
-                    attendance=lesson_pb2.Attendance(
-                        **AttendanceSchema(
-                            status=request.attendance.status
-                        ).model_dump(mode="json")
-                    ),
-                )
+            async for attendance in async_iterator:
+                yield attendance

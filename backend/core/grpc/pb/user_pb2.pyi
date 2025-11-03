@@ -12,7 +12,12 @@ class UserData(_message.Message):
     id: str
     role: str
     full_name: str
-    def __init__(self, id: _Optional[str] = ..., role: _Optional[str] = ..., full_name: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        id: _Optional[str] = ...,
+        role: _Optional[str] = ...,
+        full_name: _Optional[str] = ...,
+    ) -> None: ...
 
 class UserFullName(_message.Message):
     __slots__ = ("full_name", "decryption_of_full_name")
@@ -20,4 +25,8 @@ class UserFullName(_message.Message):
     DECRYPTION_OF_FULL_NAME_FIELD_NUMBER: _ClassVar[int]
     full_name: str
     decryption_of_full_name: str
-    def __init__(self, full_name: _Optional[str] = ..., decryption_of_full_name: _Optional[str] = ...) -> None: ...
+    def __init__(
+        self,
+        full_name: _Optional[str] = ...,
+        decryption_of_full_name: _Optional[str] = ...,
+    ) -> None: ...

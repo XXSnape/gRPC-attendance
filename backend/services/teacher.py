@@ -88,3 +88,12 @@ class TeacherService(BaseService):
                 groups=groups,
             ).model_dump(mode="json")
         )
+
+    async def check_for_access(
+        self,
+        user_id: uuid.UUID,
+        schedule_id: uuid.UUID,
+        group_id: uuid.UUID,
+        context: grpc.aio.ServicerContext,
+    ) -> None:
+        return

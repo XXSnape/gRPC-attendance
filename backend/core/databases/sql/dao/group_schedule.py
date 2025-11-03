@@ -151,13 +151,15 @@ class GroupScheduleDAO(ScheduleProtocol):
         return result.scalars().all()
 
     async def check_is_prefect_in_group(
-        self, group_id: str, user_id: uuid.UUID
+        self,
+        group_id: uuid.UUID,
+        student_id: uuid.UUID,
     ) -> bool:
 
         query = (
             select(StudentGroup).where(
-                StudentGroup.group_id == uuid.UUID(group_id),
-                StudentGroup.student_id == user_id,
+                StudentGroup.group_id == group_id,
+                StudentGroup.student_id == student_id,
                 StudentGroup.is_prefect.is_(True),
             )
         ).limit(1)
@@ -166,20 +168,19 @@ class GroupScheduleDAO(ScheduleProtocol):
 
     async def get_students_of_group(
         self,
-        schedule_id: str,
-        group_id: str,
-    ) -> GroupSchedule | None:
+        schedule_id: uuid.UUID,
+        group_id: uuid.UUID,
+    ) -> GroupWithNumber | None:
 
         query = (
-            select(GroupSchedule)
+            select(GroupWithNumber)
+            .join(GroupSchedule)
             .where(
-                GroupSchedule.group_id == uuid.UUID(group_id),
-                GroupSchedule.schedule_id == uuid.UUID(schedule_id),
+                GroupSchedule.group_id == group_id,
+                GroupSchedule.schedule_id == schedule_id,
             )
             .options(
-                joinedload(
-                    GroupSchedule.group_with_number
-                ).selectinload(GroupWithNumber.students_with_groups)
+                selectinload(GroupWithNumber.students_with_groups)
             )
         )
         result = await self._session.execute(query)

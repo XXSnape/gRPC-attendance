@@ -11,13 +11,15 @@ class Visit(Document):
     status: AttendanceStatus
     schedule_id: uuid.UUID
 
-
     class Settings:
         name = "visits"
         indexes = [
             IndexModel(
-                [("student_id", ASCENDING), ("schedule_id", ASCENDING)],
+                [
+                    ("student_id", ASCENDING),
+                    ("schedule_id", ASCENDING),
+                ],
                 unique=True,
-                name="user_lesson_unique"
+                name="user_lesson_unique",
             ),
         ]

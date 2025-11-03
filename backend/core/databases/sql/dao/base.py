@@ -16,7 +16,9 @@ class BaseDAO[M: Base]:
     def __init__(self, session: AsyncSession):
         self._session = session
         if self.model is None:
-            raise ValueError("Модель должна быть указана в дочернем классе")
+            raise ValueError(
+                "Модель должна быть указана в дочернем классе"
+            )
 
     def _get_sorting_attrs(self, sort_fields: list[str]):
         return (getattr(self.model, field) for field in sort_fields)
@@ -34,7 +36,9 @@ class BaseDAO[M: Base]:
             )
             return record
         except SQLAlchemyError as e:
-            logger.error("Ошибка при поиске записи с ID {}: {}", data_id, e)
+            logger.error(
+                "Ошибка при поиске записи с ID {}: {}", data_id, e
+            )
             raise
 
     async def find_one_or_none(self, filters: BaseModel) -> M | None:
@@ -67,7 +71,9 @@ class BaseDAO[M: Base]:
         filters: BaseModel | None = None,
         sort_fields: list[str] | None = None,
     ) -> list[M]:
-        filter_dict = filters.model_dump(exclude_unset=True) if filters else {}
+        filter_dict = (
+            filters.model_dump(exclude_unset=True) if filters else {}
+        )
         logger.info(
             "Поиск всех записей {} по фильтрам: {}",
             self.model.__name__,
@@ -102,7 +108,9 @@ class BaseDAO[M: Base]:
             new_instance = self.model(**values_dict)
             self._session.add(new_instance)
             await self._session.flush()
-            logger.info("Запись {} успешно добавлена.", self.model.__name__)
+            logger.info(
+                "Запись {} успешно добавлена.", self.model.__name__
+            )
             return new_instance
         except SQLAlchemyError as e:
             await self._session.rollback()
@@ -114,7 +122,8 @@ class BaseDAO[M: Base]:
         exclude: set[str] | None = None,
     ) -> list[M]:
         values_list = [
-            item.model_dump(exclude_unset=True, exclude=exclude) for item in instances
+            item.model_dump(exclude_unset=True, exclude=exclude)
+            for item in instances
         ]
         logger.info(
             "Добавление нескольких записей {}. Количество: {}",
@@ -122,17 +131,25 @@ class BaseDAO[M: Base]:
             len(values_list),
         )
         try:
-            new_instances = [self.model(**values) for values in values_list]
+            new_instances = [
+                self.model(**values) for values in values_list
+            ]
             self._session.add_all(new_instances)
             await self._session.flush()
-            logger.info("Успешно добавлено {} записей.", len(new_instances))
+            logger.info(
+                "Успешно добавлено {} записей.", len(new_instances)
+            )
             return new_instances
         except SQLAlchemyError as e:
             await self._session.rollback()
-            logger.error("Ошибка при добавлении нескольких записей: {}", e)
+            logger.error(
+                "Ошибка при добавлении нескольких записей: {}", e
+            )
             raise
 
-    async def update(self, filters: BaseModel, values: BaseModel) -> int:
+    async def update(
+        self, filters: BaseModel, values: BaseModel
+    ) -> int:
         filter_dict = filters.model_dump(exclude_unset=True)
         values_dict = values.model_dump(exclude_unset=True)
         logger.info(
@@ -144,7 +161,12 @@ class BaseDAO[M: Base]:
         try:
             query = (
                 sqlalchemy_update(self.model)
-                .where(*[getattr(self.model, k) == v for k, v in filter_dict.items()])
+                .where(
+                    *[
+                        getattr(self.model, k) == v
+                        for k, v in filter_dict.items()
+                    ]
+                )
                 .values(**values_dict)
                 .execution_options(synchronize_session="fetch")
             )
@@ -166,9 +188,13 @@ class BaseDAO[M: Base]:
         )
         if not filter_dict:
             logger.error("Нужен хотя бы один фильтр для удаления.")
-            raise ValueError("Нужен хотя бы один фильтр для удаления.")
+            raise ValueError(
+                "Нужен хотя бы один фильтр для удаления."
+            )
         try:
-            query = sqlalchemy_delete(self.model).filter_by(**filter_dict)
+            query = sqlalchemy_delete(self.model).filter_by(
+                **filter_dict
+            )
             result = await self._session.execute(query)
             await self._session.flush()
             logger.info("Удалено {} записей.", result.rowcount)

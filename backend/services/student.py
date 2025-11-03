@@ -1,10 +1,12 @@
 import datetime
 import uuid
+from typing import AsyncIterator
 
 import grpc
 from beanie.odm.operators.find.comparison import In
 
-from core.databases.no_sql.documents import Visit
+from core.databases.no_sql.documents import Visit, AccessForPrefects
+from core.databases.no_sql.documents.utils.dt import generate_utc_dt
 from core.databases.sql.dao.group_schedule import GroupScheduleDAO
 from core.enums.status import AttendanceStatus
 from core.grpc.pb import lesson_pb2, lesson_service_pb2
@@ -131,3 +133,34 @@ class StudentService(BaseService):
                 groups=groups,
             ).model_dump(mode="json")
         )
+
+    async def check_for_access(
+        self,
+        user_id: uuid.UUID,
+        schedule_id: uuid.UUID,
+        group_id: uuid.UUID,
+        context: grpc.aio.ServicerContext,
+    ) -> None:
+        dao_obj = self.dao_class(session=self._session)
+        is_prefect = await dao_obj.check_is_prefect_in_group(
+            group_id=group_id,
+            student_id=user_id,
+        )
+        if not is_prefect:
+            await context.abort(
+                grpc.StatusCode.PERMISSION_DENIED,
+                "Пользователь не является старостой группы",
+            )
+        now = generate_utc_dt()
+        document = await AccessForPrefects.find(
+            AccessForPrefects.schedule_id == schedule_id,
+            AccessForPrefects.group_id == group_id,
+            AccessForPrefects.date_and_time_of_access_closure < now,
+            AccessForPrefects.date_and_time_of_forced_access_closure
+            == None,
+        ).first_or_none()
+        if document is None:
+            await context.abort(
+                grpc.StatusCode.PERMISSION_DENIED,
+                "У старосты группы нет активного доступа для изменения посещаемости этой пары",
+            )
