@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, Card, Tag, List, ConfigProvider, Spin, Tooltip } from "antd";
+import { Calendar, Card, Tag, List, ConfigProvider, Spin, Tooltip, Progress, Button } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import dayjs from "dayjs";
 import "dayjs/locale/ru";
@@ -77,8 +77,36 @@ export default function SchedulePage() {
     fetchStudyDays(date.year(), date.month() + 1);
   };
 
-  const handleLessonClick = (lessonId) => {
+  const handleLessonClick = (lessonId, e) => {
+    // Предотвращаем всплытие события если кликнули по кнопке
+    if (e && e.target.closest('button')) {
+      return;
+    }
     navigate(`/lessons/${lessonId}`);
+  };
+
+  const renderGroupTags = (groupNames) => {
+    if (!groupNames || groupNames.length === 0) return null;
+    
+    const visibleGroups = groupNames.slice(0, 5);
+    const hiddenGroupsCount = groupNames.length - 5;
+
+    return (
+      <>
+        {visibleGroups.map((groupName, index) => (
+          <Tag key={index} className="mb-1">
+            {groupName}
+          </Tag>
+        ))}
+        {hiddenGroupsCount > 0 && (
+          <Tooltip title={groupNames.slice(5).join(', ')}>
+            <Tag className="mb-1">
+              +{hiddenGroupsCount}...
+            </Tag>
+          </Tooltip>
+        )}
+      </>
+    );
   };
 
   const dateFullCellRender = (date) => {
@@ -124,21 +152,23 @@ export default function SchedulePage() {
                       <List.Item>
                         <Card
                           size="small"
-                          className="w-full cursor-pointer hover:shadow-md transition-shadow"
-                          onClick={() => handleLessonClick(lesson.id)}
+                          className="w-full hover:shadow-md transition-shadow cursor-pointer"
+                          onClick={(e) => handleLessonClick(lesson.id, e)}
                         >
                           <div className="flex justify-between items-start mb-2">
                             <div className="flex items-center gap-2">
                               <Tag color={getTypeColor(lesson.type_of_lesson)}>
                                 {lesson.type_of_lesson}
                               </Tag>
-                              <Tag
-                                color={getStatusColor(
-                                  lesson.student_data.attendance.decryption
-                                )}
-                              >
-                                {lesson.student_data.attendance.decryption}
-                              </Tag>
+                              {lesson.student_data && (
+                                <Tag
+                                  color={getStatusColor(
+                                    lesson.student_data.attendance.decryption
+                                  )}
+                                >
+                                  {lesson.student_data.attendance.decryption}
+                                </Tag>
+                              )}
                               {lesson.can_be_edited_by_prefect && (
                                 <Tag color="orange">открыто старосте</Tag>
                               )}
@@ -152,25 +182,66 @@ export default function SchedulePage() {
                             {lesson.lesson.name}
                           </h4>
 
-                          <div className="flex justify-between text-gray-600">
-                            <div>
-                              <Tooltip
-                                placement="top"
-                                title={lesson.audience.address.name}
-                              >
-                                <span className="font-medium">Аудитория: </span>
-                                {lesson.audience.name}
-                              </Tooltip>
+                          <div className="flex justify-between items-center mb-3">
+                            <div className="flex-1">
+                              <div className="text-gray-600 mb-1">
+                                <span className="font-medium">Аудитории: </span>
+                                {lesson.audiences.map((audience, index) => (
+                                  <Tooltip
+                                    key={index}
+                                    placement="top"
+                                    title={audience.address.name}
+                                  >
+                                    <Tag className="mr-1 mb-1">
+                                      {audience.name}
+                                    </Tag>
+                                  </Tooltip>
+                                ))}
+                              </div>
+                              <div className="text-gray-600">
+                                <span className="font-medium">Преподаватели: </span>
+                                {lesson.teachers.map((teacher, index) => (
+                                  <Tooltip
+                                    key={index}
+                                    title={teacher.decryption_of_full_name}
+                                  >
+                                    <Tag className="mr-1 mb-1">
+                                      {teacher.full_name}
+                                    </Tag>
+                                  </Tooltip>
+                                ))}
+                              </div>
+                              {lesson.group_names && lesson.group_names.length > 0 && (
+                                <div className="text-gray-600 mt-1">
+                                  <span className="font-medium">Группы: </span>
+                                  {renderGroupTags(lesson.group_names)}
+                                </div>
+                              )}
                             </div>
-                            <div>
-                              <span className="font-medium">
-                                Преподаватели:{" "}
-                              </span>
-                              {lesson.teachers
-                                .map((t) => t.full_name)
-                                .join(", ")}
-                            </div>
+                            
+                            <Button 
+                              type="primary" 
+                              size="small"
+                              onClick={() => handleLessonClick(lesson.id)}
+                            >
+                              Подробности
+                            </Button>
                           </div>
+
+                          {lesson.total_attendance && (
+                            <div className="border-t pt-3">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm text-gray-600">
+                                  Посещаемость: {lesson.total_attendance.present_students} из {lesson.total_attendance.total_students}
+                                </span>
+                                <Progress 
+                                  percent={Math.round((lesson.total_attendance.present_students / lesson.total_attendance.total_students) * 100)}
+                                  size="small" 
+                                  style={{ width: 100 }}
+                                />
+                              </div>
+                            </div>
+                          )}
                         </Card>
                       </List.Item>
                     )}
