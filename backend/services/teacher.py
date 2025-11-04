@@ -52,11 +52,10 @@ class TeacherService(BaseService):
                 present_students=present_students,
             )
             schedule.student_data = None
-            schedule.can_be_edited_by_prefect = False
-            schedule.group_names = [
-                gwn.complete_name
-                for gwn in schedule.groups_with_numbers
-            ]
+            schedule.can_be_edited_by_prefect = await self.does_prefect_have_access_to_changing_statuses(
+                schedule_id=schedule.id,
+                group_id=None,
+            )
             schedule.total_attendance = total_attendance
 
             lesson_data = lesson_pb2.Schedule(
@@ -80,6 +79,10 @@ class TeacherService(BaseService):
             context=context,
         )
         schedule.student_data = None
+        schedule.can_be_edited_by_prefect = any(
+            group.can_be_edited_by_prefect for group in groups
+        )
+
         return lesson_service_pb2.LessonDetailsResponse(
             **FullScheduleDataSchema(
                 schedule_data=BaseScheduleSchema.model_validate(
@@ -97,7 +100,6 @@ class TeacherService(BaseService):
         context: grpc.aio.ServicerContext,
     ) -> None:
         dao_obj = self.dao_class(self._session)
-        print("check has access called")
         has_access = (
             await dao_obj.does_teacher_have_group_in_schedule(
                 teacher_id=user_id,
@@ -105,7 +107,6 @@ class TeacherService(BaseService):
                 group_id=group_id,
             )
         )
-        print("has_access:", has_access)
         if not has_access:
             await context.abort(
                 grpc.StatusCode.PERMISSION_DENIED,

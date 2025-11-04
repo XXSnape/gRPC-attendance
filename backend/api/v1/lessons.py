@@ -163,7 +163,7 @@ async def get_schedule_by_id(
 
 
 @router.put(
-    "/{schedule_id}/attendance-permissions",
+    "/{schedule_id}/attendance-permissions/",
     response_model=ResultSchema,
     dependencies=[Depends(check_for_teacher_or_admin)],
 )
@@ -196,7 +196,7 @@ async def grant_attendance_rights_by_schedule_id(
 
 
 @router.patch(
-    "/{schedule_id}/groups/{group_id}/attendance-permissions",
+    "/{schedule_id}/groups/{group_id}/attendance-permissions/",
     response_model=ResultSchema,
     dependencies=[Depends(check_for_teacher_or_admin)],
 )

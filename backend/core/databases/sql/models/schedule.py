@@ -9,6 +9,7 @@ from sqlalchemy import (
     null,
     true,
 )
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
@@ -80,3 +81,9 @@ class Schedule(Base):
             back_populates="schedules",
         )
     )
+
+    @hybrid_property
+    def group_names(self):
+        return [
+            gwn.complete_name for gwn in self.groups_with_numbers
+        ]

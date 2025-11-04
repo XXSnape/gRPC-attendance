@@ -4,8 +4,7 @@ import uuid
 import grpc
 from beanie.odm.operators.find.comparison import In
 
-from core.databases.no_sql.documents import Visit, AccessForPrefects
-from utils.dt import generate_utc_dt
+from core.databases.no_sql.documents import Visit
 from core.databases.sql.dao.group_schedule import GroupScheduleDAO
 from core.enums.status import AttendanceStatus
 from core.grpc.pb import lesson_pb2, lesson_service_pb2
@@ -79,11 +78,10 @@ class StudentService(BaseService):
                     present_students=present_students,
                 )
             schedule.student_data = student_data
-            schedule.can_be_edited_by_prefect = False
-            schedule.group_names = [
-                gwn.complete_name
-                for gwn in schedule.groups_with_numbers
-            ]
+            schedule.can_be_edited_by_prefect = await self.does_prefect_have_access_to_changing_statuses(
+                group_id=group_id,
+                schedule_id=schedule.id,
+            )
             schedule.total_attendance = total_attendance
             lesson_data = lesson_pb2.Schedule(
                 **BaseScheduleSchema.model_validate(
@@ -124,6 +122,11 @@ class StudentService(BaseService):
                     )
                     break
         schedule.student_data = student_data
+        schedule.can_be_edited_by_prefect = any(
+            group.can_be_edited_by_prefect
+            for group in groups
+            if group.id == student_group_id
+        )
         return lesson_service_pb2.LessonDetailsResponse(
             **FullScheduleDataSchema(
                 schedule_data=BaseScheduleSchema.model_validate(
@@ -150,15 +153,13 @@ class StudentService(BaseService):
                 grpc.StatusCode.PERMISSION_DENIED,
                 "Пользователь не является старостой группы",
             )
-        now = generate_utc_dt()
-        document = await AccessForPrefects.find(
-            AccessForPrefects.schedule_id == schedule_id,
-            AccessForPrefects.group_id == group_id,
-            AccessForPrefects.date_and_time_of_access_closure < now,
-            AccessForPrefects.date_and_time_of_forced_access_closure
-            == None,
-        ).first_or_none()
-        if document is None:
+        has_access = (
+            await self.does_prefect_have_access_to_changing_statuses(
+                group_id=group_id,
+                schedule_id=schedule_id,
+            )
+        )
+        if not has_access:
             await context.abort(
                 grpc.StatusCode.PERMISSION_DENIED,
                 "У старосты группы нет активного доступа для изменения посещаемости этой пары",

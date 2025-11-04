@@ -87,6 +87,26 @@ class BaseService(ABC):
         context: grpc.aio.ServicerContext,
     ) -> None: ...
 
+    @classmethod
+    async def does_prefect_have_access_to_changing_statuses(
+        cls,
+        schedule_id: uuid.UUID,
+        group_id: uuid.UUID | None,
+    ) -> bool:
+        now = generate_utc_dt()
+        args = (
+            AccessForPrefects.schedule_id == schedule_id,
+            AccessForPrefects.date_and_time_of_access_closure > now,
+            AccessForPrefects.date_and_time_of_forced_access_closure
+            == None,
+        )
+        if group_id:
+            args += (AccessForPrefects.group_id == group_id,)
+        document = await AccessForPrefects.find(
+            *args
+        ).first_or_none()
+        return document is not None
+
     async def get_schedule_and_groups(
         self,
         schedule_id: uuid.UUID,
@@ -133,12 +153,13 @@ class BaseService(ABC):
                         schema.attendance.status = document.status
                         break
                 group_attendances.append(schema)
+            if group_with_number.students_with_groups:
+                group_schema.can_be_edited_by_prefect = await self.does_prefect_have_access_to_changing_statuses(
+                    schedule_id=schedule_id,
+                    group_id=group_with_number.id,
+                )
             group_schema.attendances = group_attendances
-        schedule.can_be_edited_by_prefect = False
         schedule.total_attendance = None
-        schedule.group_names = [
-            group.complete_name for group in groups
-        ]
         return schedule, groups
 
     async def set_students_attendance(
@@ -281,7 +302,6 @@ class BaseService(ABC):
                     self._session
                 ).get_groups_by_schedule(schedule_id=schedule_id)
             await AccessForPrefects.find(*args).delete()
-            # accesses = []
             for group_id in groups:
                 await AccessForPrefects(
                     user_id_guaranteed_access=user_id,
