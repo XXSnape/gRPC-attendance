@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Descriptions, Radio, Tag, Alert, Button, Spin, message, Tooltip } from 'antd';
+import { Card, Descriptions, Radio, Tag, Alert, Button, Spin, message, Tooltip, Collapse, Table } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -14,11 +14,10 @@ export default function LessonDetail() {
   const { lessonId } = useParams();
   const [lessonData, setLessonData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [attendances, setAttendances] = useState([]);
-  const [originalAttendances, setOriginalAttendances] = useState([]); // Сохраняем исходные данные
   const [saving, setSaving] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
-  const [markedCount, setMarkedCount] = useState(0);
+  const [groupAttendances, setGroupAttendances] = useState({});
+  const [originalAttendances, setOriginalAttendances] = useState({});
 
   useEffect(() => {
     fetchLessonData();
@@ -29,34 +28,50 @@ export default function LessonDetail() {
       const response = await api.get(`/lessons/${lessonId}`);
       setLessonData(response.data);
       
-      // Находим группу, где id совпадает с student_data.group_id и attendances не пустой
-      const studentGroupId = response.data.schedule_data.student_data.group_id;
-      const targetGroup = response.data.groups.find(group => 
-        group.id === studentGroupId && group.attendances && group.attendances.length > 0
-      );
+      // Инициализируем состояния для каждой группы
+      const groupStates = {};
+      const originalStates = {};
       
-      const groupAttendances = targetGroup ? targetGroup.attendances : [];
-      setAttendances(groupAttendances);
-      setOriginalAttendances(JSON.parse(JSON.stringify(groupAttendances))); // Сохраняем копию исходных данных
-      setMarkedCount(groupAttendances.filter(a => a.attendance.status === 0).length);
+      response.data.groups.forEach(group => {
+        if (group.attendances && group.attendances.length > 0) {
+          groupStates[group.id] = [...group.attendances];
+          originalStates[group.id] = JSON.parse(JSON.stringify(group.attendances));
+        }
+      });
+      
+      setGroupAttendances(groupStates);
+      setOriginalAttendances(originalStates);
     } catch (error) {
       console.error('Error fetching lesson data:', error);
+      handleApiError(error, 'Не удалось загрузить данные урока');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAttendanceChange = (studentIndex, status) => {
-    const updatedAttendances = [...attendances];
-    updatedAttendances[studentIndex].attendance.status = status;
-    setAttendances(updatedAttendances);
+  const handleApiError = (error, defaultMessage) => {
+    if (error.response?.data?.detail) {
+      messageApi.error(error.response.data.detail);
+    } else if (error.response?.status >= 500) {
+      messageApi.error('Произошла ошибка, попробуйте позже');
+    } else {
+      messageApi.error(defaultMessage);
+    }
   };
 
-  const handleMarkAll = () => {
-    const allMarked = attendances.every(student => student.attendance.status === 0);
-    const newStatus = allMarked ? 1 : 0; // Если все +, то ставим Н, иначе +
+  const handleAttendanceChange = (groupId, studentIndex, status) => {
+    const updatedAttendances = { ...groupAttendances };
+    updatedAttendances[groupId][studentIndex].attendance.status = status;
+    setGroupAttendances(updatedAttendances);
+  };
+
+  const handleMarkAll = (groupId) => {
+    const groupAttendance = groupAttendances[groupId];
+    const allMarked = groupAttendance.every(student => student.attendance.status === 0);
+    const newStatus = allMarked ? 1 : 0;
     
-    const updatedAttendances = attendances.map(student => ({
+    const updatedAttendances = { ...groupAttendances };
+    updatedAttendances[groupId] = groupAttendance.map(student => ({
       ...student,
       attendance: {
         ...student.attendance,
@@ -64,27 +79,27 @@ export default function LessonDetail() {
       }
     }));
     
-    setAttendances(updatedAttendances);
+    setGroupAttendances(updatedAttendances);
   };
 
-  const handleCancel = () => {
-    // Сбрасываем к исходным данным
-    setAttendances(JSON.parse(JSON.stringify(originalAttendances)));
+  const handleCancel = (groupId) => {
+    const updatedAttendances = { ...groupAttendances };
+    updatedAttendances[groupId] = JSON.parse(JSON.stringify(originalAttendances[groupId]));
+    setGroupAttendances(updatedAttendances);
   };
 
-  const handleSaveAttendance = async () => {
+  const handleSaveAttendance = async (groupId) => {
     setSaving(true);
     try {
-      const attendanceData = attendances.map(student => ({
+      const attendanceData = groupAttendances[groupId].map(student => ({
         student_id: student.student_id,
         attendance: {
           status: student.attendance.status
         }
       }));
 
-      const studentGroupId = lessonData.schedule_data.student_data.group_id;
       const response = await api.put(
-        `/lessons/${lessonId}/groups/${studentGroupId}/attendance/`,
+        `/lessons/${lessonId}/groups/${groupId}/attendance/`,
         attendanceData
       );
 
@@ -92,27 +107,81 @@ export default function LessonDetail() {
       const updatedAttendances = response.data.attendances;
       const studentMap = new Map(updatedAttendances.map(item => [item.student_id, item.attendance]));
       
-      const newAttendances = attendances.map(student => ({
+      const newAttendances = groupAttendances[groupId].map(student => ({
         ...student,
         attendance: studentMap.get(student.student_id) || student.attendance
       }));
       
-      setAttendances(newAttendances);
-      setOriginalAttendances(JSON.parse(JSON.stringify(newAttendances))); // Обновляем исходные данные
-      setMarkedCount(newAttendances.filter(a => a.attendance.status === 0).length);
+      const updatedGroupAttendances = { ...groupAttendances };
+      updatedGroupAttendances[groupId] = newAttendances;
+      setGroupAttendances(updatedGroupAttendances);
+      
+      const updatedOriginals = { ...originalAttendances };
+      updatedOriginals[groupId] = JSON.parse(JSON.stringify(newAttendances));
+      setOriginalAttendances(updatedOriginals);
       
       messageApi.success('Посещаемость успешно сохранена');
     } catch (error) {
       console.error('Error saving attendance:', error);
-      messageApi.error('Ошибка при сохранении посещаемости');
+      handleApiError(error, 'Ошибка при сохранении посещаемости');
     } finally {
       setSaving(false);
     }
   };
 
-  // Проверяем является ли пользователь старостой
-  const isPerfect = lessonData?.schedule_data?.student_data?.is_prefect || false;
-  const canEdit = isPerfect;
+  const handleGrantAccess = async (minutes = null, groupId = null) => {
+    try {
+      const url = groupId 
+        ? `/lessons/${lessonId}/groups/${groupId}/attendance-permissions`
+        : `/lessons/${lessonId}/attendance-permissions`;
+      
+      const method = groupId ? 'PATCH' : 'PUT';
+      
+      await api({
+        method,
+        url,
+        data: { number_of_minutes_of_access: minutes }
+      });
+      
+      messageApi.success(minutes === null ? 'Доступ отозван' : `Доступ выдан на ${minutes} минут`);
+      fetchLessonData(); // Перезагружаем данные для обновления статусов доступа
+    } catch (error) {
+      console.error('Error granting access:', error);
+      handleApiError(error, 'Ошибка при выдаче доступа');
+    }
+  };
+
+  const calculateAttendance = (groupId) => {
+    const groupAttendance = groupAttendances[groupId];
+    if (!groupAttendance) return { present: 0, total: 0 };
+    
+    const present = groupAttendance.filter(a => a.attendance.status === 0).length;
+    return { present, total: groupAttendance.length };
+  };
+
+  const calculateTotalAttendance = () => {
+    let totalPresent = 0;
+    let totalStudents = 0;
+    
+    Object.values(groupAttendances).forEach(group => {
+      if (group && group.length > 0) {
+        totalPresent += group.filter(a => a.attendance.status === 0).length;
+        totalStudents += group.length;
+      }
+    });
+    
+    return { totalPresent, totalStudents };
+  };
+
+  const isTeacher = !lessonData?.schedule_data?.student_data;
+  const currentStudent = lessonData?.schedule_data?.student_data;
+  const isCurrentStudentPrefect = currentStudent?.is_prefect;
+  const studentGroupId = currentStudent?.group_id;
+
+  // Для студента показываем только его группу
+  const displayGroups = isTeacher 
+    ? lessonData?.groups || [] 
+    : lessonData?.groups.filter(group => group.id === studentGroupId) || [];
 
   if (loading) {
     return (
@@ -132,14 +201,179 @@ export default function LessonDetail() {
     );
   }
 
-  const { schedule_data, groups } = lessonData;
-  const targetGroup = groups.find(g => g.id === schedule_data.student_data.group_id);
+  const { schedule_data } = lessonData;
+  const totalAttendance = calculateTotalAttendance();
+
+  // Создаем колонки для таблицы
+  const getAttendanceColumns = (groupId) => [
+    {
+      title: 'Студент',
+      dataIndex: 'full_name',
+      key: 'full_name',
+      align: 'center',
+      render: (text, record) => (
+        <div className="flex items-center justify-center">
+          <UserOutlined className="text-gray-400 mr-2" />
+          <Tooltip title={`Персональный номер: ${record.personal_number}`}>
+            <span className={record.is_prefect ? 'underline font-semibold' : ''}>
+              {text}
+            </span>
+          </Tooltip>
+        </div>
+      ),
+    },
+    {
+      title: 'Статус',
+      dataIndex: 'attendance',
+      key: 'attendance',
+      align: 'center',
+      render: (attendance, record, index) => {
+        const isDisabled = attendance.status === 2;
+        const group = displayGroups.find(g => g.id === groupId);
+        const canEdit = isTeacher || (group?.can_be_edited_by_prefect && isCurrentStudentPrefect);
+        
+        return (
+          <Radio.Group
+            value={attendance.status}
+            onChange={(e) => handleAttendanceChange(groupId, index, e.target.value)}
+            disabled={!canEdit || isDisabled}
+            size="large"
+          >
+            <Radio.Button value={0}>+</Radio.Button>
+            <Radio.Button value={1}>Н</Radio.Button>
+            <Tooltip title="Регулируется только учебным отделом">
+              <Radio.Button value={2} disabled>У</Radio.Button>
+            </Tooltip>
+          </Radio.Group>
+        );
+      },
+    },
+  ];
+
+  // Создаем items для Collapse (новый API)
+  const collapseItems = displayGroups.map(group => {
+    const attendance = calculateAttendance(group.id);
+    const canEdit = group.can_be_edited_by_prefect;
+    const hasAttendances = groupAttendances[group.id]?.length > 0;
+    
+    return {
+      key: group.id,
+      label: (
+        <div className="flex justify-between items-center">
+          <span>{group.complete_name}</span>
+          {hasAttendances && (
+            <span className="text-gray-600">
+              {attendance.present} из {attendance.total}
+            </span>
+          )}
+        </div>
+      ),
+      children: hasAttendances ? (
+        <>
+          {/* Кнопки управления доступом для преподавателя */}
+          {isTeacher && (
+            <div className="flex gap-2 mb-4 p-4 bg-gray-50 rounded-lg">
+              <span className="font-medium mr-2">Доступ старостам:</span>
+              {canEdit ? (
+                <Button 
+                  size="small" 
+                  danger 
+                  onClick={() => handleGrantAccess(null, group.id)}
+                >
+                  Отозвать доступ
+                </Button>
+              ) : (
+                <>
+                  <Button 
+                    size="small" 
+                    onClick={() => handleGrantAccess(5, group.id)}
+                  >
+                    Выдать на 5 минут
+                  </Button>
+                  <Button 
+                    size="small" 
+                    onClick={() => handleGrantAccess(10, group.id)}
+                  >
+                    Выдать на 10 минут
+                  </Button>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Сообщение о доступе */}
+          {!isTeacher && isCurrentStudentPrefect && !canEdit && (
+            <Alert
+              message="Для получения доступа к изменению статусов обратитесь к преподавателю"
+              type="warning"
+              className="mb-4"
+            />
+          )}
+          {!isTeacher && !isCurrentStudentPrefect && (
+            <Alert
+              message="Только староста может отмечать студентов"
+              type="error"
+              className="mb-4"
+            />
+          )}
+
+          {/* Кнопки управления для старосты с доступом */}
+          {(isTeacher || (isCurrentStudentPrefect && canEdit)) && (
+            <div className="flex justify-between items-center mb-4">
+              <div className="text-lg font-medium">
+                Отмечено {attendance.present} из {attendance.total}
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={() => handleMarkAll(group.id)}>
+                  Отметить всех
+                </Button>
+                <Button>Перейти к статистике журнала</Button>
+              </div>
+            </div>
+          )}
+
+          {/* Таблица студентов */}
+          <Table
+            columns={getAttendanceColumns(group.id)}
+            dataSource={groupAttendances[group.id]?.map((item, index) => ({
+              ...item,
+              key: item.student_id || index // Убедимся что есть ключ
+            }))}
+            pagination={false}
+            size="middle"
+          />
+
+          {/* Кнопки сохранения для старосты с доступом */}
+          {(isTeacher || (isCurrentStudentPrefect && canEdit)) && (
+            <div className="flex justify-end gap-2 mt-4">
+              <Button onClick={() => handleCancel(group.id)}>
+                Отменить
+              </Button>
+              <Button 
+                type="primary" 
+                loading={saving}
+                onClick={() => handleSaveAttendance(group.id)}
+              >
+                Сохранить
+              </Button>
+            </div>
+          )}
+        </>
+      ) : (
+        !isTeacher && (
+          <div className="text-gray-500 text-center py-4">
+            Нет данных о посещаемости
+          </div>
+        )
+      )
+    };
+  });
 
   return (
     <>
       {contextHolder}
       <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           {/* Заголовок */}
           <Card className="mb-6 shadow-sm">
             <h1 className="text-2xl font-bold text-gray-800">
@@ -158,10 +392,12 @@ export default function LessonDetail() {
               <Descriptions.Item label="Дата и время">
                 <Tag>{`${schedule_data.date} ${schedule_data.time}`}</Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="Аудитория">
-                <Tooltip title={schedule_data.audience.address.name}>
-                  <Tag>{schedule_data.audience.name}</Tag>
-                </Tooltip>
+              <Descriptions.Item label="Аудитории">
+                {schedule_data.audiences.map((audience, index) => (
+                  <Tooltip key={index} title={audience.address.name}>
+                    <Tag className="mb-1">{audience.name}</Tag>
+                  </Tooltip>
+                ))}
               </Descriptions.Item>
               <Descriptions.Item label="Преподаватели">
                 {schedule_data.teachers.map(teacher => (
@@ -171,107 +407,56 @@ export default function LessonDetail() {
                 ))}
               </Descriptions.Item>
               <Descriptions.Item label="Группы">
-                {groups.map(group => (
-                  <Tag key={group.id} className="mb-1">
-                    {group.complete_name}
+                {schedule_data.group_names.map((groupName, index) => (
+                  <Tag key={index} className="mb-1">
+                    {groupName}
                   </Tag>
                 ))}
               </Descriptions.Item>
-              <Descriptions.Item label="Статус">
-                <Tag color={getStatusColor(schedule_data.student_data.attendance.decryption)}>
-                  {schedule_data.student_data.attendance.decryption}
-                </Tag>
-              </Descriptions.Item>
+              {currentStudent && (
+                <Descriptions.Item label="Статус">
+                  <Tag color={getStatusColor(currentStudent.attendance.decryption)}>
+                    {currentStudent.attendance.decryption}
+                  </Tag>
+                </Descriptions.Item>
+              )}
             </Descriptions>
           </Card>
 
-          {/* Посещения */}
-          <Card 
-            title={`Посещения группы ${targetGroup?.complete_name || 'Не указана'}`}
-            className="shadow-sm"
-          >
-            {/* Статистика и кнопки (только для старосты) */}
-            {canEdit && (
-              <div className="flex justify-between items-center mb-6">
-                <div className="text-lg font-medium">
-                  Отмечено {markedCount} из {attendances.length}
-                </div>
-                <div className="flex gap-2">
-                  <Button 
-                    size="large"
-                    onClick={handleMarkAll}
-                  >
-                    Отметить всех
-                  </Button>
-                  <Button size="large">
-                    Перейти к статистике журнала
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Предупреждение для не-старосты */}
-            {!canEdit && (
-              <Alert
-                message="Только староста может отмечать студентов"
-                type="error"
-                className="mb-4 text-center"
-              />
-            )}
-
-            {/* Список студентов */}
-            <div className="space-y-4 mt-4">
-              {attendances.map((student, index) => (
-                <div
-                  key={index}
-                  className={`flex items-center justify-between p-4 border rounded-lg transition-all duration-200 hover:shadow-md hover:border-blue-300 ${
-                    student.is_prefect ? 'border-blue-300 bg-blue-50' : 'bg-white'
-                  }`}
-                >
-                  <div className="flex items-center flex-1">
-                    <UserOutlined className="text-gray-400 mr-3 text-lg" />
-                    <Tooltip title={`Персональный номер: ${student.personal_number}`}>
-                      <span
-                        className={`text-lg ${student.is_prefect ? 'underline font-semibold' : ''}`}
-                      >
-                        {student.full_name}
-                      </span>
-                    </Tooltip>
-                  </div>
-                  
-                  <Radio.Group
-                    value={student.attendance.status}
-                    onChange={(e) => handleAttendanceChange(index, e.target.value)}
-                    disabled={!canEdit}
-                    size="large"
-                  >
-                    <Radio.Button value={0} className="px-6 py-2">+</Radio.Button>
-                    <Radio.Button value={1} className="px-6 py-2">Н</Radio.Button>
-                    <Radio.Button value={2} className="px-6 py-2">У</Radio.Button>
-                  </Radio.Group>
-                </div>
-              ))}
-            </div>
-
-            {/* Кнопки сохранения и отмены для старосты */}
-            {canEdit && (
-              <div className="flex justify-end gap-2 mt-6">
-                <Button 
-                  size="large"
-                  onClick={handleCancel}
-                >
-                  Отменить
+          {/* Кнопки выдачи доступа для преподавателя */}
+          {isTeacher && schedule_data.can_be_edited_by_prefect && (
+            <Card title="Управление доступом" className="mb-6 shadow-sm">
+              <div className="flex gap-2">
+                <Button onClick={() => handleGrantAccess(5)}>
+                  Выдать доступ всем на 5 минут
                 </Button>
-                <Button 
-                  type="primary" 
-                  size="large" 
-                  loading={saving}
-                  onClick={handleSaveAttendance}
-                >
-                  Сохранить
+                <Button onClick={() => handleGrantAccess(10)}>
+                  Выдать доступ всем на 10 минут
+                </Button>
+                <Button danger onClick={() => handleGrantAccess(null)}>
+                  Отозвать доступ у всех
                 </Button>
               </div>
-            )}
+            </Card>
+          )}
+
+          {/* Общая статистика посещаемости */}
+          {totalAttendance.totalStudents > 0 && (
+            <Card className="mb-6 shadow-sm">
+              <div className="text-center">
+                <div className="text-lg font-semibold">
+                  Общая посещаемость: {totalAttendance.totalPresent} из {totalAttendance.totalStudents}
+                </div>
+                <div className="text-gray-600">
+                  ({Math.round((totalAttendance.totalPresent / totalAttendance.totalStudents) * 100)}%)
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {/* Посещения по группам */}
+          <Card title="Посещения по группам" className="shadow-sm">
+            <Collapse items={collapseItems} />
           </Card>
         </div>
       </div>
