@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from collections.abc import AsyncIterator
 
 import grpc
-from beanie.odm.operators.update.general import Set
+from loguru import logger
 
 from core.databases.no_sql.documents import Visit, TrackingAttendance
 from core.databases.sql.dao.group_schedule import GroupScheduleDAO
@@ -12,6 +12,7 @@ from core.databases.sql.dao.protocols.schedule import (
     ScheduleProtocol,
 )
 from core.databases.sql.models import Schedule
+from core.enums.status import AttendanceStatus
 from core.grpc.pb import lesson_service_pb2, lesson_pb2
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -25,6 +26,7 @@ from core.schemas.user import UserAttendanceSchema
 class BaseService(ABC):
     dao_class: type[ScheduleProtocol]
     can_t_view_lesson_details: str
+    may_put_respectful_absence: bool = False
 
     def __init__(self, session: AsyncSession | None = None):
         self._session: AsyncSession | None = session
@@ -159,16 +161,61 @@ class BaseService(ABC):
 
         async for request in request_iterator:
             student_id_uuid = uuid.UUID(request.student_id)
-            if student_id_uuid in students_ids:
-                await Visit.find_one(
-                    Visit.schedule_id == schedule_id,
-                    Visit.student_id == request.student_id,
-                ).upsert(
-                    Set({Visit.status: request.attendance.status}),
-                    on_insert=Visit(schedule_id=schedule_id),
+            if student_id_uuid not in students_ids:
+                continue
+
+            visit = await Visit.find_one(
+                Visit.schedule_id == schedule_id,
+                Visit.student_id == uuid.UUID(request.student_id),
+            )
+            if not self.may_put_respectful_absence:
+                status = None
+                if (
+                    visit
+                    and visit.status
+                    == AttendanceStatus.SKIP_RESPECTFULLY
+                ):
+                    status = AttendanceStatus.SKIP_RESPECTFULLY
+                elif (
+                    request.attendance.status
+                    == AttendanceStatus.SKIP_RESPECTFULLY
+                ):
+                    status = (
+                        AttendanceStatus.ABSENT
+                        if visit is None
+                        else visit.status
+                    )
+                if status:
+                    logger.warning(
+                        "Пользователь {} пытался изменить статус уважительной причины пользователю {} со статусом {} на {} .",
+                        user_id,
+                        request.student_id,
+                        status,
+                        request.attendance.status,
+                    )
+                    yield lesson_service_pb2.StudentAttendanceResponse(
+                        student_id=request.student_id,
+                        attendance=lesson_pb2.Attendance(
+                            **AttendanceSchema(
+                                status=status
+                            ).model_dump(mode="json")
+                        ),
+                    )
+                    continue
+            is_new_status = True
+            if visit:
+                if visit.status == request.attendance.status:
+                    is_new_status = False
+                else:
+                    visit.status = request.attendance.status
+                    await visit.save()
+            else:
+                await Visit(
                     student_id=student_id_uuid,
+                    schedule_id=schedule_id,
                     status=request.attendance.status,
-                )
+                ).insert()
+            if is_new_status:
                 await TrackingAttendance(
                     student_id=student_id_uuid,
                     schedule_id=schedule_id,
@@ -176,11 +223,11 @@ class BaseService(ABC):
                     status=request.attendance.status,
                 ).insert()
 
-                yield lesson_service_pb2.StudentAttendanceResponse(
-                    student_id=request.student_id,
-                    attendance=lesson_pb2.Attendance(
-                        **AttendanceSchema(
-                            status=request.attendance.status
-                        ).model_dump(mode="json")
-                    ),
-                )
+            yield lesson_service_pb2.StudentAttendanceResponse(
+                student_id=request.student_id,
+                attendance=lesson_pb2.Attendance(
+                    **AttendanceSchema(
+                        status=request.attendance.status
+                    ).model_dump(mode="json")
+                ),
+            )

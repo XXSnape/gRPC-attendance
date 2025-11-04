@@ -96,4 +96,16 @@ class TeacherService(BaseService):
         group_id: uuid.UUID,
         context: grpc.aio.ServicerContext,
     ) -> None:
-        return
+        dao_obj = self.dao_class(self._session)
+        has_access = (
+            await dao_obj.does_teacher_have_group_in_schedule(
+                teacher_id=user_id,
+                schedule_id=schedule_id,
+                group_id=group_id,
+            )
+        )
+        if not has_access:
+            await context.abort(
+                grpc.StatusCode.PERMISSION_DENIED,
+                "Вы не записаны на это занятие",
+            )

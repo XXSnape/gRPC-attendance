@@ -6,7 +6,7 @@ import grpc
 from beanie.odm.operators.find.comparison import In
 
 from core.databases.no_sql.documents import Visit, AccessForPrefects
-from core.databases.no_sql.documents.utils.dt import generate_utc_dt
+from utils.dt import generate_utc_dt
 from core.databases.sql.dao.group_schedule import GroupScheduleDAO
 from core.enums.status import AttendanceStatus
 from core.grpc.pb import lesson_pb2, lesson_service_pb2
