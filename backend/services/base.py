@@ -4,9 +4,14 @@ from abc import ABC, abstractmethod
 from collections.abc import AsyncIterator
 
 import grpc
+from beanie.odm.operators.update.general import Set
 from loguru import logger
 
-from core.databases.no_sql.documents import Visit, TrackingAttendance
+from core.databases.no_sql.documents import (
+    Visit,
+    TrackingAttendance,
+    AccessForPrefects,
+)
 from core.databases.sql.dao.group_schedule import GroupScheduleDAO
 from core.databases.sql.dao.protocols.schedule import (
     ScheduleProtocol,
@@ -21,6 +26,7 @@ from core.schemas.lesson import (
     GroupSchema,
 )
 from core.schemas.user import UserAttendanceSchema
+from utils.dt import generate_utc_dt
 
 
 class BaseService(ABC):
@@ -64,11 +70,20 @@ class BaseService(ABC):
     ) -> lesson_service_pb2.LessonDetailsResponse: ...
 
     @abstractmethod
-    async def check_for_access(
+    async def check_for_access_to_change_attendance(
         self,
         user_id: uuid.UUID,
         schedule_id: uuid.UUID,
         group_id: uuid.UUID,
+        context: grpc.aio.ServicerContext,
+    ) -> None: ...
+
+    @abstractmethod
+    async def check_for_access_to_grant_access_for_prefects(
+        self,
+        user_id: uuid.UUID,
+        schedule_id: uuid.UUID,
+        group_id: uuid.UUID | None,
         context: grpc.aio.ServicerContext,
     ) -> None: ...
 
@@ -136,7 +151,7 @@ class BaseService(ABC):
             lesson_service_pb2.StudentAttendanceRequest
         ],
     ) -> AsyncIterator[lesson_service_pb2.StudentAttendanceResponse]:
-        await self.check_for_access(
+        await self.check_for_access_to_change_attendance(
             user_id=user_id,
             schedule_id=schedule_id,
             group_id=group_id,
@@ -231,3 +246,57 @@ class BaseService(ABC):
                     ).model_dump(mode="json")
                 ),
             )
+
+    async def grant_access_for_prefects(
+        self,
+        user_id: uuid.UUID,
+        schedule_id: uuid.UUID,
+        group_id: uuid.UUID | None,
+        number_of_minutes: int,
+        context: grpc.aio.ServicerContext,
+    ) -> (
+        lesson_service_pb2.GrantPrefectAttendancePermissionsResponse
+    ):
+        await self.check_for_access_to_grant_access_for_prefects(
+            user_id=user_id,
+            schedule_id=schedule_id,
+            group_id=group_id,
+            context=context,
+        )
+        now = generate_utc_dt()
+        args = (
+            AccessForPrefects.schedule_id == schedule_id,
+            AccessForPrefects.date_and_time_of_forced_access_closure
+            == None,
+            AccessForPrefects.date_and_time_of_access_closure >= now,
+        )
+        if group_id is not None:
+            args += (AccessForPrefects.group_id == group_id,)
+
+        if number_of_minutes:
+            if group_id is not None:
+                groups = [group_id]
+            else:
+                groups = await GroupScheduleDAO(
+                    self._session
+                ).get_groups_by_schedule(schedule_id=schedule_id)
+            await AccessForPrefects.find(*args).delete()
+            # accesses = []
+            for group_id in groups:
+                await AccessForPrefects(
+                    user_id_guaranteed_access=user_id,
+                    schedule_id=schedule_id,
+                    group_id=group_id,
+                    number_of_minutes_of_access=number_of_minutes,
+                ).insert()
+        else:
+            await AccessForPrefects.find(*args).update(
+                Set(
+                    {
+                        AccessForPrefects.date_and_time_of_forced_access_closure: now
+                    }
+                )
+            )
+        return lesson_service_pb2.GrantPrefectAttendancePermissionsResponse(
+            ok=True
+        )

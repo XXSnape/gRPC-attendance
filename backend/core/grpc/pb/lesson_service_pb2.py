@@ -27,7 +27,7 @@ from . import lesson_pb2 as lesson__pb2
 
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\n\x14lesson-service.proto\x12\rlessonService\x1a\x0clesson.proto"V\n\x18StudentAttendanceRequest\x12\x12\n\nstudent_id\x18\x01 \x01(\t\x12&\n\nattendance\x18\x03 \x01(\x0b\x32\x12.lesson.Attendance"W\n\x19StudentAttendanceResponse\x12\x12\n\nstudent_id\x18\x01 \x01(\t\x12&\n\nattendance\x18\x02 \x01(\x0b\x32\x12.lesson.Attendance"\x1e\n\x0eLessonsRequest\x12\x0c\n\x04\x64\x61te\x18\x01 \x01(\t"4\n\x0fLessonsResponse\x12!\n\x07lessons\x18\x01 \x03(\x0b\x32\x10.lesson.Schedule"+\n\x14LessonDetailsRequest\x12\x13\n\x0bschedule_id\x18\x01 \x01(\t"5\n\x16LessonsForMonthRequest\x12\r\n\x05month\x18\x01 \x01(\x05\x12\x0c\n\x04year\x18\x02 \x01(\x05"(\n\x17LessonsForMonthResponse\x12\r\n\x05\x64\x61tes\x18\x01 \x03(\t"e\n\x15LessonDetailsResponse\x12\'\n\rschedule_data\x18\x01 \x01(\x0b\x32\x10.lesson.Schedule\x12#\n\x06groups\x18\x02 \x03(\x0b\x32\x13.lesson.GroupLesson2\x97\x03\n\rLessonService\x12M\n\nGetLessons\x12\x1d.lessonService.LessonsRequest\x1a\x1e.lessonService.LessonsResponse"\x00\x12\x65\n\x12GetLessonsForMonth\x12%.lessonService.LessonsForMonthRequest\x1a&.lessonService.LessonsForMonthResponse"\x00\x12_\n\x10GetLessonDetails\x12#.lessonService.LessonDetailsRequest\x1a$.lessonService.LessonDetailsResponse"\x00\x12o\n\x14SetStudentAttendance\x12\'.lessonService.StudentAttendanceRequest\x1a(.lessonService.StudentAttendanceResponse"\x00(\x01\x30\x01\x62\x06proto3'
+    b'\n\x14lesson-service.proto\x12\rlessonService\x1a\x0clesson.proto"\xad\x01\n(GrantPrefectAttendancePermissionsRequest\x12\x13\n\x0bschedule_id\x18\x01 \x01(\t\x12(\n\x1bnumber_of_minutes_of_access\x18\x02 \x01(\x05H\x00\x88\x01\x01\x12\x15\n\x08group_id\x18\x03 \x01(\tH\x01\x88\x01\x01\x42\x1e\n\x1c_number_of_minutes_of_accessB\x0b\n\t_group_id"7\n)GrantPrefectAttendancePermissionsResponse\x12\n\n\x02ok\x18\x01 \x01(\x08"V\n\x18StudentAttendanceRequest\x12\x12\n\nstudent_id\x18\x01 \x01(\t\x12&\n\nattendance\x18\x03 \x01(\x0b\x32\x12.lesson.Attendance"W\n\x19StudentAttendanceResponse\x12\x12\n\nstudent_id\x18\x01 \x01(\t\x12&\n\nattendance\x18\x02 \x01(\x0b\x32\x12.lesson.Attendance"\x1e\n\x0eLessonsRequest\x12\x0c\n\x04\x64\x61te\x18\x01 \x01(\t"4\n\x0fLessonsResponse\x12!\n\x07lessons\x18\x01 \x03(\x0b\x32\x10.lesson.Schedule"+\n\x14LessonDetailsRequest\x12\x13\n\x0bschedule_id\x18\x01 \x01(\t"5\n\x16LessonsForMonthRequest\x12\r\n\x05month\x18\x01 \x01(\x05\x12\x0c\n\x04year\x18\x02 \x01(\x05"(\n\x17LessonsForMonthResponse\x12\r\n\x05\x64\x61tes\x18\x01 \x03(\t"e\n\x15LessonDetailsResponse\x12\'\n\rschedule_data\x18\x01 \x01(\x0b\x32\x10.lesson.Schedule\x12#\n\x06groups\x18\x02 \x03(\x0b\x32\x13.lesson.GroupLesson2\xb2\x04\n\rLessonService\x12M\n\nGetLessons\x12\x1d.lessonService.LessonsRequest\x1a\x1e.lessonService.LessonsResponse"\x00\x12\x65\n\x12GetLessonsForMonth\x12%.lessonService.LessonsForMonthRequest\x1a&.lessonService.LessonsForMonthResponse"\x00\x12_\n\x10GetLessonDetails\x12#.lessonService.LessonDetailsRequest\x1a$.lessonService.LessonDetailsResponse"\x00\x12o\n\x14SetStudentAttendance\x12\'.lessonService.StudentAttendanceRequest\x1a(.lessonService.StudentAttendanceResponse"\x00(\x01\x30\x01\x12\x98\x01\n!GrantPrefectAttendancePermissions\x12\x37.lessonService.GrantPrefectAttendancePermissionsRequest\x1a\x38.lessonService.GrantPrefectAttendancePermissionsResponse"\x00\x62\x06proto3'
 )
 
 _globals = globals()
@@ -37,22 +37,34 @@ _builder.BuildTopDescriptorsAndMessages(
 )
 if not _descriptor._USE_C_DESCRIPTORS:
     DESCRIPTOR._loaded_options = None
-    _globals["_STUDENTATTENDANCEREQUEST"]._serialized_start = 53
-    _globals["_STUDENTATTENDANCEREQUEST"]._serialized_end = 139
-    _globals["_STUDENTATTENDANCERESPONSE"]._serialized_start = 141
-    _globals["_STUDENTATTENDANCERESPONSE"]._serialized_end = 228
-    _globals["_LESSONSREQUEST"]._serialized_start = 230
-    _globals["_LESSONSREQUEST"]._serialized_end = 260
-    _globals["_LESSONSRESPONSE"]._serialized_start = 262
-    _globals["_LESSONSRESPONSE"]._serialized_end = 314
-    _globals["_LESSONDETAILSREQUEST"]._serialized_start = 316
-    _globals["_LESSONDETAILSREQUEST"]._serialized_end = 359
-    _globals["_LESSONSFORMONTHREQUEST"]._serialized_start = 361
-    _globals["_LESSONSFORMONTHREQUEST"]._serialized_end = 414
-    _globals["_LESSONSFORMONTHRESPONSE"]._serialized_start = 416
-    _globals["_LESSONSFORMONTHRESPONSE"]._serialized_end = 456
-    _globals["_LESSONDETAILSRESPONSE"]._serialized_start = 458
-    _globals["_LESSONDETAILSRESPONSE"]._serialized_end = 559
-    _globals["_LESSONSERVICE"]._serialized_start = 562
-    _globals["_LESSONSERVICE"]._serialized_end = 969
+    _globals[
+        "_GRANTPREFECTATTENDANCEPERMISSIONSREQUEST"
+    ]._serialized_start = 54
+    _globals[
+        "_GRANTPREFECTATTENDANCEPERMISSIONSREQUEST"
+    ]._serialized_end = 227
+    _globals[
+        "_GRANTPREFECTATTENDANCEPERMISSIONSRESPONSE"
+    ]._serialized_start = 229
+    _globals[
+        "_GRANTPREFECTATTENDANCEPERMISSIONSRESPONSE"
+    ]._serialized_end = 284
+    _globals["_STUDENTATTENDANCEREQUEST"]._serialized_start = 286
+    _globals["_STUDENTATTENDANCEREQUEST"]._serialized_end = 372
+    _globals["_STUDENTATTENDANCERESPONSE"]._serialized_start = 374
+    _globals["_STUDENTATTENDANCERESPONSE"]._serialized_end = 461
+    _globals["_LESSONSREQUEST"]._serialized_start = 463
+    _globals["_LESSONSREQUEST"]._serialized_end = 493
+    _globals["_LESSONSRESPONSE"]._serialized_start = 495
+    _globals["_LESSONSRESPONSE"]._serialized_end = 547
+    _globals["_LESSONDETAILSREQUEST"]._serialized_start = 549
+    _globals["_LESSONDETAILSREQUEST"]._serialized_end = 592
+    _globals["_LESSONSFORMONTHREQUEST"]._serialized_start = 594
+    _globals["_LESSONSFORMONTHREQUEST"]._serialized_end = 647
+    _globals["_LESSONSFORMONTHRESPONSE"]._serialized_start = 649
+    _globals["_LESSONSFORMONTHRESPONSE"]._serialized_end = 689
+    _globals["_LESSONDETAILSRESPONSE"]._serialized_start = 691
+    _globals["_LESSONDETAILSRESPONSE"]._serialized_end = 792
+    _globals["_LESSONSERVICE"]._serialized_start = 795
+    _globals["_LESSONSERVICE"]._serialized_end = 1357
 # @@protoc_insertion_point(module_scope)

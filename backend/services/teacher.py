@@ -89,7 +89,7 @@ class TeacherService(BaseService):
             ).model_dump(mode="json")
         )
 
-    async def check_for_access(
+    async def check_for_access_to_change_attendance(
         self,
         user_id: uuid.UUID,
         schedule_id: uuid.UUID,
@@ -97,6 +97,7 @@ class TeacherService(BaseService):
         context: grpc.aio.ServicerContext,
     ) -> None:
         dao_obj = self.dao_class(self._session)
+        print("check has access called")
         has_access = (
             await dao_obj.does_teacher_have_group_in_schedule(
                 teacher_id=user_id,
@@ -104,8 +105,23 @@ class TeacherService(BaseService):
                 group_id=group_id,
             )
         )
+        print("has_access:", has_access)
         if not has_access:
             await context.abort(
                 grpc.StatusCode.PERMISSION_DENIED,
                 "Вы не записаны на это занятие",
             )
+
+    async def check_for_access_to_grant_access_for_prefects(
+        self,
+        user_id: uuid.UUID,
+        schedule_id: uuid.UUID,
+        group_id: uuid.UUID | None,
+        context: grpc.aio.ServicerContext,
+    ) -> None:
+        await self.check_for_access_to_change_attendance(
+            user_id=user_id,
+            schedule_id=schedule_id,
+            group_id=group_id,
+            context=context,
+        )

@@ -61,6 +61,12 @@ class LessonServiceStub(object):
             response_deserializer=lesson__service__pb2.StudentAttendanceResponse.FromString,
             _registered_method=True,
         )
+        self.GrantPrefectAttendancePermissions = channel.unary_unary(
+            "/lessonService.LessonService/GrantPrefectAttendancePermissions",
+            request_serializer=lesson__service__pb2.GrantPrefectAttendancePermissionsRequest.SerializeToString,
+            response_deserializer=lesson__service__pb2.GrantPrefectAttendancePermissionsResponse.FromString,
+            _registered_method=True,
+        )
 
 
 class LessonServiceServicer(object):
@@ -90,6 +96,12 @@ class LessonServiceServicer(object):
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
+    def GrantPrefectAttendancePermissions(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
 
 def add_LessonServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -112,6 +124,11 @@ def add_LessonServiceServicer_to_server(servicer, server):
             servicer.SetStudentAttendance,
             request_deserializer=lesson__service__pb2.StudentAttendanceRequest.FromString,
             response_serializer=lesson__service__pb2.StudentAttendanceResponse.SerializeToString,
+        ),
+        "GrantPrefectAttendancePermissions": grpc.unary_unary_rpc_method_handler(
+            servicer.GrantPrefectAttendancePermissions,
+            request_deserializer=lesson__service__pb2.GrantPrefectAttendancePermissionsRequest.FromString,
+            response_serializer=lesson__service__pb2.GrantPrefectAttendancePermissionsResponse.SerializeToString,
         ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -236,6 +253,36 @@ class LessonService(object):
             "/lessonService.LessonService/SetStudentAttendance",
             lesson__service__pb2.StudentAttendanceRequest.SerializeToString,
             lesson__service__pb2.StudentAttendanceResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True,
+        )
+
+    @staticmethod
+    def GrantPrefectAttendancePermissions(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            "/lessonService.LessonService/GrantPrefectAttendancePermissions",
+            lesson__service__pb2.GrantPrefectAttendancePermissionsRequest.SerializeToString,
+            lesson__service__pb2.GrantPrefectAttendancePermissionsResponse.FromString,
             options,
             channel_credentials,
             insecure,

@@ -19,3 +19,7 @@ class IdSchema(BaseSchema):
             lambda v: uuid.UUID(v) if isinstance(v, str) else v
         ),
     ]
+
+
+class ResultSchema(BaseSchema):
+    ok: bool

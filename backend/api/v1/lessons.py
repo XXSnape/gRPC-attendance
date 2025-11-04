@@ -4,11 +4,16 @@ from typing import AsyncIterator
 
 import grpc
 from core.dependencies.stubs import LessonStub
-from core.dependencies.user import UserMetadataDep
+from core.dependencies.user import (
+    UserMetadataDep,
+    check_for_teacher_or_admin,
+)
 from core.grpc.pb import lesson_pb2, lesson_service_pb2
 from core.schemas import lesson
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from loguru import logger
+
+from core.schemas.common import ResultSchema
 from utils.grpc_errors import catch_errors
 from utils.lesson import create_attendances
 
@@ -154,4 +159,73 @@ async def get_schedule_by_id(
         catch_errors(
             exc,
             "Ошибка при получении деталей пары",
+        )
+
+
+@router.put(
+    "/{schedule_id}/attendance-permissions",
+    response_model=ResultSchema,
+    dependencies=[Depends(check_for_teacher_or_admin)],
+)
+async def grant_attendance_rights_by_schedule_id(
+    schedule_id: uuid.UUID,
+    user_metadata: UserMetadataDep,
+    stub: LessonStub,
+    grant_attendance_rights: lesson.GrantPrefectRightsSchema,
+):
+    request = lesson_service_pb2.GrantPrefectAttendancePermissionsRequest(
+        number_of_minutes_of_access=grant_attendance_rights.number_of_minutes_of_access,
+        schedule_id=str(schedule_id),
+    )
+    try:
+        response = await stub.GrantPrefectAttendancePermissions(
+            request, metadata=user_metadata
+        )
+        return ResultSchema.model_validate(response)
+    except grpc.aio.AioRpcError as exc:
+        logger.error(
+            "Ошибка при предоставлении прав на редактирование посещаемости для пары с ID {}: {} {}",
+            schedule_id,
+            exc.code(),
+            exc.details(),
+        )
+        catch_errors(
+            exc,
+            "Ошибка при предоставлении прав на редактирование посещаемости",
+        )
+
+
+@router.patch(
+    "/{schedule_id}/groups/{group_id}/attendance-permissions",
+    response_model=ResultSchema,
+    dependencies=[Depends(check_for_teacher_or_admin)],
+)
+async def grant_attendance_rights_by_schedule_id_and_group_id(
+    schedule_id: uuid.UUID,
+    group_id: uuid.UUID,
+    user_metadata: UserMetadataDep,
+    stub: LessonStub,
+    grant_attendance_rights: lesson.GrantPrefectRightsSchema,
+):
+    request = lesson_service_pb2.GrantPrefectAttendancePermissionsRequest(
+        number_of_minutes_of_access=grant_attendance_rights.number_of_minutes_of_access,
+        schedule_id=str(schedule_id),
+        group_id=str(group_id),
+    )
+    try:
+        response = await stub.GrantPrefectAttendancePermissions(
+            request, metadata=user_metadata
+        )
+        return ResultSchema.model_validate(response)
+    except grpc.aio.AioRpcError as exc:
+        logger.error(
+            "Ошибка при предоставлении прав на редактирование посещаемости для пары с ID {} и группы с ID {}: {} {}",
+            schedule_id,
+            group_id,
+            exc.code(),
+            exc.details(),
+        )
+        catch_errors(
+            exc,
+            "Ошибка при предоставлении прав на редактирование посещаемости",
         )

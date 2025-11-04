@@ -5,7 +5,7 @@ from typing import Annotated
 from core.databases.sql.models.enums.type_of_lesson import (
     TypeOfLessonEnum,
 )
-from pydantic import computed_field
+from pydantic import computed_field, Field
 
 from .address import AudienceSchema
 from .attendance import AttendanceSchema
@@ -90,3 +90,9 @@ class MarkStudentAttendanceSchema(BaseSchema):
 
 class ReadLessonStudentAttendanceSchema(BaseSchema):
     attendances: list[MarkStudentAttendanceSchema]
+
+
+class GrantPrefectRightsSchema(BaseSchema):
+    number_of_minutes_of_access: Annotated[
+        int | None, Field(ge=1, le=90)
+    ]

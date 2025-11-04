@@ -89,18 +89,22 @@ class TeacherScheduleDAO(ScheduleProtocol):
         self,
         teacher_id: uuid.UUID,
         schedule_id: uuid.UUID,
-        group_id: uuid.UUID,
+        group_id: uuid.UUID | None,
     ) -> bool:
         query = (
             select(1)
             .join(TeacherSchedule)
-            .join(GroupSchedule)
             .select_from(Schedule)
             .where(
                 TeacherSchedule.teacher_id == teacher_id,
                 Schedule.id == schedule_id,
-                GroupSchedule.group_id == group_id,
             )
         ).limit(1)
+        if group_id is not None:
+            query = query.join(
+                GroupSchedule,
+            ).where(
+                GroupSchedule.group_id == group_id,
+            )
         result = await self._session.execute(query)
         return result.scalar_one_or_none() is not None

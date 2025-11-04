@@ -185,3 +185,17 @@ class GroupScheduleDAO(ScheduleProtocol):
         )
         result = await self._session.execute(query)
         return result.scalar_one_or_none()
+
+    async def get_groups_by_schedule(
+        self,
+        schedule_id: uuid.UUID,
+    ) -> list[uuid.UUID]:
+        query = (
+            select(GroupWithNumber.id)
+            .join(GroupSchedule)
+            .where(
+                GroupSchedule.schedule_id == schedule_id,
+            )
+        )
+        result = await self._session.execute(query)
+        return list(result.scalars().all())

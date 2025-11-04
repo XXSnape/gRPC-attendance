@@ -102,3 +102,28 @@ class LessonServiceServicer(
             )
             async for attendance in async_iterator:
                 yield attendance
+
+    async def GrantPrefectAttendancePermissions(
+        self,
+        request: lesson_service_pb2.GrantPrefectAttendancePermissionsRequest,
+        context: grpc.aio.ServicerContext,
+    ) -> (
+        lesson_service_pb2.GrantPrefectAttendancePermissionsResponse
+    ):
+        user = await get_user_data_from_metadata(context)
+        service = user.get_service_by_role()
+        async with (
+            db_helper.get_async_session_without_commit() as session
+        ):
+            service_obj = service(session)
+            if request.group_id:
+                group_id = uuid.UUID(request.group_id)
+            else:
+                group_id = None
+            return await service_obj.grant_access_for_prefects(
+                user_id=user.id,
+                schedule_id=uuid.UUID(request.schedule_id),
+                number_of_minutes=request.number_of_minutes_of_access,
+                group_id=group_id,
+                context=context,
+            )

@@ -1,6 +1,5 @@
 import datetime
 import uuid
-from typing import AsyncIterator
 
 import grpc
 from beanie.odm.operators.find.comparison import In
@@ -134,7 +133,7 @@ class StudentService(BaseService):
             ).model_dump(mode="json")
         )
 
-    async def check_for_access(
+    async def check_for_access_to_change_attendance(
         self,
         user_id: uuid.UUID,
         schedule_id: uuid.UUID,
@@ -164,3 +163,15 @@ class StudentService(BaseService):
                 grpc.StatusCode.PERMISSION_DENIED,
                 "У старосты группы нет активного доступа для изменения посещаемости этой пары",
             )
+
+    async def check_for_access_to_grant_access_for_prefects(
+        self,
+        user_id: uuid.UUID,
+        schedule_id: uuid.UUID,
+        group_id: uuid.UUID | None,
+        context: grpc.aio.ServicerContext,
+    ) -> None:
+        await context.abort(
+            grpc.StatusCode.PERMISSION_DENIED,
+            "Функция недоступна для студентов",
+        )

@@ -9,8 +9,18 @@ service LessonService {
   rpc GetLessonsForMonth (LessonsForMonthRequest) returns (LessonsForMonthResponse) {}
   rpc GetLessonDetails (LessonDetailsRequest) returns (LessonDetailsResponse) {}
   rpc SetStudentAttendance (stream StudentAttendanceRequest) returns (stream StudentAttendanceResponse) {}
+  rpc GrantPrefectAttendancePermissions (GrantPrefectAttendancePermissionsRequest) returns (GrantPrefectAttendancePermissionsResponse) {}
 }
 
+message GrantPrefectAttendancePermissionsRequest {
+  string schedule_id = 1;
+  optional int32 number_of_minutes_of_access = 2;
+  optional string group_id = 3;
+}
+
+message GrantPrefectAttendancePermissionsResponse {
+  bool ok = 1;
+}
 
 message StudentAttendanceRequest {
   string student_id = 1;
