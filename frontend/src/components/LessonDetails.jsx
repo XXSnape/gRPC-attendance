@@ -18,6 +18,8 @@ export default function LessonDetail() {
   const [messageApi, contextHolder] = message.useMessage();
   const [groupAttendances, setGroupAttendances] = useState({});
   const [originalAttendances, setOriginalAttendances] = useState({});
+  const [groupAttendanceStats, setGroupAttendanceStats] = useState({});
+  const [totalAttendance, setTotalAttendance] = useState({ totalPresent: 0, totalStudents: 0 });
 
   useEffect(() => {
     fetchLessonData();
@@ -31,16 +33,26 @@ export default function LessonDetail() {
       // Инициализируем состояния для каждой группы
       const groupStates = {};
       const originalStates = {};
+      const stats = {};
+      let totalPresent = 0;
+      let totalStudents = 0;
       
       response.data.groups.forEach(group => {
         if (group.attendances && group.attendances.length > 0) {
           groupStates[group.id] = [...group.attendances];
           originalStates[group.id] = JSON.parse(JSON.stringify(group.attendances));
+          
+          const present = group.attendances.filter(a => a.attendance.status === 0).length;
+          stats[group.id] = { present, total: group.attendances.length };
+          totalPresent += present;
+          totalStudents += group.attendances.length;
         }
       });
       
       setGroupAttendances(groupStates);
       setOriginalAttendances(originalStates);
+      setGroupAttendanceStats(stats);
+      setTotalAttendance({ totalPresent, totalStudents });
     } catch (error) {
       console.error('Error fetching lesson data:', error);
       handleApiError(error, 'Не удалось загрузить данные урока');
@@ -119,6 +131,32 @@ export default function LessonDetail() {
       const updatedOriginals = { ...originalAttendances };
       updatedOriginals[groupId] = JSON.parse(JSON.stringify(newAttendances));
       setOriginalAttendances(updatedOriginals);
+
+      // Обновляем статистику посещаемости для этой группы
+      const present = newAttendances.filter(a => a.attendance.status === 0).length;
+      const updatedStats = { ...groupAttendanceStats };
+      updatedStats[groupId] = { present, total: newAttendances.length };
+      setGroupAttendanceStats(updatedStats);
+
+      // Пересчитываем общую посещаемость
+      let totalPresent = 0;
+      let totalStudents = 0;
+      Object.values(updatedStats).forEach(stat => {
+        totalPresent += stat.present;
+        totalStudents += stat.total;
+      });
+      setTotalAttendance({ totalPresent, totalStudents });
+
+      // Обновляем статус текущего студента если он есть в ответе
+      const currentStudent = lessonData?.schedule_data?.student_data;
+      if (currentStudent) {
+        const updatedStudentAttendance = studentMap.get(currentStudent.student_id);
+        if (updatedStudentAttendance) {
+          const updatedLessonData = { ...lessonData };
+          updatedLessonData.schedule_data.student_data.attendance = updatedStudentAttendance;
+          setLessonData(updatedLessonData);
+        }
+      }
       
       messageApi.success('Посещаемость успешно сохранена');
     } catch (error) {
@@ -151,28 +189,6 @@ export default function LessonDetail() {
     }
   };
 
-  const calculateAttendance = (groupId) => {
-    const groupAttendance = groupAttendances[groupId];
-    if (!groupAttendance) return { present: 0, total: 0 };
-    
-    const present = groupAttendance.filter(a => a.attendance.status === 0).length;
-    return { present, total: groupAttendance.length };
-  };
-
-  const calculateTotalAttendance = () => {
-    let totalPresent = 0;
-    let totalStudents = 0;
-    
-    Object.values(groupAttendances).forEach(group => {
-      if (group && group.length > 0) {
-        totalPresent += group.filter(a => a.attendance.status === 0).length;
-        totalStudents += group.length;
-      }
-    });
-    
-    return { totalPresent, totalStudents };
-  };
-
   const isTeacher = !lessonData?.schedule_data?.student_data;
   const currentStudent = lessonData?.schedule_data?.student_data;
   const isCurrentStudentPrefect = currentStudent?.is_prefect;
@@ -202,7 +218,6 @@ export default function LessonDetail() {
   }
 
   const { schedule_data } = lessonData;
-  const totalAttendance = calculateTotalAttendance();
 
   // Создаем колонки для таблицы
   const getAttendanceColumns = (groupId) => [
@@ -252,7 +267,7 @@ export default function LessonDetail() {
 
   // Создаем items для Collapse (новый API)
   const collapseItems = displayGroups.map(group => {
-    const attendance = calculateAttendance(group.id);
+    const attendance = groupAttendanceStats[group.id] || { present: 0, total: 0 };
     const canEdit = group.can_be_edited_by_prefect;
     const hasAttendances = groupAttendances[group.id]?.length > 0;
     
@@ -263,7 +278,7 @@ export default function LessonDetail() {
           <span>{group.complete_name}</span>
           {hasAttendances && (
             <span className="text-gray-600">
-              {attendance.present} из {attendance.total}
+              отмечено <span className="text-blue-500 font-medium">{attendance.present}</span> из {attendance.total}
             </span>
           )}
         </div>
@@ -272,32 +287,38 @@ export default function LessonDetail() {
         <>
           {/* Кнопки управления доступом для преподавателя */}
           {isTeacher && (
-            <div className="flex gap-2 mb-4 p-4 bg-gray-50 rounded-lg">
-              <span className="font-medium mr-2">Доступ старостам:</span>
-              {canEdit ? (
-                <Button 
-                  size="small" 
-                  danger 
-                  onClick={() => handleGrantAccess(null, group.id)}
-                >
-                  Отозвать доступ
-                </Button>
-              ) : (
-                <>
+            <div className="mb-4">
+              <Alert
+                message="Управление доступом для старост"
+                type="info"
+                className="mb-2"
+              />
+              <div className="mt-1 flex gap-2">
+                {canEdit ? (
                   <Button 
                     size="small" 
-                    onClick={() => handleGrantAccess(5, group.id)}
+                    danger 
+                    onClick={() => handleGrantAccess(null, group.id)}
                   >
-                    Выдать на 5 минут
+                    Отозвать доступ
                   </Button>
-                  <Button 
-                    size="small" 
-                    onClick={() => handleGrantAccess(10, group.id)}
-                  >
-                    Выдать на 10 минут
-                  </Button>
-                </>
-              )}
+                ) : (
+                  <>
+                    <Button 
+                      size="small" 
+                      onClick={() => handleGrantAccess(5, group.id)}
+                    >
+                      Выдать на 5 минут
+                    </Button>
+                    <Button 
+                      size="small" 
+                      onClick={() => handleGrantAccess(10, group.id)}
+                    >
+                      Выдать на 10 минут
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
           )}
 
@@ -306,29 +327,33 @@ export default function LessonDetail() {
             <Alert
               message="Для получения доступа к изменению статусов обратитесь к преподавателю"
               type="warning"
-              className="mb-4"
+              className="mb-4 text-center"
             />
           )}
           {!isTeacher && !isCurrentStudentPrefect && (
             <Alert
               message="Только староста может отмечать студентов"
               type="error"
-              className="mb-4"
+              className="mb-4 text-center"
             />
           )}
 
           {/* Кнопки управления для старосты с доступом */}
           {(isTeacher || (isCurrentStudentPrefect && canEdit)) && (
-            <div className="flex justify-between items-center mb-4">
-              <div className="text-lg font-medium">
-                Отмечено {attendance.present} из {attendance.total}
-              </div>
-              <div className="flex gap-2">
-                <Button onClick={() => handleMarkAll(group.id)}>
-                  Отметить всех
-                </Button>
-                <Button>Перейти к статистике журнала</Button>
-              </div>
+            <div className="flex gap-2 mb-4">
+              <Button 
+                size="large"
+                onClick={() => handleMarkAll(group.id)}
+                style={{ flex: 1 }}
+              >
+                Отметить всех
+              </Button>
+              <Button 
+                size="large"
+                style={{ flex: 1 }}
+              >
+                Перейти к статистике журнала
+              </Button>
             </div>
           )}
 
@@ -337,7 +362,7 @@ export default function LessonDetail() {
             columns={getAttendanceColumns(group.id)}
             dataSource={groupAttendances[group.id]?.map((item, index) => ({
               ...item,
-              key: item.student_id || index // Убедимся что есть ключ
+              key: item.student_id || index
             }))}
             pagination={false}
             size="middle"
@@ -345,14 +370,20 @@ export default function LessonDetail() {
 
           {/* Кнопки сохранения для старосты с доступом */}
           {(isTeacher || (isCurrentStudentPrefect && canEdit)) && (
-            <div className="flex justify-end gap-2 mt-4">
-              <Button onClick={() => handleCancel(group.id)}>
+            <div className="flex gap-2 mt-4">
+              <Button 
+                size="large"
+                onClick={() => handleCancel(group.id)}
+                style={{ flex: 1 }}
+              >
                 Отменить
               </Button>
               <Button 
                 type="primary" 
+                size="large"
                 loading={saving}
                 onClick={() => handleSaveAttendance(group.id)}
+                style={{ flex: 1 }}
               >
                 Сохранить
               </Button>
@@ -423,35 +454,48 @@ export default function LessonDetail() {
             </Descriptions>
           </Card>
 
-          {/* Кнопки выдачи доступа для преподавателя */}
-          {isTeacher && schedule_data.can_be_edited_by_prefect && (
-            <Card title="Управление доступом" className="mb-6 shadow-sm">
-              <div className="flex gap-2">
-                <Button onClick={() => handleGrantAccess(5)}>
-                  Выдать доступ всем на 5 минут
-                </Button>
-                <Button onClick={() => handleGrantAccess(10)}>
-                  Выдать доступ всем на 10 минут
-                </Button>
-                <Button danger onClick={() => handleGrantAccess(null)}>
-                  Отозвать доступ у всех
-                </Button>
-              </div>
-            </Card>
-          )}
-
           {/* Общая статистика посещаемости */}
           {totalAttendance.totalStudents > 0 && (
-            <Card className="mb-6 shadow-sm">
-              <div className="text-center">
-                <div className="text-lg font-semibold">
-                  Общая посещаемость: {totalAttendance.totalPresent} из {totalAttendance.totalStudents}
-                </div>
-                <div className="text-gray-600">
-                  ({Math.round((totalAttendance.totalPresent / totalAttendance.totalStudents) * 100)}%)
-                </div>
+            <Alert
+              message={`Общая посещаемость: ${totalAttendance.totalPresent} из ${totalAttendance.totalStudents} (${Math.round((totalAttendance.totalPresent / totalAttendance.totalStudents) * 100)}%)`}
+              type="success"
+              className="mb-6 text-center min-h-20"
+            />
+          )}
+
+          {/* Кнопки выдачи доступа для преподавателя */}
+          {isTeacher && (
+            <div className="mb-6 mt-3">
+              <Alert
+                message="Управление доступом для старост"
+                type="info"
+                className="mb-3 mt-2"
+              />
+              <div className="mt-1 flex gap-2">
+                {schedule_data.can_be_edited_by_prefect ? (
+                  <>
+                    <Button onClick={() => handleGrantAccess(5)}>
+                      Выдать доступ всем на 5 минут
+                    </Button>
+                    <Button onClick={() => handleGrantAccess(10)}>
+                      Выдать доступ всем на 10 минут
+                    </Button>
+                    <Button danger onClick={() => handleGrantAccess(null)}>
+                      Отозвать доступ у всех
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button onClick={() => handleGrantAccess(5)}>
+                      Выдать доступ всем на 5 минут
+                    </Button>
+                    <Button onClick={() => handleGrantAccess(10)}>
+                      Выдать доступ всем на 10 минут
+                    </Button>
+                  </>
+                )}
               </div>
-            </Card>
+            </div>
           )}
 
           {/* Посещения по группам */}
