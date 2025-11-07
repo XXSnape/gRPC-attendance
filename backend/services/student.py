@@ -4,7 +4,12 @@ import uuid
 import grpc
 from beanie.odm.operators.find.comparison import In
 
-from core.databases.no_sql.documents import Visit
+from core import settings
+from core.databases.no_sql.documents import (
+    Visit,
+    QRCode,
+    TrackingAttendance,
+)
 from core.databases.sql.dao.group_schedule import GroupScheduleDAO
 from core.enums.status import AttendanceStatus
 from core.grpc.pb import lesson_pb2, lesson_service_pb2
@@ -15,6 +20,7 @@ from core.schemas.lesson import (
     TotalAttendance,
     FullScheduleDataSchema,
 )
+from utils.dt import generate_utc_dt
 
 from .base import BaseService
 
@@ -176,3 +182,65 @@ class StudentService(BaseService):
             grpc.StatusCode.PERMISSION_DENIED,
             "Функция недоступна для студентов.",
         )
+
+    async def approve_attendance_by_token(
+        self,
+        student_id: uuid.UUID,
+        token: str,
+        context: grpc.aio.ServicerContext,
+    ) -> None:
+        dao_obj = self.dao_class(session=self._session)
+        now = generate_utc_dt()
+        qr_code_could_have_been_created_at = (
+            now
+            - datetime.timedelta(
+                seconds=settings.app.validity_period_of_qr_code,
+            )
+        )
+        qr_code_document = await QRCode.find_one(
+            QRCode.token == token,
+            QRCode.created_at >= qr_code_could_have_been_created_at,
+        )
+        if qr_code_document is None:
+            await context.abort(
+                grpc.StatusCode.PERMISSION_DENIED,
+                "Невозможно подтвердить посещаемость: неверные данные QR-кода "
+                "или время для подтверждения истекло.",
+            )
+        if not dao_obj.check_student_schedule(
+            student_id=student_id,
+            schedule_id=qr_code_document.schedule_id,
+        ):
+            await context.abort(
+                grpc.StatusCode.PERMISSION_DENIED,
+                "Студент не записан на данную пару.",
+            )
+        visit_document = await Visit.find_one(
+            Visit.student_id == student_id,
+            Visit.schedule_id == qr_code_document.schedule_id,
+        )
+        if visit_document:
+            if visit_document.status == AttendanceStatus.PRESENT:
+                return
+            if (
+                visit_document.status
+                == AttendanceStatus.SKIP_RESPECTFULLY
+            ):
+                await context.abort(
+                    grpc.StatusCode.PERMISSION_DENIED,
+                    "Посещаемость уже была подтверждена с оправданной причиной.",
+                )
+            visit_document.status = AttendanceStatus.PRESENT
+            await visit_document.save()
+        else:
+            await Visit(
+                student_id=student_id,
+                schedule_id=qr_code_document.schedule_id,
+                status=AttendanceStatus.PRESENT,
+            ).insert()
+        await TrackingAttendance(
+            student_id=student_id,
+            schedule_id=qr_code_document.schedule_id,
+            user_id_changed_status=student_id,
+            status=AttendanceStatus.PRESENT,
+        ).insert()

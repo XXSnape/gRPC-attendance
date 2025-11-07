@@ -7,6 +7,7 @@ from core.dependencies.stubs import LessonStub
 from core.dependencies.user import (
     UserMetadataDep,
     check_for_teacher_or_admin,
+    check_for_student,
 )
 from core.grpc.pb import lesson_pb2, lesson_service_pb2
 from core.schemas import lesson
@@ -266,6 +267,7 @@ async def get_qr_code_data_by_schedule_id(
 @router.get(
     "attendance/self-approve/",
     response_model=ResultSchema,
+    dependencies=[Depends(check_for_student)],
 )
 async def self_approve_lesson_attendance(
     token: str,

@@ -9,6 +9,7 @@ from core.grpc.pb import (
     lesson_service_pb2_grpc,
 )
 from core.grpc.utils.user import get_user_data_from_metadata
+from services.student import StudentService
 
 
 class LessonServiceServicer(
@@ -137,3 +138,20 @@ class LessonServiceServicer(
                 schedule_id=uuid.UUID(request.schedule_id),
                 context=context,
             )
+
+    async def SelfApproveLessonAttendance(
+        self,
+        request: lesson_service_pb2.SelfApproveLessonAttendanceRequest,
+        context: grpc.aio.ServicerContext,
+    ) -> lesson_service_pb2.OkResponse:
+        user = await get_user_data_from_metadata(context)
+        async with (
+            db_helper.get_async_session_without_commit() as session
+        ):
+            service_obj = StudentService(session=session)
+            await service_obj.approve_attendance_by_token(
+                student_id=user.id,
+                token=request.token,
+                context=context,
+            )
+            return lesson_service_pb2.OkResponse(ok=True)

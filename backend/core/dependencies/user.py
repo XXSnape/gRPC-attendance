@@ -57,6 +57,16 @@ def check_for_teacher_or_admin(
         )
 
 
+def check_for_student(
+    user_data: Annotated[UserDataSchema, Depends(get_current_user)],
+):
+    if user_data.role != "student":
+        raise HTTPException(
+            status_code=HTTP_403_FORBIDDEN,
+            detail="Разрешено только для студентов",
+        )
+
+
 UserDep = Annotated[UserDataSchema, Depends(get_current_user)]
 UserMetadataDep = Annotated[
     tuple[tuple[str, str], ...],

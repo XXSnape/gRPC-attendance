@@ -214,3 +214,24 @@ class GroupScheduleDAO(ScheduleProtocol):
 
         result = await self._session.execute(query)
         return result.scalar_one()
+
+    async def check_student_schedule(
+        self,
+        student_id: uuid.UUID,
+        schedule_id: uuid.UUID,
+    ) -> bool:
+        group_id_subq = self.get_query_group_id_by_user(
+            student_id=student_id
+        ).scalar_subquery()
+        current_date = datetime.date.today()
+        query = (
+            select(1)
+            .join(Schedule)
+            .where(
+                GroupSchedule.schedule_id == schedule_id,
+                GroupSchedule.group_id == group_id_subq,
+                Schedule.date <= current_date,
+            )
+        ).limit(1)
+        result = await self._session.execute(query)
+        return result.scalar_one_or_none() is not None
