@@ -85,6 +85,7 @@ class GroupScheduleDAO(ScheduleProtocol):
                 Schedule.date == date,
             )
             .options(*self.SCHEDULE_OPTIONS)
+            .order_by(Schedule.number, Schedule.subgroup_number)
         )
         result = await self._session.execute(query)
         return list(result.scalars().all())
