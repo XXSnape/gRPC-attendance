@@ -6,3 +6,4 @@ from .tracking_attendance import (
 from .access_for_prefects import (
     AccessForPrefects as AccessForPrefects,
 )
+from .qr_code import QRCode as QRCode

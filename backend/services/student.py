@@ -165,14 +165,14 @@ class StudentService(BaseService):
                 "У старосты группы нет активного доступа для изменения посещаемости этой пары",
             )
 
-    async def check_for_access_to_grant_access_for_prefects(
+    async def check_role_for_teacher_or_administrator(
         self,
         user_id: uuid.UUID,
         schedule_id: uuid.UUID,
         group_id: uuid.UUID | None,
         context: grpc.aio.ServicerContext,
-    ) -> None:
+    ):
         await context.abort(
             grpc.StatusCode.PERMISSION_DENIED,
-            "Функция недоступна для студентов",
+            "Функция недоступна для студентов.",
         )

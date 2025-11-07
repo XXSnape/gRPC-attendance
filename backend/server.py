@@ -33,6 +33,7 @@ async def main():
                 documents.Visit,
                 documents.AccessForPrefects,
                 documents.TrackingAttendance,
+                documents.QRCode,
             ],
         )
         await server.start()

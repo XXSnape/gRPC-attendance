@@ -1,7 +1,7 @@
 // src/components/QrCodeDisplay.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Modal, Alert, Spin, Button, QRCode, Tag } from 'antd';
-import { QrcodeOutlined, ReloadOutlined, UserOutlined } from '@ant-design/icons';
+import { QrcodeOutlined, UserOutlined, CloseOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
 const api = axios.create({
@@ -14,33 +14,28 @@ export default function QrCodeDisplay({ lessonId, isOpen, onClose }) {
   const [loading, setLoading] = useState(false);
   const [attendanceStats, setAttendanceStats] = useState({ present: 0, total: 0 });
   const [timeLeft, setTimeLeft] = useState(5);
+  const [currentQrUrl, setCurrentQrUrl] = useState('');
+  const qrCodeRef = useRef(null);
 
   const fetchQrData = async () => {
     setLoading(true);
     try {
-      // Временная заглушка
-      const qrUrl = `${window.location.origin}/self-approve/${lessonId}`;
-      setQrData({ qr_url: qrUrl });
-      
-      // Получаем статистику посещаемости
-      const statsResponse = await api.get(`/lessons/${lessonId}`);
-      const groups = statsResponse.data.groups || [];
-      let totalPresent = 0;
-      let totalStudents = 0;
-      
-      groups.forEach(group => {
-        if (group.attendances && group.attendances.length > 0) {
-          totalPresent += group.attendances.filter(a => a.attendance.status === 0).length;
-          totalStudents += group.attendances.length;
-        }
+      const response = await api.get(`/lessons/${lessonId}/qr-code/`);
+      // Сначала обновляем данные
+      setQrData(response.data);
+      setCurrentQrUrl(response.data.qr_url);
+      setAttendanceStats({
+        present: response.data.total_attendance.present_students,
+        total: response.data.total_attendance.total_students
       });
-      
-      setAttendanceStats({ present: totalPresent, total: totalStudents });
       setTimeLeft(5);
     } catch (error) {
       console.error('Error fetching QR data:', error);
     } finally {
-      setLoading(false);
+      // Задержка для плавности
+      setTimeout(() => {
+        setLoading(false);
+      }, 300);
     }
   };
 
@@ -62,10 +57,6 @@ export default function QrCodeDisplay({ lessonId, isOpen, onClose }) {
     }
   }, [isOpen, lessonId]);
 
-  const handleManualRefresh = () => {
-    fetchQrData();
-  };
-
   return (
     <Modal
       title={
@@ -76,56 +67,83 @@ export default function QrCodeDisplay({ lessonId, isOpen, onClose }) {
       }
       open={isOpen}
       onCancel={onClose}
-      width={500}
+      width={520}
+      styles={{
+        body: {
+          padding: '24px',
+          maxHeight: '70vh',
+        }
+      }}
+      style={{
+        top: '5vh',
+      }}
       footer={[
-        <Button key="refresh" icon={<ReloadOutlined />} onClick={handleManualRefresh}>
-          Обновить ({timeLeft}с)
-        </Button>,
-        <Button key="close" onClick={onClose}>
+        <Button 
+          key="close" 
+          danger 
+          icon={<CloseOutlined />}
+          onClick={onClose}
+          size="large"
+        >
           Закрыть
         </Button>
       ]}
+      maskClosable={false}
     >
       <div className="text-center">
-        <div className="mb-6">
-          <Tag icon={<UserOutlined />} color="blue" style={{ fontSize: '16px', padding: '8px 16px' }}>
+        {/* Статистика посещаемости */}
+        <div className="mb-4">
+          <Tag 
+            icon={<UserOutlined />} 
+            color="blue" 
+            style={{ 
+              fontSize: '16px', 
+              padding: '8px 16px',
+            }}
+          >
             Отмечено: <strong>{attendanceStats.present}</strong> / {attendanceStats.total}
           </Tag>
         </div>
 
-        {loading ? (
-          <div className="py-12">
-            <Spin size="large" />
-            <div className="mt-4 text-gray-500">Загрузка QR кода...</div>
-          </div>
-        ) : qrData ? (
-          <div className="space-y-4">
-            <div className="flex justify-center">
-              <QRCode 
-                value={qrData.qr_url} 
-                size={280}
-                errorLevel="M"
-                status={loading ? "loading" : "active"}
-              />
+        {/* Таймер автообновления */}
+        <div className="mb-6 text-sm text-gray-500">
+          Автообновление через: <strong>{timeLeft} секунд</strong>
+        </div>
+
+        {/* Контейнер для QR кода */}
+        <div 
+          ref={qrCodeRef}
+          className="flex justify-center items-center min-h-[260px] mb-4 transition-all duration-300 ease-in-out"
+          style={{
+            opacity: loading ? 0.6 : 1,
+          }}
+        >
+          {loading ? (
+            <div className="flex flex-col items-center">
+              <Spin size="large" />
+              <div className="mt-4 text-gray-500">Обновление QR кода...</div>
             </div>
-            
+          ) : (
+            currentQrUrl && (
+              <QRCode 
+                value={currentQrUrl} 
+                size={260}
+                errorLevel="M"
+                status="active"
+              />
+            )
+          )}
+        </div>
+
+        {/* Сообщение */}
+        {!loading && (
+          <div className="mt-2">
             <Alert 
               message="Сканируйте QR код для отметки посещаемости" 
               type="info" 
               showIcon 
             />
-            
-            <div className="text-sm text-gray-500">
-              QR код обновится автоматически через: <strong>{timeLeft} секунд</strong>
-            </div>
           </div>
-        ) : (
-          <Alert 
-            message="Не удалось загрузить QR код" 
-            description="Попробуйте обновить страницу" 
-            type="error" 
-            showIcon 
-          />
         )}
       </div>
     </Modal>

@@ -264,7 +264,7 @@ async def get_qr_code_data_by_schedule_id(
 
 
 @router.get(
-    "/self-approve/",
+    "attendance/self-approve/",
     response_model=ResultSchema,
 )
 async def self_approve_lesson_attendance(

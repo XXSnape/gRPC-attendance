@@ -224,6 +224,15 @@ export default function LessonDetail() {
     }
   };
 
+  // Функция для получения имени старосты группы
+  const getPrefectName = (groupId) => {
+    const group = lessonData?.groups.find((g) => g.id === groupId);
+    if (!group || !group.attendances) return "старосты";
+
+    const prefect = group.attendances.find((student) => student.is_prefect);
+    return prefect ? prefect.full_name : "старосты";
+  };
+
   const isTeacher = !lessonData?.schedule_data?.student_data;
   const currentStudent = lessonData?.schedule_data?.student_data;
   const isCurrentStudentPrefect = currentStudent?.is_prefect;
@@ -316,6 +325,7 @@ export default function LessonDetail() {
     };
     const canEdit = group.can_be_edited_by_prefect;
     const hasAttendances = groupAttendances[group.id]?.length > 0;
+    const prefectName = getPrefectName(group.id);
 
     return {
       key: group.id,
@@ -339,15 +349,24 @@ export default function LessonDetail() {
           {isTeacher && (
             <div className="mb-4">
               <Alert
-                message="Управление доступом для старост"
+                message={
+                  <span className="flex items-center">
+                    Управление доступом для
+                    <span className="flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-semibold ml-2 border border-blue-200">
+                      <UserOutlined className="mr-1" />
+                      {prefectName}
+                    </span>
+                  </span>
+                }
                 type="info"
-                className="mb-2"
+                className="mb-2 inline"
               />
               <div className="mt-1 flex gap-2">
                 {canEdit ? (
                   <Button
                     size="small"
-                    danger
+                    variant="solid"
+                    color="danger"
                     onClick={() => handleGrantAccess(null, group.id)}
                   >
                     Отозвать доступ
@@ -355,16 +374,20 @@ export default function LessonDetail() {
                 ) : (
                   <>
                     <Button
+                      variant="solid"
                       size="small"
+                      color="primary"
                       onClick={() => handleGrantAccess(5, group.id)}
                     >
-                      Выдать на 5 минут
+                      5 минут
                     </Button>
                     <Button
+                      variant="solid"
+                      color="primary"
                       size="small"
                       onClick={() => handleGrantAccess(10, group.id)}
                     >
-                      Выдать на 10 минут
+                      10 минут
                     </Button>
                   </>
                 )}
@@ -527,46 +550,69 @@ export default function LessonDetail() {
 
           {/* Общая статистика посещаемости */}
           {totalAttendance.totalStudents > 0 && (
-            <Alert
-              message={`Общая посещаемость: ${
-                totalAttendance.totalPresent
-              } из ${totalAttendance.totalStudents} (${Math.round(
-                (totalAttendance.totalPresent / totalAttendance.totalStudents) *
-                  100
-              )}%)`}
-              type="success"
-              className="mb-6 text-center min-h-20"
-            />
+            <div className="mb-6 flex justify-center">
+              <Alert
+                message={`Общая посещаемость: ${
+                  totalAttendance.totalPresent
+                } из ${totalAttendance.totalStudents} (${Math.round(
+                  (totalAttendance.totalPresent /
+                    totalAttendance.totalStudents) *
+                    100
+                )}%)`}
+                type="success"
+                className="text-center inline-block"
+              />
+            </div>
           )}
 
           {/* Кнопки выдачи доступа для преподавателя */}
           {isTeacher && (
             <div className="mb-6 mt-3">
               <Alert
-                message="Управление доступом для старост"
+                message="Управление доступом для старост всех групп"
                 type="info"
-                className="mb-3 mt-2"
+                className="mb-3 mt-2 inline-block"
               />
               <div className="mt-1 flex gap-2">
                 {schedule_data.can_be_edited_by_prefect ? (
                   <>
-                    <Button onClick={() => handleGrantAccess(5)}>
-                      Выдать доступ всем на 5 минут
+                    <Button
+                      color="primary"
+                      variant="solid"
+                      onClick={() => handleGrantAccess(5)}
+                    >
+                      5 минут
                     </Button>
-                    <Button onClick={() => handleGrantAccess(10)}>
-                      Выдать доступ всем на 10 минут
+                    <Button
+                      color="primary"
+                      variant="solid"
+                      onClick={() => handleGrantAccess(10)}
+                    >
+                      10 минут
                     </Button>
-                    <Button danger onClick={() => handleGrantAccess(null)}>
+                    <Button
+                      variant="solid"
+                      color="danger"
+                      onClick={() => handleGrantAccess(null)}
+                    >
                       Отозвать доступ у всех
                     </Button>
                   </>
                 ) : (
                   <>
-                    <Button onClick={() => handleGrantAccess(5)}>
-                      Выдать доступ всем на 5 минут
+                    <Button
+                      color="primary"
+                      variant="solid"
+                      onClick={() => handleGrantAccess(5)}
+                    >
+                      5 минут
                     </Button>
-                    <Button onClick={() => handleGrantAccess(10)}>
-                      Выдать доступ всем на 10 минут
+                    <Button
+                      color="primary"
+                      variant="solid"
+                      onClick={() => handleGrantAccess(10)}
+                    >
+                      10 минут
                     </Button>
                   </>
                 )}

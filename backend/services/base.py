@@ -1,4 +1,5 @@
 import datetime
+import secrets
 import uuid
 from abc import ABC, abstractmethod
 from collections.abc import AsyncIterator
@@ -7,11 +8,13 @@ import grpc
 from beanie.odm.operators.update.general import Set
 from loguru import logger
 
+from core import settings
 from core.databases.no_sql.documents import (
     Visit,
     TrackingAttendance,
     AccessForPrefects,
 )
+from core.databases.no_sql.documents.qr_code import QRCode
 from core.databases.sql.dao.group_schedule import GroupScheduleDAO
 from core.databases.sql.dao.protocols.schedule import (
     ScheduleProtocol,
@@ -24,6 +27,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.schemas.attendance import AttendanceSchema
 from core.schemas.lesson import (
     GroupSchema,
+    TotalAttendance,
 )
 from core.schemas.user import UserAttendanceSchema
 from utils.dt import generate_utc_dt
@@ -79,13 +83,14 @@ class BaseService(ABC):
     ) -> None: ...
 
     @abstractmethod
-    async def check_for_access_to_grant_access_for_prefects(
+    async def check_role_for_teacher_or_administrator(
         self,
         user_id: uuid.UUID,
         schedule_id: uuid.UUID,
         group_id: uuid.UUID | None,
         context: grpc.aio.ServicerContext,
-    ) -> None: ...
+    ):
+        pass
 
     @classmethod
     async def does_prefect_have_access_to_changing_statuses(
@@ -276,7 +281,7 @@ class BaseService(ABC):
         number_of_minutes: int,
         context: grpc.aio.ServicerContext,
     ) -> lesson_service_pb2.OkResponse:
-        await self.check_for_access_to_grant_access_for_prefects(
+        await self.check_role_for_teacher_or_administrator(
             user_id=user_id,
             schedule_id=schedule_id,
             group_id=group_id,
@@ -316,3 +321,49 @@ class BaseService(ABC):
                 )
             )
         return lesson_service_pb2.OkResponse(ok=True)
+
+    async def generate_qr_code_data(
+        self,
+        user_id: uuid.UUID,
+        schedule_id: uuid.UUID,
+        context: grpc.aio.ServicerContext,
+    ) -> lesson_service_pb2.LessonQRCodeResponse:
+        await self.check_role_for_teacher_or_administrator(
+            user_id=user_id,
+            schedule_id=schedule_id,
+            group_id=None,
+            context=context,
+        )
+        total_students = await GroupScheduleDAO(
+            session=self._session
+        ).get_number_of_students_by_schedule(schedule_id=schedule_id)
+        present_students = await Visit.find(
+            Visit.schedule_id == schedule_id,
+            Visit.status == AttendanceStatus.PRESENT,
+        ).count()
+        token = secrets.token_urlsafe(
+            settings.app.qr_code_token_length
+        )
+        document = await QRCode(
+            token=token,
+            schedule_id=schedule_id,
+        ).insert()
+        qr_url = (
+            f"{settings.run.app_url}{settings.api.prefix}"
+            f"{settings.api.v1.prefix}{settings.api.v1.lessons}/"
+            f"attendance/self-approve/?token={token}"
+        )
+        return lesson_service_pb2.LessonQRCodeResponse(
+            qr_url=qr_url,
+            token=token,
+            total_attendance=lesson_pb2.TotalAttendance(
+                total_students=total_students,
+                present_students=present_students,
+            ),
+            expires_at=str(
+                document.created_at
+                + datetime.timedelta(
+                    seconds=settings.app.validity_period_of_qr_code
+                )
+            ),
+        )

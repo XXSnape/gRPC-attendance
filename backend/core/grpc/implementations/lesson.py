@@ -120,3 +120,20 @@ class LessonServiceServicer(
                 group_id=group_id,
                 context=context,
             )
+
+    async def GetLessonQRCodeData(
+        self,
+        request: lesson_service_pb2.LessonDetailsRequest,
+        context: grpc.aio.ServicerContext,
+    ) -> lesson_service_pb2.LessonQRCodeResponse:
+        user = await get_user_data_from_metadata(context)
+        service = user.get_service_by_role()
+        async with (
+            db_helper.get_async_session_without_commit() as session
+        ):
+            service_obj = service(session)
+            return await service_obj.generate_qr_code_data(
+                user_id=user.id,
+                schedule_id=uuid.UUID(request.schedule_id),
+                context=context,
+            )

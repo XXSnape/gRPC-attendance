@@ -20,6 +20,15 @@ class AuthConfig(BaseModel):
     token_name: str = "token"
 
 
+class AppConfig(BaseModel):
+    """
+    Основная конфигурация приложения.
+    """
+
+    validity_period_of_qr_code: int = 7
+    qr_code_token_length: int = 25
+
+
 class RunConfig(BaseModel):
     """
     Конфигурация для запуска приложения.
@@ -33,6 +42,10 @@ class RunConfig(BaseModel):
     @property
     def grpc_url(self):
         return f"{self.grpc_server_host}:{self.grpc_server_port}"
+
+    @property
+    def app_url(self):
+        return f"http://{self.app_host}:{self.app_port}"
 
 
 class ApiV1Prefix(BaseModel):
@@ -116,6 +129,7 @@ class Settings(BaseSettings):
     db: DatabaseConfig = DatabaseConfig()
     mongo_db: MongoDBConfig = MongoDBConfig()
     api: ApiPrefix = ApiPrefix()
+    app: AppConfig = AppConfig()
     model_config = SettingsConfigDict(
         case_sensitive=False,
     )
