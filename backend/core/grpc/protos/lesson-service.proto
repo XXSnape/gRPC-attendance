@@ -9,7 +9,20 @@ service LessonService {
   rpc GetLessonsForMonth (LessonsForMonthRequest) returns (LessonsForMonthResponse) {}
   rpc GetLessonDetails (LessonDetailsRequest) returns (LessonDetailsResponse) {}
   rpc SetStudentAttendance (stream StudentAttendanceRequest) returns (stream StudentAttendanceResponse) {}
-  rpc GrantPrefectAttendancePermissions (GrantPrefectAttendancePermissionsRequest) returns (GrantPrefectAttendancePermissionsResponse) {}
+  rpc GrantPrefectAttendancePermissions (GrantPrefectAttendancePermissionsRequest) returns (OkResponse) {}
+  rpc GetLessonQRCodeData (LessonDetailsRequest) returns (LessonQRCodeResponse) {}
+  rpc SelfApproveLessonAttendance (SelfApproveLessonAttendanceRequest) returns (OkResponse) {}
+}
+
+message SelfApproveLessonAttendanceRequest {
+  string token = 1;
+}
+
+message LessonQRCodeResponse {
+  string qr_url = 1;
+  string token = 2;
+  lesson.TotalAttendance total_attendance = 3;
+  string expires_at = 4;
 }
 
 message GrantPrefectAttendancePermissionsRequest {
@@ -18,7 +31,7 @@ message GrantPrefectAttendancePermissionsRequest {
   optional string group_id = 3;
 }
 
-message GrantPrefectAttendancePermissionsResponse {
+message OkResponse {
   bool ok = 1;
 }
 

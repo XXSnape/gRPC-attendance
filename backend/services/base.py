@@ -275,9 +275,7 @@ class BaseService(ABC):
         group_id: uuid.UUID | None,
         number_of_minutes: int,
         context: grpc.aio.ServicerContext,
-    ) -> (
-        lesson_service_pb2.GrantPrefectAttendancePermissionsResponse
-    ):
+    ) -> lesson_service_pb2.OkResponse:
         await self.check_for_access_to_grant_access_for_prefects(
             user_id=user_id,
             schedule_id=schedule_id,
@@ -317,6 +315,4 @@ class BaseService(ABC):
                     }
                 )
             )
-        return lesson_service_pb2.GrantPrefectAttendancePermissionsResponse(
-            ok=True
-        )
+        return lesson_service_pb2.OkResponse(ok=True)

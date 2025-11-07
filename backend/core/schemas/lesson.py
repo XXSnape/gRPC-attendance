@@ -5,7 +5,7 @@ from typing import Annotated
 from core.databases.sql.models.enums.type_of_lesson import (
     TypeOfLessonEnum,
 )
-from pydantic import computed_field, Field
+from pydantic import computed_field, Field, HttpUrl
 
 from .address import AudienceSchema
 from .attendance import AttendanceSchema
@@ -72,6 +72,13 @@ class GroupSchema(IdSchema):
     complete_name: str
     attendances: list[UserAttendanceSchema]
     can_be_edited_by_prefect: bool | None = False
+
+
+class LessonQRCodeDataSchema(BaseSchema):
+    qr_url: HttpUrl
+    token: str
+    total_attendance: TotalAttendance
+    expires_at: datetime.datetime
 
 
 class FullScheduleDataSchema(BaseSchema):

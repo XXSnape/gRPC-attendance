@@ -3,17 +3,12 @@ import uuid
 from collections.abc import AsyncIterator
 
 import grpc
-from beanie.odm.operators.update.general import Set
-from core.databases.no_sql.documents.visit import Visit
-from core.databases.sql.dao.group_schedule import GroupScheduleDAO
 from core.databases.sql.db_helper import db_helper
 from core.grpc.pb import (
-    lesson_pb2,
     lesson_service_pb2,
     lesson_service_pb2_grpc,
 )
 from core.grpc.utils.user import get_user_data_from_metadata
-from core.schemas.attendance import AttendanceSchema
 
 
 class LessonServiceServicer(
@@ -107,9 +102,7 @@ class LessonServiceServicer(
         self,
         request: lesson_service_pb2.GrantPrefectAttendancePermissionsRequest,
         context: grpc.aio.ServicerContext,
-    ) -> (
-        lesson_service_pb2.GrantPrefectAttendancePermissionsResponse
-    ):
+    ) -> lesson_service_pb2.OkResponse:
         user = await get_user_data_from_metadata(context)
         service = user.get_service_by_role()
         async with (

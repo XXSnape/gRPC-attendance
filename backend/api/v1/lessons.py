@@ -229,3 +229,66 @@ async def grant_attendance_rights_by_schedule_id_and_group_id(
             exc,
             "Ошибка при предоставлении прав на редактирование посещаемости",
         )
+
+
+@router.get(
+    "/{schedule_id}/qr-code/",
+    dependencies=[Depends(check_for_teacher_or_admin)],
+    response_model=lesson.LessonQRCodeDataSchema,
+)
+async def get_qr_code_data_by_schedule_id(
+    schedule_id: uuid.UUID,
+    user_metadata: UserMetadataDep,
+    stub: LessonStub,
+):
+    request = lesson_service_pb2.LessonDetailsRequest(
+        schedule_id=str(schedule_id),
+    )
+    try:
+        response = await stub.GetLessonQRCodeData(
+            request,
+            metadata=user_metadata,
+        )
+        return lesson.LessonQRCodeDataSchema.model_validate(response)
+    except grpc.aio.AioRpcError as exc:
+        logger.error(
+            "Ошибка при получении данных QR-кода для пары с ID {}: {} {}",
+            schedule_id,
+            exc.code(),
+            exc.details(),
+        )
+        catch_errors(
+            exc,
+            "Ошибка при получении данных QR-кода для пары",
+        )
+
+
+@router.get(
+    "/self-approve/",
+    response_model=ResultSchema,
+)
+async def self_approve_lesson_attendance(
+    token: str,
+    user_metadata: UserMetadataDep,
+    stub: LessonStub,
+):
+    request = lesson_service_pb2.SelfApproveLessonAttendanceRequest(
+        token=token,
+    )
+    try:
+        response = await stub.SelfApproveLessonAttendance(
+            request,
+            metadata=user_metadata,
+        )
+        return ResultSchema.model_validate(response)
+    except grpc.aio.AioRpcError as exc:
+        logger.error(
+            "Ошибка при самостоятельном подтверждении посещаемости по токену {}: {} {}",
+            token,
+            exc.code(),
+            exc.details(),
+        )
+        catch_errors(
+            exc,
+            "Ошибка при самостоятельном подтверждении посещаемости",
+        )

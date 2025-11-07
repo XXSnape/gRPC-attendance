@@ -64,7 +64,19 @@ class LessonServiceStub(object):
         self.GrantPrefectAttendancePermissions = channel.unary_unary(
             "/lessonService.LessonService/GrantPrefectAttendancePermissions",
             request_serializer=lesson__service__pb2.GrantPrefectAttendancePermissionsRequest.SerializeToString,
-            response_deserializer=lesson__service__pb2.GrantPrefectAttendancePermissionsResponse.FromString,
+            response_deserializer=lesson__service__pb2.OkResponse.FromString,
+            _registered_method=True,
+        )
+        self.GetLessonQRCodeData = channel.unary_unary(
+            "/lessonService.LessonService/GetLessonQRCodeData",
+            request_serializer=lesson__service__pb2.LessonDetailsRequest.SerializeToString,
+            response_deserializer=lesson__service__pb2.LessonQRCodeResponse.FromString,
+            _registered_method=True,
+        )
+        self.SelfApproveLessonAttendance = channel.unary_unary(
+            "/lessonService.LessonService/SelfApproveLessonAttendance",
+            request_serializer=lesson__service__pb2.SelfApproveLessonAttendanceRequest.SerializeToString,
+            response_deserializer=lesson__service__pb2.OkResponse.FromString,
             _registered_method=True,
         )
 
@@ -102,6 +114,18 @@ class LessonServiceServicer(object):
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
+    def GetLessonQRCodeData(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
+    def SelfApproveLessonAttendance(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details("Method not implemented!")
+        raise NotImplementedError("Method not implemented!")
+
 
 def add_LessonServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -128,7 +152,17 @@ def add_LessonServiceServicer_to_server(servicer, server):
         "GrantPrefectAttendancePermissions": grpc.unary_unary_rpc_method_handler(
             servicer.GrantPrefectAttendancePermissions,
             request_deserializer=lesson__service__pb2.GrantPrefectAttendancePermissionsRequest.FromString,
-            response_serializer=lesson__service__pb2.GrantPrefectAttendancePermissionsResponse.SerializeToString,
+            response_serializer=lesson__service__pb2.OkResponse.SerializeToString,
+        ),
+        "GetLessonQRCodeData": grpc.unary_unary_rpc_method_handler(
+            servicer.GetLessonQRCodeData,
+            request_deserializer=lesson__service__pb2.LessonDetailsRequest.FromString,
+            response_serializer=lesson__service__pb2.LessonQRCodeResponse.SerializeToString,
+        ),
+        "SelfApproveLessonAttendance": grpc.unary_unary_rpc_method_handler(
+            servicer.SelfApproveLessonAttendance,
+            request_deserializer=lesson__service__pb2.SelfApproveLessonAttendanceRequest.FromString,
+            response_serializer=lesson__service__pb2.OkResponse.SerializeToString,
         ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -282,7 +316,67 @@ class LessonService(object):
             target,
             "/lessonService.LessonService/GrantPrefectAttendancePermissions",
             lesson__service__pb2.GrantPrefectAttendancePermissionsRequest.SerializeToString,
-            lesson__service__pb2.GrantPrefectAttendancePermissionsResponse.FromString,
+            lesson__service__pb2.OkResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True,
+        )
+
+    @staticmethod
+    def GetLessonQRCodeData(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            "/lessonService.LessonService/GetLessonQRCodeData",
+            lesson__service__pb2.LessonDetailsRequest.SerializeToString,
+            lesson__service__pb2.LessonQRCodeResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True,
+        )
+
+    @staticmethod
+    def SelfApproveLessonAttendance(
+        request,
+        target,
+        options=(),
+        channel_credentials=None,
+        call_credentials=None,
+        insecure=False,
+        compression=None,
+        wait_for_ready=None,
+        timeout=None,
+        metadata=None,
+    ):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            "/lessonService.LessonService/SelfApproveLessonAttendance",
+            lesson__service__pb2.SelfApproveLessonAttendanceRequest.SerializeToString,
+            lesson__service__pb2.OkResponse.FromString,
             options,
             channel_credentials,
             insecure,

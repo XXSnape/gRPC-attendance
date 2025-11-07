@@ -7,6 +7,24 @@ from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class SelfApproveLessonAttendanceRequest(_message.Message):
+    __slots__ = ("token",)
+    TOKEN_FIELD_NUMBER: _ClassVar[int]
+    token: str
+    def __init__(self, token: _Optional[str] = ...) -> None: ...
+
+class LessonQRCodeResponse(_message.Message):
+    __slots__ = ("qr_url", "token", "total_attendance", "expires_at")
+    QR_URL_FIELD_NUMBER: _ClassVar[int]
+    TOKEN_FIELD_NUMBER: _ClassVar[int]
+    TOTAL_ATTENDANCE_FIELD_NUMBER: _ClassVar[int]
+    EXPIRES_AT_FIELD_NUMBER: _ClassVar[int]
+    qr_url: str
+    token: str
+    total_attendance: _lesson_pb2.TotalAttendance
+    expires_at: str
+    def __init__(self, qr_url: _Optional[str] = ..., token: _Optional[str] = ..., total_attendance: _Optional[_Union[_lesson_pb2.TotalAttendance, _Mapping]] = ..., expires_at: _Optional[str] = ...) -> None: ...
+
 class GrantPrefectAttendancePermissionsRequest(_message.Message):
     __slots__ = ("schedule_id", "number_of_minutes_of_access", "group_id")
     SCHEDULE_ID_FIELD_NUMBER: _ClassVar[int]
@@ -17,7 +35,7 @@ class GrantPrefectAttendancePermissionsRequest(_message.Message):
     group_id: str
     def __init__(self, schedule_id: _Optional[str] = ..., number_of_minutes_of_access: _Optional[int] = ..., group_id: _Optional[str] = ...) -> None: ...
 
-class GrantPrefectAttendancePermissionsResponse(_message.Message):
+class OkResponse(_message.Message):
     __slots__ = ("ok",)
     OK_FIELD_NUMBER: _ClassVar[int]
     ok: bool
