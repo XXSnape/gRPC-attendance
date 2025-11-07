@@ -1,9 +1,8 @@
 import datetime
 import uuid
 
-from beanie import Document, before_event, Insert
+from beanie import Document, Insert, before_event
 from pydantic import Field
-
 from utils.dt import generate_utc_dt
 
 

@@ -1,2 +1,0 @@
-python -m grpc_tools.protoc --proto_path=protos --python_out=./pb --pyi_out=./pb protos/*
-python -m grpc_tools.protoc --proto_path=protos --python_out=./pb --grpc_python_out=./pb --pyi_out=./pb protos/user-service.proto                                

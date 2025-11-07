@@ -5,7 +5,7 @@ from typing import Annotated
 from core.databases.sql.models.enums.type_of_lesson import (
     TypeOfLessonEnum,
 )
-from pydantic import computed_field, Field, HttpUrl
+from pydantic import Field, HttpUrl, computed_field
 
 from .address import AudienceSchema
 from .attendance import AttendanceSchema

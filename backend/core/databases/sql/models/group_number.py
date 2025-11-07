@@ -9,8 +9,8 @@ from .base import Base
 
 if TYPE_CHECKING:
     from .group import Group
-    from .student_group import StudentGroup
     from .schedule import Schedule
+    from .student_group import StudentGroup
 
 
 class GroupWithNumber(Base):

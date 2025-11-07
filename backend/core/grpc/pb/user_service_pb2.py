@@ -25,7 +25,6 @@ _sym_db = _symbol_database.Default()
 
 from . import user_pb2 as user__pb2
 
-
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
     b'\n\x12user-service.proto\x12\x0buserService\x1a\nuser.proto"\r\n\x0b\x41uthRequest"\x1e\n\rLogoutRequest\x12\r\n\x05token\x18\x01 \x01(\t"\x10\n\x0eLogoutResponse"0\n\rSingInRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t"=\n\x0eSingInResponse\x12\r\n\x05token\x18\x01 \x01(\t\x12\x1c\n\x04user\x18\x02 \x01(\x0b\x32\x0e.user.UserData2\xd7\x01\n\x0bUserService\x12G\n\nUserSingIn\x12\x1a.userService.SingInRequest\x1a\x1b.userService.SingInResponse"\x00\x12\x36\n\x08UserAuth\x12\x18.userService.AuthRequest\x1a\x0e.user.UserData"\x00\x12G\n\nUserLogout\x12\x1a.userService.LogoutRequest\x1a\x1b.userService.LogoutResponse"\x00\x62\x06proto3'
 )

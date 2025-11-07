@@ -1,16 +1,15 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy.orm import selectinload
-
 from core.databases.sql.models import (
-    Schedule,
-    TeacherSchedule,
-    GroupWithNumber,
-    StudentGroup,
     GroupSchedule,
+    GroupWithNumber,
+    Schedule,
+    StudentGroup,
+    TeacherSchedule,
 )
 from sqlalchemy import extract, select
+from sqlalchemy.orm import selectinload
 
 from .protocols.schedule import ScheduleProtocol
 

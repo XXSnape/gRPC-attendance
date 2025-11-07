@@ -1,6 +1,6 @@
 import datetime
 import uuid
-from typing import Literal, TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from core.databases.sql.models.enums.gender import GenderEnum
 from pydantic import EmailStr

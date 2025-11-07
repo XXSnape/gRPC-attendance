@@ -6,13 +6,11 @@ from collections.abc import AsyncIterator
 
 import grpc
 from beanie.odm.operators.update.general import Set
-from loguru import logger
-
 from core import settings
 from core.databases.no_sql.documents import (
-    Visit,
-    TrackingAttendance,
     AccessForPrefects,
+    TrackingAttendance,
+    Visit,
 )
 from core.databases.no_sql.documents.qr_code import QRCode
 from core.databases.sql.dao.group_schedule import GroupScheduleDAO
@@ -21,15 +19,14 @@ from core.databases.sql.dao.protocols.schedule import (
 )
 from core.databases.sql.models import Schedule
 from core.enums.status import AttendanceStatus
-from core.grpc.pb import lesson_service_pb2, lesson_pb2
-from sqlalchemy.ext.asyncio import AsyncSession
-
+from core.grpc.pb import lesson_pb2, lesson_service_pb2
 from core.schemas.attendance import AttendanceSchema
 from core.schemas.lesson import (
     GroupSchema,
-    TotalAttendance,
 )
 from core.schemas.user import UserAttendanceSchema
+from loguru import logger
+from sqlalchemy.ext.asyncio import AsyncSession
 from utils.dt import generate_utc_dt
 
 

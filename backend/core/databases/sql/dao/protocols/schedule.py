@@ -2,15 +2,14 @@ import uuid
 from abc import ABC, abstractmethod
 from datetime import datetime
 
-from sqlalchemy.orm import joinedload, selectinload
-
 from core.databases.sql.dao.base import BaseDAO
 from core.databases.sql.models import (
-    Schedule,
     Audience,
-    Teacher,
     GroupWithNumber,
+    Schedule,
+    Teacher,
 )
+from sqlalchemy.orm import joinedload, selectinload
 
 
 class ScheduleProtocol(BaseDAO, ABC):

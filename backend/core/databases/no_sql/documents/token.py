@@ -6,7 +6,6 @@ from beanie import Document, Indexed
 from core import settings
 from pydantic import Field
 from pymongo import ASCENDING, IndexModel
-
 from utils.dt import generate_utc_dt
 
 

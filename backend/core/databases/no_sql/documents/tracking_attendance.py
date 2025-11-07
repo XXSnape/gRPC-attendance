@@ -2,10 +2,9 @@ import datetime
 import uuid
 
 from beanie import Document
-from pydantic import Field
-
-from utils.dt import generate_utc_dt
 from core.enums.status import AttendanceStatus
+from pydantic import Field
+from utils.dt import generate_utc_dt
 
 
 class TrackingAttendance(Document):

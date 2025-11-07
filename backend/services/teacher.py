@@ -2,18 +2,17 @@ import datetime
 import uuid
 
 import grpc
-
 from core.databases.no_sql.documents import Visit
 from core.databases.sql.dao.group_schedule import GroupScheduleDAO
 from core.databases.sql.dao.teacher_schedule import (
     TeacherScheduleDAO,
 )
 from core.enums.status import AttendanceStatus
-from core.grpc.pb import lesson_service_pb2, lesson_pb2
+from core.grpc.pb import lesson_pb2, lesson_service_pb2
 from core.schemas.lesson import (
-    TotalAttendance,
     BaseScheduleSchema,
     FullScheduleDataSchema,
+    TotalAttendance,
 )
 
 from .base import BaseService

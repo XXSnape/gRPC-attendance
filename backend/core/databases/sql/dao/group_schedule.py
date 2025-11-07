@@ -7,9 +7,8 @@ from core.databases.sql.models import (
     Schedule,
     StudentGroup,
 )
-from sqlalchemy import extract, select, func
+from sqlalchemy import extract, func, select
 from sqlalchemy.orm import (
-    joinedload,
     selectinload,
 )
 

@@ -3,22 +3,21 @@ import uuid
 
 import grpc
 from beanie.odm.operators.find.comparison import In
-
 from core import settings
 from core.databases.no_sql.documents import (
-    Visit,
     QRCode,
     TrackingAttendance,
+    Visit,
 )
 from core.databases.sql.dao.group_schedule import GroupScheduleDAO
 from core.enums.status import AttendanceStatus
 from core.grpc.pb import lesson_pb2, lesson_service_pb2
 from core.schemas.attendance import AttendanceSchema
 from core.schemas.lesson import (
-    StudentLessonSchema,
     BaseScheduleSchema,
-    TotalAttendance,
     FullScheduleDataSchema,
+    StudentLessonSchema,
+    TotalAttendance,
 )
 from utils.dt import generate_utc_dt
 

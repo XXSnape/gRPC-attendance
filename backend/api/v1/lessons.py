@@ -6,15 +6,14 @@ import grpc
 from core.dependencies.stubs import LessonStub
 from core.dependencies.user import (
     UserMetadataDep,
-    check_for_teacher_or_admin,
     check_for_student,
+    check_for_teacher_or_admin,
 )
 from core.grpc.pb import lesson_pb2, lesson_service_pb2
 from core.schemas import lesson
+from core.schemas.common import ResultSchema
 from fastapi import APIRouter, Depends
 from loguru import logger
-
-from core.schemas.common import ResultSchema
 from utils.grpc_errors import catch_errors
 from utils.lesson import create_attendances
 
